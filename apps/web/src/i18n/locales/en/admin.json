@@ -146,6 +146,8 @@
     "men": "Men",
     "moveUp": "Move {{name}} up",
     "moveDown": "Move {{name}} down",
+    "moveFilterUp": "Move filter {{n}} up",
+    "moveFilterDown": "Move filter {{n}} down",
     "reordered": "{{name}} moved to position {{position}}",
     "meta": "{{count}} services · {{filters}} filters · {{skill}}",
     "hidden": "Hidden",

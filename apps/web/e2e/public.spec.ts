@@ -6,7 +6,7 @@ import { API_URL, openPage } from "./support";
 test.describe("Discover and add to cart (W1)", () => {
   test("home lists categories with real counts and prices", async ({ page }) => {
     await openPage(page, "/");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("A verified professional at your door in 10–15 minutes");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Experience Luxury Salon Care, Right at Your Home");
     const salon = page.getByRole("link", { name: /Salon for women/ });
     // The hidden service is not counted; the cheapest visible one sets "From".
     await expect(salon).toContainText("3 services · From ₹349");
@@ -18,8 +18,10 @@ test.describe("Discover and add to cart (W1)", () => {
 
   test("filters, gender and search live in the URL", async ({ page }) => {
     await openPage(page, "/services?category=salon-for-women");
-    await page.getByRole("button", { name: "Waxing" }).click();
+    // Sub-categories are checkboxes in the sidebar; one ticked box still reads as "?filter=waxing".
+    await page.getByRole("checkbox", { name: "Waxing" }).click();
     await expect(page).toHaveURL(/filter=waxing/);
+    await expect(page.getByRole("checkbox", { name: "Waxing" })).toBeChecked();
     await expect(page.getByRole("heading", { name: "Rica wax, full arms" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Fruit facial" })).toHaveCount(0);
 

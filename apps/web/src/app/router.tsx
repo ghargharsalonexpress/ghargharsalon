@@ -144,7 +144,7 @@ export const router = createBrowserRouter([
       ...(SHOW_STYLEGUIDE
         ? [
             { path: "/styleguide", lazy: page(() => import("@/features/styleguide/StyleguidePage"), "StyleguidePage", "styleguide", "samples") },
-            { path: "/samples/home", lazy: page(() => import("@/features/samples/HomeSample"), "HomeSample", "samples") },
+            { path: "/samples/home", lazy: page(() => import("@/features/samples/HomeSample"), "HomeSample", "samples", "public") },
             { path: "/samples/checkout", lazy: page(() => import("@/features/samples/CheckoutSample"), "CheckoutSample", "samples") },
             { path: "/samples/job-alert", lazy: page(() => import("@/features/samples/JobAlertSample"), "JobAlertSample", "samples") },
             { path: "/samples/admin", lazy: page(() => import("@/features/samples/AdminSample"), "AdminSample", "samples") },

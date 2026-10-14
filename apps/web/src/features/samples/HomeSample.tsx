@@ -4,8 +4,9 @@ import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router";
-import { Badge, Button, PublicShell } from "@/design-system";
+import { PublicShell } from "@/design-system";
 import { formatMoney } from "@/lib/format";
+import { HeroBanner } from "@/features/public/HeroBanner";
 import { usePublicNav } from "./navigation";
 
 const CATEGORIES = [
@@ -58,36 +59,7 @@ export function HomeSample() {
 
   return (
     <PublicShell nav={nav} cartCount={2} cartTo="/samples/checkout" accountLabel={t("nav.login")} accountTo="/samples/checkout">
-      <Container maxWidth={false} sx={{ ...container, pt: { xs: 8, md: 16 }, pb: { xs: 12, md: 20 } }}>
-        <Box sx={{ display: "grid", gap: { xs: 8, md: 12 }, gridTemplateColumns: { xs: "1fr", md: "7fr 5fr" }, alignItems: "center" }}>
-          <Box>
-            <Typography variant="label" component="p" sx={{ m: 0, color: tokens.accent[700] }}>
-              {t("home.eyebrow")}
-            </Typography>
-            <Typography variant="display" component="h1" sx={{ mt: 3, maxWidth: "20ch" }}>
-              {t("home.title")}
-            </Typography>
-            <Typography variant="bodyLg" component="p" sx={{ mt: 4, color: "text.secondary", maxWidth: "52ch" }}>
-              {t("home.subtitle")}
-            </Typography>
-            <Box sx={{ mt: 8, display: "flex", gap: 3, flexWrap: "wrap" }}>
-              <Button size="lg" to="/samples/checkout">
-                {t("home.cta")}
-              </Button>
-              <Button size="lg" variant="secondary" to="/samples/home#categories">
-                {t("home.secondary")}
-              </Button>
-            </Box>
-            <Box sx={{ mt: 6 }}>
-              <Badge tone="success" live>
-                {t("home.availability")}
-              </Badge>
-            </Box>
-          </Box>
-          {/* Landscape while stacked (keeps categories close on phones), portrait beside the headline. */}
-          <PhotoPlaceholder ratio={{ xs: "4 / 3", sm: "16 / 9", md: "4 / 5" }} note={t("home.photoNote")} />
-        </Box>
-      </Container>
+      <HeroBanner still />
 
       <Box component="section" id="categories" aria-labelledby="categories-title" sx={{ borderTop: `1px solid ${n[200]}`, scrollMarginTop: 72 }}>
         <Container maxWidth={false} sx={{ ...container, py: { xs: 12, md: 20 } }}>

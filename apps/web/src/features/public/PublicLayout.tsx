@@ -16,6 +16,8 @@ export function PublicLayout() {
     { id: "how", label: t("nav.howItWorks"), to: "/#how-it-works" },
     { id: "about", label: t("nav.about"), to: "/about" },
     { id: "contact", label: t("nav.contact"), to: "/contact" },
+    // Professionals are a second audience, so their way in sits in the header, not the footer.
+    { id: "join", label: t("nav.joinPro"), to: "/register-as-professional", emphasis: true },
   ];
 
   // Logging in from a page brings the visitor back to it (plan W2).

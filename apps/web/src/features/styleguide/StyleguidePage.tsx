@@ -34,7 +34,7 @@ const NAV = [
 type Width = "full" | "360" | "768" | "1024";
 
 const SAMPLES = [
-  { to: "/samples/home", title: "Home (public shell)", body: "Hero, categories, trust and how it works. Compare both brand directions here first." },
+  { to: "/samples/home", title: "Home (public shell)", body: "Hero, categories, trust and how it works. Compare the brand directions here first." },
   { to: "/samples/checkout", title: "Checkout", body: "Where, who, availability and the final total, with the sticky pay bar on phones." },
   { to: "/samples/job-alert", title: "Job alert (professional panel)", body: "Full-screen offer with the 30-second ring, earnings and one-hand actions." },
   { to: "/samples/admin", title: "Admin dashboard", body: "Sidebar shell, today's numbers, alerts and the bookings table." },
@@ -70,7 +70,7 @@ function Content() {
   );
 }
 
-/** Live style guide (plan Phase 1). Every component and state, in both languages and both brand directions. */
+/** Live style guide (plan Phase 1). Every component and state, in both languages and every brand direction. */
 export function StyleguidePage() {
   const theme = useTheme();
   const n = theme.tokens.neutral;
@@ -118,6 +118,7 @@ export function StyleguidePage() {
           value={direction}
           onChange={setDirection}
           options={[
+            { value: "orange", label: "Orange" },
             { value: "berry", label: "A · Berry" },
             { value: "teal", label: "B · Teal" },
           ]}

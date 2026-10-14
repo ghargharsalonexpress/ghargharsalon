@@ -17,12 +17,29 @@ export const neutral = {
   900: "#1F1C19",
 } as const;
 
-/** The two brand directions shown to the client (decision D1). 600 is the action colour. */
+/**
+ * Brand directions. `orange` is the client's choice and the default; berry and teal stay
+ * reachable behind `?brand=` until the change has settled (decision D1).
+ *
+ * 600 is the action colour and always carries white text, so it must clear 4.5:1.
+ * 500 is the bright brand orange from the legacy site — large headings, graphics and
+ * surfaces only, never a button fill with a white label. contrast.test.ts enforces both.
+ */
 export const accentRamps = {
+  orange: {
+    50: "#FFF2EC",
+    100: "#FFE0D1",
+    200: "#FFC2A3",
+    500: "#F26522",
+    600: "#C2410C",
+    700: "#9A3412",
+    800: "#7C2D12",
+  },
   berry: {
     50: "#FBEFF4",
     100: "#F5D9E5",
     200: "#EBB3CB",
+    500: "#C42A6B",
     600: "#9E1F55",
     700: "#84184A",
     800: "#6A123B",
@@ -31,6 +48,7 @@ export const accentRamps = {
     50: "#E8F4F3",
     100: "#CDE7E5",
     200: "#9FD0CC",
+    500: "#14938C",
     600: "#0F6B66",
     700: "#0B5652",
     800: "#08423F",

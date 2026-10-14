@@ -11,18 +11,17 @@ import { brand } from "@/brand";
 import { Button, FaqList, InlineAlert, Link, Picture } from "@/design-system";
 import { useCatalog } from "@/features/catalog/api";
 import { formatMoney } from "@/lib/format";
-import { clockText, useInfo } from "./info";
-import { HERO_IMAGE, SITE_IMAGE_BASE } from "./siteImages";
+import { HeroBanner } from "./HeroBanner";
+import { useInfo } from "./info";
 import { usePageMeta } from "./usePageMeta";
 
 const FAQ_KEYS = ["1", "2", "3", "4", "5"] as const;
 
 /** Home (plan Phase 3): an honest promise, categories with real prices, how it works, trust, FAQ. */
 export function HomePage() {
-  const { t, i18n } = useTranslation("public");
+  const { t } = useTranslation("public");
   const { tokens } = useTheme();
   const info = useInfo();
-  const hours = { open: clockText(info.serviceHours.open, i18n.language), close: clockText(info.serviceHours.close, i18n.language) };
   const n = tokens.neutral;
   const container = { maxWidth: tokens.container.marketing } as const;
   const section = { borderTop: `1px solid ${n[200]}`, scrollMarginTop: 72 } as const;
@@ -32,42 +31,7 @@ export function HomePage() {
 
   return (
     <>
-      <Container maxWidth={false} sx={{ ...container, pt: { xs: 8, md: 16 }, pb: { xs: 12, md: 20 } }}>
-        <Box sx={{ display: "grid", gap: { xs: 8, md: 12 }, gridTemplateColumns: { xs: "1fr", md: "7fr 5fr" }, alignItems: "center" }}>
-          <Box>
-            <Typography variant="label" component="p" sx={{ m: 0, color: tokens.accent[700] }}>
-              {t("home.eyebrow")}
-            </Typography>
-            <Typography variant="display" component="h1" sx={{ mt: 3, maxWidth: "20ch" }}>
-              {t("home.title", promise)}
-            </Typography>
-            <Typography variant="bodyLg" component="p" sx={{ mt: 4, color: "text.secondary", maxWidth: "52ch" }}>
-              {t("home.subtitle")}
-            </Typography>
-            <Box sx={{ mt: 8, display: "flex", gap: 3, flexWrap: "wrap" }}>
-              <Button size="lg" to="/services">
-                {t("home.cta")}
-              </Button>
-              <Button size="lg" variant="secondary" to="/#how-it-works">
-                {t("home.secondary")}
-              </Button>
-            </Box>
-            <Typography variant="body2" sx={{ mt: 6, color: "text.secondary" }}>
-              {t("home.hours", hours)}
-            </Typography>
-          </Box>
-          {/* Landscape while stacked (keeps categories close on phones), portrait beside the headline. */}
-          <Picture
-            image={HERO_IMAGE}
-            baseUrl={SITE_IMAGE_BASE}
-            alt={t("home.heroAlt")}
-            sizes="(min-width: 900px) 460px, 100vw"
-            ratio={{ xs: "4 / 3", sm: "16 / 9", md: "4 / 5" }}
-            position="42% 45%"
-            priority
-          />
-        </Box>
-      </Container>
+      <HeroBanner />
 
       <Box component="section" id="categories" aria-labelledby="categories-title" sx={section}>
         <Container maxWidth={false} sx={{ ...container, py: { xs: 12, md: 20 } }}>
@@ -132,6 +96,20 @@ export function HomePage() {
             </Box>
             <FaqList items={FAQ_KEYS.map((key) => ({ question: t(`home.faq.q${key}`), answer: t(`home.faq.a${key}`, { ...promise, searchMinutes: Math.round(info.searchTimeoutSeconds / 60) }) }))} />
           </Box>
+        </Container>
+      </Box>
+
+      <Box component="section" aria-labelledby="join-title" sx={{ ...section, bgcolor: tokens.accent[50] }}>
+        <Container maxWidth={false} sx={{ ...container, py: { xs: 12, md: 16 }, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
+          <Box sx={{ maxWidth: "52ch" }}>
+            <Typography id="join-title" variant="h2">
+              {t("home.joinTitle")}
+            </Typography>
+            <Typography sx={{ mt: 2, color: "text.secondary" }}>{t("home.joinBody")}</Typography>
+          </Box>
+          <Button size="lg" to="/register-as-professional">
+            {t("home.joinCta")}
+          </Button>
         </Container>
       </Box>
 

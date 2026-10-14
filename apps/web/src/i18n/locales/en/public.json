@@ -4,6 +4,7 @@
     "howItWorks": "How it works",
     "about": "About",
     "contact": "Contact",
+    "joinPro": "Register as a Professional",
     "login": "Log in",
     "account": "Account"
   },
@@ -18,10 +19,12 @@
   },
   "home": {
     "eyebrow": "Salon, spa and grooming at home",
-    "title": "A verified professional at your door in {{min}}–{{max}} minutes",
-    "subtitle": "Book now, pay online, follow them on a live map, and start only when you share your OTP.",
-    "cta": "Book a service",
-    "secondary": "How it works",
+    "title": "Experience Luxury Salon Care,",
+    "titleAccent": "Right at Your Home",
+    "subtitle": "Relax and rejuvenate with our certified beauty experts — premium salon, spa and grooming services delivered to your doorstep.",
+    "cta": "Book now",
+    "secondary": "View services",
+    "promise": "A verified professional at your door in {{min}}–{{max}} minutes",
     "hours": "Open every day, {{open}} – {{close}}",
     "categoriesTitle": "What would you like today?",
     "women": "Women",
@@ -63,7 +66,10 @@
     "ctaBody": "Pick a service and a professional can be on the way in minutes.",
     "heroAlt": "A beauty professional giving a customer a facial",
     "faqMore": "Didn't find your answer?",
-    "faqContact": "Write to us"
+    "faqContact": "Write to us",
+    "joinTitle": "Are you a beauty professional?",
+    "joinBody": "Get bookings near you, on your own hours. There is no joining fee.",
+    "joinCta": "Register as a Professional"
   },
   "services": {
     "title": "Services",
@@ -98,7 +104,20 @@
     "seeAll_one": "See {{count}} service",
     "seeAll_other": "See all {{count}} services",
     "results_one": "{{count}} result for “{{query}}”",
-    "results_other": "{{count}} results for “{{query}}”"
+    "results_other": "{{count}} results for “{{query}}”",
+    "viewDetails": "View details",
+    "viewDetailsNamed": "View details for {{name}}",
+    "off": "{{percent}}% OFF",
+    "photoSoon": "Photo coming soon",
+    "categoriesTitle": "Categories",
+    "subcategoriesOf": "Sub-categories of {{category}}",
+    "reset": "Reset",
+    "clearFilters": "Clear",
+    "filtersButton": "Filters",
+    "filtersDone": "Show services",
+    "filtersCount_one": "{{count}} selected",
+    "filtersCount_other": "{{count}} selected",
+    "showMore": "Show more services"
   },
   "detail": {
     "chooseOption": "Choose an option",

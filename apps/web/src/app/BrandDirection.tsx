@@ -15,14 +15,15 @@ function readStoredDirection(): BrandDirection {
     const saved = window.localStorage.getItem(STORAGE_KEY);
     if (isDirection(saved)) return saved;
   } catch {
-    // Storage unavailable: fall back to the recommended direction.
+    // Storage unavailable: fall back to the brand colour.
   }
-  return "berry";
+  return "orange";
 }
 
 /**
- * Phase 1 shows two brand directions to the client (decision D1). The choice is a
- * preview setting only; after D1 is decided this collapses to a single constant.
+ * The client chose orange, so that is the default. Berry and teal stay reachable behind
+ * `?brand=` so the earlier directions can still be compared; once orange has settled this
+ * collapses to a single constant.
  */
 export function BrandDirectionProvider({ children }: { children: ReactNode }) {
   const [direction, setDirectionState] = useState<BrandDirection>(readStoredDirection);

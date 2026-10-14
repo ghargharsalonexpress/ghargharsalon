@@ -45,6 +45,12 @@ describe.each(Object.keys(accentRamps) as Array<keyof typeof accentRamps>)("acce
   it("the focus ring is visible against white", () => {
     expect(contrastRatio(ramp[600], WHITE)).toBeGreaterThanOrEqual(UI_AA);
   });
+
+  // 500 is the bright display shade. It is never small text on white, so it only has to
+  // clear the 3:1 non-text/large-text rule -- but it does have to clear it.
+  it("the bright shade meets the 3:1 non-text rule on white", () => {
+    expect(contrastRatio(ramp[500], WHITE)).toBeGreaterThanOrEqual(UI_AA);
+  });
 });
 
 describe.each(Object.keys(semantic) as Array<keyof typeof semantic>)("semantic tone: %s", (tone) => {

@@ -2,9 +2,9 @@ import { expect, test } from "@playwright/test";
 import { AUTH_PAGES, type Brand, expectNoViolations, type Lang, logIn, openPage, PAGES, SEEDED } from "./support";
 
 const MATRIX: Array<{ lang: Lang; brand: Brand; width: number }> = [
-  { lang: "en", brand: "berry", width: 1440 },
-  { lang: "en", brand: "berry", width: 360 },
-  { lang: "hi", brand: "berry", width: 360 },
+  { lang: "en", brand: "orange", width: 1440 },
+  { lang: "en", brand: "orange", width: 360 },
+  { lang: "hi", brand: "orange", width: 360 },
   { lang: "en", brand: "teal", width: 1440 },
 ];
 

@@ -293,9 +293,18 @@ function CategoryDialog({ category, nextOrder, onClose }: { category: CategoryDt
             {filters.fields.map((field, index) => (
               <Box key={field.id} sx={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", gap: 2, alignItems: "start" }}>
                 <LocalizedField path={`filters.${index}.name`} label={t("categories.filterN", { n: index + 1 })} lang={lang} />
-                <IconButton label={t("editor.removeItem", { item: t("categories.filterN", { n: index + 1 }) })} onClick={() => filters.remove(index)} sx={{ mt: 6 }}>
-                  <DeleteOutlineOutlined />
-                </IconButton>
+                {/* The services sidebar lists sub-categories in this order, so it has to be editable. */}
+                <Box sx={{ display: "flex", mt: 6 }}>
+                  <IconButton label={t("categories.moveFilterUp", { n: index + 1 })} size="sm" disabled={index === 0} onClick={() => filters.move(index, index - 1)}>
+                    <ArrowUpwardOutlined fontSize="small" />
+                  </IconButton>
+                  <IconButton label={t("categories.moveFilterDown", { n: index + 1 })} size="sm" disabled={index === filters.fields.length - 1} onClick={() => filters.move(index, index + 1)}>
+                    <ArrowDownwardOutlined fontSize="small" />
+                  </IconButton>
+                  <IconButton label={t("editor.removeItem", { item: t("categories.filterN", { n: index + 1 }) })} onClick={() => filters.remove(index)}>
+                    <DeleteOutlineOutlined />
+                  </IconButton>
+                </Box>
               </Box>
             ))}
             <Box>

@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { type APIRequestContext, expect, type Page } from "@playwright/test";
 
 export type Lang = "en" | "hi";
-export type Brand = "berry" | "teal";
+export type Brand = "orange" | "berry" | "teal";
 
 /** 4:31 pm on 5 Oct 2026 IST: countdowns and relative times render identically on every run. */
 export const FIXED_NOW = new Date("2026-10-05T16:31:00+05:30");
@@ -23,7 +23,7 @@ export const SEEDED = {
 export const STRONG_PASSWORD = "lantern-orchid-91-river";
 
 /** Opens a page in a given language and brand with frozen time and loaded fonts. */
-export async function openPage(page: Page, path: string, { lang = "en", brand = "berry" }: { lang?: Lang; brand?: Brand } = {}) {
+export async function openPage(page: Page, path: string, { lang = "en", brand = "orange" }: { lang?: Lang; brand?: Brand } = {}) {
   await page.clock.setFixedTime(FIXED_NOW);
   await page.addInitScript(
     ([l, b]) => {
@@ -86,13 +86,31 @@ const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 /** axe on the current page (WCAG 2.2 AA, plan B11), with a readable summary on failure. */
 export async function expectNoViolations(page: Page, include?: string) {
   // Let entering toasts and dialogs finish fading in, so axe judges their final colours
-  // (endless animations such as the "live" dot are ignored).
+  // (endless animations such as the "live" dot are ignored). A toast can appear a tick after
+  // the action that caused it, so settle twice: the first pass can run before it has started,
+  // and axe would then read a half-faded grey instead of the real colours.
+  const settled = () =>
+    page
+      .waitForFunction(() => document.getAnimations().every((animation) => animation.playState !== "running" || animation.effect?.getTiming().iterations === Infinity), undefined, { timeout: 5_000 })
+      .catch(() => undefined);
+  await settled();
+  await page.waitForTimeout(100);
+  await settled();
+  // Whatever the animations say, never judge a surface that is still see-through.
   await page
-    .waitForFunction(() => document.getAnimations().every((animation) => animation.playState !== "running" || animation.effect?.getTiming().iterations === Infinity), undefined, { timeout: 5_000 })
+    .waitForFunction(
+      () =>
+        [...document.querySelectorAll<HTMLElement>(".MuiSnackbar-root, .MuiSnackbarContent-root, .MuiDialog-paper")].every(
+          (element) => Number(getComputedStyle(element).opacity) === 1,
+        ),
+      undefined,
+      { timeout: 5_000 },
+    )
     .catch(() => undefined);
   const builder = new AxeBuilder({ page }).withTags(WCAG_TAGS);
   if (include) builder.include(include);
   const { violations } = await builder.analyze();
-  const summary = violations.map((v) => ({ rule: v.id, impact: v.impact, help: v.help, targets: v.nodes.map((n) => n.target.join(" ")) }));
+  // failureSummary carries the detail that makes a contrast failure fixable (the two colours and the ratio).
+  const summary = violations.map((v) => ({ rule: v.id, impact: v.impact, help: v.help, nodes: v.nodes.map((n) => ({ target: n.target.join(" "), why: n.failureSummary })) }));
   expect(summary).toEqual([]);
 }

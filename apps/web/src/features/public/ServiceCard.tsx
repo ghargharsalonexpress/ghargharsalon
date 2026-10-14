@@ -11,22 +11,30 @@ import { durationText } from "@/lib/duration";
 import { formatMoney } from "@/lib/format";
 import { SHEET_STATE } from "./sheet";
 
-export interface ServiceRowProps {
+export interface ServiceCardProps {
   service: ServiceSummaryDto;
   /** The details sheet for this service, keeping the listing's filters in the URL. */
   detailsTo: string;
   headingLevel?: "h2" | "h3";
 }
 
+/** Only worth showing when the saving is real; a 1% badge is noise. */
+function discountPercent(service: ServiceSummaryDto): number | null {
+  if (!service.compareAtPaise || service.compareAtPaise <= service.fromPricePaise) return null;
+  const percent = Math.round((1 - service.fromPricePaise / service.compareAtPaise) * 100);
+  return percent >= 5 ? percent : null;
+}
+
 /**
- * A service in a list (W1): text first, so it reads well with or without a photo.
- * The name is the link to the details sheet and stretches over the whole row; the
- * Add button sits above that link, so the two never nest.
+ * A service as a card (W1): photo, name, price and two actions, in a grid.
+ * The name is the link to the details sheet and stretches over the card; the footer
+ * buttons sit above that link, so the two never nest.
  */
-export function ServiceRow({ service, detailsTo, headingLevel = "h3" }: ServiceRowProps) {
+export function ServiceCard({ service, detailsTo, headingLevel = "h3" }: ServiceCardProps) {
   const { t, i18n } = useTranslation("public");
   const { tokens } = useTheme();
   const lang = i18n.language;
+  const n = tokens.neutral;
   const name = pick(service.name, lang);
   const summary = pick(service.summary, lang);
   const single = service.tiers.length === 1 ? service.tiers[0] : undefined;
@@ -51,10 +59,11 @@ export function ServiceRow({ service, detailsTo, headingLevel = "h3" }: ServiceR
   const variesInPrice = Math.min(...prices) !== Math.max(...prices);
   const price = formatMoney(service.fromPricePaise, lang);
   const compareAt = service.compareAtPaise ? formatMoney(service.compareAtPaise, lang) : null;
+  const percent = discountPercent(service);
 
   const action = single ? (
     line ? (
-      <Box ref={focusFirstButton}>
+      <Box ref={focusFirstButton} sx={{ flex: 1 }}>
         <QuantityStepper
           itemLabel={name}
           value={line.quantity}
@@ -68,9 +77,9 @@ export function ServiceRow({ service, detailsTo, headingLevel = "h3" }: ServiceR
         />
       </Box>
     ) : (
-      <Box ref={focusFirstButton}>
+      <Box ref={focusFirstButton} sx={{ flex: 1 }}>
         <Button
-          variant="secondary"
+          fullWidth
           aria-label={t("services.addNamed", { name })}
           onClick={() => {
             focusNext.current = true;
@@ -84,14 +93,13 @@ export function ServiceRow({ service, detailsTo, headingLevel = "h3" }: ServiceR
               durationMin: single.durationMin,
             });
           }}
-          sx={{ minWidth: 96 }}
         >
           {t("services.add")}
         </Button>
       </Box>
     )
   ) : (
-    <Button variant="secondary" to={detailsTo} preventScrollReset state={SHEET_STATE} aria-label={t("services.chooseNamed", { name })} sx={{ minWidth: 96 }}>
+    <Button fullWidth to={detailsTo} preventScrollReset state={SHEET_STATE} aria-label={t("services.chooseNamed", { name })} sx={{ flex: 1 }}>
       {t("services.choose")}
     </Button>
   );
@@ -103,14 +111,23 @@ export function ServiceRow({ service, detailsTo, headingLevel = "h3" }: ServiceR
       component="article"
       sx={{
         position: "relative",
-        display: "grid",
-        gridTemplateColumns: "minmax(0, 1fr) auto",
-        gap: 4,
-        py: 5,
-        borderBottom: `1px solid ${tokens.neutral[200]}`,
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        border: `1px solid ${n[200]}`,
+        borderRadius: `${tokens.radius.md}px`,
+        overflow: "hidden",
+        backgroundColor: n[0],
+        transition: "box-shadow 160ms ease, transform 160ms ease",
+        "@media (hover: hover)": {
+          "&:hover": { boxShadow: tokens.elevation.e2, transform: "translateY(-2px)" },
+        },
+        "@media (prefers-reduced-motion: reduce)": { transition: "none", "&:hover": { transform: "none" } },
       }}
     >
-      <Box sx={{ minWidth: 0 }}>
+      <Picture image={service.image} alt="" sizes="(min-width: 900px) 360px, (min-width: 600px) 50vw, 100vw" ratio="4 / 3" placeholder={t("services.photoSoon")} sx={{ borderRadius: 0 }} />
+
+      <Box sx={{ p: 4, display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
         <Typography variant="h3" component={Heading} sx={{ m: 0 }}>
           <Box
             component={RouterLink}
@@ -122,8 +139,8 @@ export function ServiceRow({ service, detailsTo, headingLevel = "h3" }: ServiceR
               textDecoration: "none",
               outline: "none",
               "&:hover": { textDecoration: "underline", textUnderlineOffset: "0.2em" },
-              // The link covers the row, so the whole row opens the details.
-              "&::after": { content: '""', position: "absolute", inset: 0, borderRadius: `${tokens.radius.sm}px` },
+              // The link covers the card, so clicking anywhere but the footer opens the details.
+              "&::after": { content: '""', position: "absolute", inset: 0, borderRadius: `${tokens.radius.md}px` },
               "&:focus-visible::after": { outline: `2px solid ${tokens.accent[600]}`, outlineOffset: 2 },
             }}
           >
@@ -131,8 +148,14 @@ export function ServiceRow({ service, detailsTo, headingLevel = "h3" }: ServiceR
           </Box>
         </Typography>
 
-        <Typography sx={{ mt: 1.5, display: "flex", flexWrap: "wrap", alignItems: "baseline", columnGap: 2 }}>
-          <Box component="span" sx={{ fontWeight: 600, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
+        {summary && (
+          <Typography variant="body2" component="p" sx={{ mt: 1.5, color: "text.secondary" }}>
+            {summary}
+          </Typography>
+        )}
+
+        <Typography component="p" sx={{ mt: 3, display: "flex", flexWrap: "wrap", alignItems: "baseline", columnGap: 2 }}>
+          <Box component="span" sx={{ fontWeight: 700, color: tokens.accent[700], fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
             {variesInPrice ? t("services.from", { price }) : price}
           </Box>
           {compareAt && (
@@ -142,6 +165,11 @@ export function ServiceRow({ service, detailsTo, headingLevel = "h3" }: ServiceR
               </Box>
               <VisuallyHidden>{t("detail.was", { price: compareAt })}</VisuallyHidden>
             </>
+          )}
+          {percent !== null && (
+            <Box component="span" sx={{ fontWeight: 600, fontSize: "0.875rem", color: tokens.semantic.success.fg, whiteSpace: "nowrap" }}>
+              {t("services.off", { percent })}
+            </Box>
           )}
         </Typography>
 
@@ -166,18 +194,14 @@ export function ServiceRow({ service, detailsTo, headingLevel = "h3" }: ServiceR
             </>
           )}
         </Typography>
-
-        {summary && (
-          <Typography variant="body2" component="p" sx={{ mt: 2, color: "text.secondary", maxWidth: "60ch" }}>
-            {summary}
-          </Typography>
-        )}
       </Box>
 
-      {/* The photo stays under the stretched link (it opens the details); only the action sits above it. */}
-      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, width: { xs: 104, sm: 120 } }}>
-        {service.image && <Picture image={service.image} alt="" sizes={120} ratio="1 / 1" />}
-        <Box sx={{ position: "relative", zIndex: 1 }}>{action}</Box>
+      {/* Above the stretched link, so these are the only clickable things inside the card. */}
+      <Box sx={{ position: "relative", zIndex: 1, mt: "auto", p: 3, borderTop: `1px solid ${n[200]}`, display: "flex", gap: 2 }}>
+        <Button variant="secondary" to={detailsTo} preventScrollReset state={SHEET_STATE} aria-label={t("services.viewDetailsNamed", { name })} sx={{ flex: 1 }}>
+          {t("services.viewDetails")}
+        </Button>
+        {action}
       </Box>
     </Box>
   );

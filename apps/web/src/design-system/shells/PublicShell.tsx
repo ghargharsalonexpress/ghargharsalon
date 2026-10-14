@@ -60,33 +60,46 @@ export function PublicShell({ nav, showCart = true, cartCount = 0, cartTo = "/ca
       <AppBar>
         <Container maxWidth={false} sx={{ maxWidth: theme.tokens.container.marketing }}>
           <Toolbar disableGutters sx={{ gap: 4 }}>
-            <Box component={RouterLink} to="/" aria-label={brand.name} sx={{ display: "inline-flex", color: "inherit", textDecoration: "none", borderRadius: 1 }}>
+            <Box component={RouterLink} to="/" aria-label={brand.name} sx={{
+                display: "inline-flex",
+                // Only from lg, where the full nav sits beside it. On a phone it must still wrap,
+                // or it pushes the menu button off the screen.
+                flexShrink: { xs: 1, lg: 0 },
+                whiteSpace: { xs: "normal", lg: "nowrap" },
+                color: "inherit",
+                textDecoration: "none",
+                borderRadius: 1,
+              }}>
               <Wordmark />
             </Box>
-            <Box component="nav" aria-label={t("landmark.main")} sx={{ display: { xs: "none", md: "flex" }, gap: 1, ml: 6 }}>
+            <Box component="nav" aria-label={t("landmark.main")} sx={{ display: { xs: "none", lg: "flex" }, gap: 1, ml: 6 }}>
               {nav.map((item) => (
                 <Button
                   key={item.id}
-                  variant="tertiary"
+                  variant={item.emphasis ? "secondary" : "tertiary"}
                   to={item.to}
                   aria-current={pathname === item.to ? "page" : undefined}
-                  sx={{ color: pathname === item.to ? n[900] : n[700], fontWeight: pathname === item.to ? 600 : 500 }}
+                  sx={
+                    item.emphasis
+                      ? { whiteSpace: "nowrap" }
+                      : { whiteSpace: "nowrap", color: pathname === item.to ? n[900] : n[700], fontWeight: pathname === item.to ? 600 : 500 }
+                  }
                 >
                   {item.label}
                 </Button>
               ))}
             </Box>
             <Box sx={{ flex: 1 }} />
-            <Box sx={{ display: { xs: "none", md: "block" } }}>
+            <Box sx={{ display: { xs: "none", lg: "block" }, flexShrink: 0 }}>
               <LanguageSwitch name="language-header" />
             </Box>
-            <Box sx={{ display: { xs: "none", md: "block" } }}>
-              <Button variant="secondary" to={accountTo}>
+            <Box sx={{ display: { xs: "none", lg: "block" }, flexShrink: 0 }}>
+              <Button variant="secondary" to={accountTo} sx={{ whiteSpace: "nowrap" }}>
                 {accountLabel}
               </Button>
             </Box>
             {showCart && cartButton}
-            <Box sx={{ display: { xs: "block", md: "none" } }}>
+            <Box sx={{ display: { xs: "block", lg: "none" } }}>
               <IconButton label={t("action.menu")} onClick={() => setMenuOpen(true)} aria-expanded={menuOpen}>
                 <MenuOutlined />
               </IconButton>
