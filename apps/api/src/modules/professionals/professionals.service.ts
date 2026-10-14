@@ -13,9 +13,8 @@ import { AppError } from "../../errors";
 import { revokeUserSessions } from "../../http/session";
 import type { Logger } from "../../logger";
 import { type auditActor, recordAudit } from "../audit/audit.model";
-import type { AuthService } from "../auth/auth.service";
 import { getSettings } from "../settings/settings.service";
-import { isDuplicateKeyError, User, type UserDoc } from "../users/user.model";
+import { duplicateKeyField, User, type UserDoc } from "../users/user.model";
 import { offlineAlert, testAlert, verifiedAlert } from "./messages";
 import { Professional, type ProfessionalDoc, type ProfessionalFields, toPoint } from "./professional.model";
 import { PushSubscription, type PushResult, type PushService } from "./push";
@@ -38,10 +37,18 @@ export function presenceView(profile: ProfileLike, now: number, staleAfterSecond
 
 const staleSeconds = async () => (await getSettings()).settings.matching.stalePresenceSeconds;
 
+/** The mobile number is the login (ADR-0020), so both it and an email can only belong to one account. */
+function takenError(error: unknown): unknown {
+  const field = duplicateKeyField(error);
+  if (field === "phone") return new AppError("PHONE_TAKEN", { fields: { phone: V.phoneTaken } });
+  if (field === "email") return new AppError("EMAIL_TAKEN", { fields: { email: V.emailTaken } });
+  return error;
+}
+
 /** Admin and professional operations on professional accounts (plan Phase 4, W11, W12, W15). */
-export function createProfessionalService({ auth, push, logger }: { auth: AuthService; push: PushService; logger: Logger }) {
+export function createProfessionalService({ push, logger }: { push: PushService; logger: Logger }) {
   async function loadPair(userId: string): Promise<{ user: UserDoc; profile: ProfessionalDoc }> {
-    const [user, profile] = await Promise.all([User.findOne({ _id: userId, role: "professional" }).select("+passwordHash"), Professional.findOne({ userId })]);
+    const [user, profile] = await Promise.all([User.findOne({ _id: userId, role: "professional" }), Professional.findOne({ userId })]);
     if (!user || !profile) throw new AppError("NOT_FOUND");
     return { user, profile };
   }
@@ -64,7 +71,7 @@ export function createProfessionalService({ auth, push, logger }: { auth: AuthSe
       status: user.status === "suspended" ? "suspended" : "active",
       verifiedAt: profile.verification?.at.toISOString() ?? null,
       verifiedBy: profile.verification?.byName ?? null,
-      passwordSet: Boolean(user.passwordHash),
+      lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
       presence: presenceView(profile, Date.now(), stale),
       devices: devices.length,
       lastAlertAt: lastAlert ? new Date(lastAlert).toISOString() : null,
@@ -77,7 +84,7 @@ export function createProfessionalService({ auth, push, logger }: { auth: AuthSe
     const [profiles, stale] = await Promise.all([Professional.find().sort({ createdAt: -1 }).lean(), staleSeconds()]);
     const userIds = profiles.map((profile) => profile.userId);
     const [users, devices] = await Promise.all([
-      User.find({ _id: { $in: userIds } }).select("+passwordHash").lean(),
+      User.find({ _id: { $in: userIds } }).lean(),
       PushSubscription.aggregate<{ _id: Types.ObjectId; count: number }>([{ $match: { userId: { $in: userIds } } }, { $group: { _id: "$userId", count: { $sum: 1 } } }]),
     ]);
     const byId = new Map(users.map((user) => [String(user._id), user]));
@@ -97,7 +104,7 @@ export function createProfessionalService({ auth, push, logger }: { auth: AuthSe
           baseArea: profile.baseArea,
           status: user.status === "suspended" ? "suspended" : "active",
           verifiedAt: profile.verification?.at.toISOString() ?? null,
-          passwordSet: Boolean(user.passwordHash),
+          lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
           presence: presenceView(profile, now, stale),
           devices: deviceCount.get(String(user._id)) ?? 0,
         } satisfies AdminProfessionalRow,
@@ -119,13 +126,16 @@ export function createProfessionalService({ auth, push, logger }: { auth: AuthSe
     verificationNote: input.verificationNote,
   });
 
-  /** Creates the login and the profile together, then emails the set-password link (W11). */
+  /**
+   * Creates the account and the profile together (W11). Nothing is sent: the professional logs
+   * in with this mobile number and an SMS code (ADR-0020).
+   */
   async function create(input: ProfessionalData, admin: UserDoc, actor: Actor): Promise<ProfessionalDto> {
     const created: { user?: UserDoc; profile?: ProfessionalDoc } = {};
     const session = await mongoose.startSession();
     try {
       await session.withTransaction(async () => {
-        const [user] = await User.create([{ role: "professional", name: input.name, email: input.email, phone: input.phone, locale: input.locale, passwordHash: null }], { session });
+        const [user] = await User.create([{ role: "professional", name: input.name, email: input.email ?? null, phone: input.phone, locale: input.locale, passwordHash: null }], { session });
         if (!user) throw new Error("user not created");
         const [profile] = await Professional.create(
           [{ userId: user._id, ...profileFields(input), verification: input.verified ? { at: new Date(), by: admin._id, byName: admin.name } : null }],
@@ -136,14 +146,12 @@ export function createProfessionalService({ auth, push, logger }: { auth: AuthSe
         created.profile = profile;
       });
     } catch (error) {
-      if (isDuplicateKeyError(error)) throw new AppError("EMAIL_TAKEN", { fields: { email: V.emailTaken } });
-      throw error;
+      throw takenError(error);
     } finally {
       await session.endSession();
     }
     const { user, profile } = created;
     if (!user || !profile) throw new Error("professional not created");
-    await auth.sendSetPasswordLink(user);
     await recordAudit({ action: "professional.create", entity: { type: "professional", id: String(user._id) }, after: { ...input, photo: Boolean(input.photo) } }, actor);
     return toDto(user, profile, await staleSeconds());
   }
@@ -169,11 +177,10 @@ export function createProfessionalService({ auth, push, logger }: { auth: AuthSe
           { session },
         );
         if (updated.modifiedCount === 0) throw new AppError("VERSION_CONFLICT", { detail: `professional ${userId} expected v${version}, now v${before.profile.version}` });
-        await User.updateOne({ _id: userId }, { $set: { name: input.name, email: input.email, phone: input.phone, locale: input.locale } }, { session });
+        await User.updateOne({ _id: userId }, { $set: { name: input.name, email: input.email ?? null, phone: input.phone, locale: input.locale } }, { session });
       });
     } catch (error) {
-      if (isDuplicateKeyError(error)) throw new AppError("EMAIL_TAKEN", { fields: { email: V.emailTaken } });
-      throw error;
+      throw takenError(error);
     } finally {
       await session.endSession();
     }
@@ -204,13 +211,6 @@ export function createProfessionalService({ auth, push, logger }: { auth: AuthSe
     }
     await recordAudit({ action: status === "suspended" ? "professional.suspend" : "professional.reactivate", entity: { type: "professional", id: userId }, before: { status: user.status }, after: { status, reason } }, actor);
     return get(userId);
-  }
-
-  async function resendSetPassword(userId: string, actor: Actor): Promise<void> {
-    const { user } = await loadPair(userId);
-    if (user.status !== "active") throw new AppError("ACCOUNT_SUSPENDED");
-    await auth.sendSetPasswordLink(user);
-    await recordAudit({ action: "professional.set_password_link", entity: { type: "professional", id: userId } }, actor);
   }
 
   async function sendTest(userId: string): Promise<PushResult> {
@@ -288,7 +288,7 @@ export function createProfessionalService({ auth, push, logger }: { auth: AuthSe
     return presenceView(await profileOf(user), Date.now(), await staleSeconds());
   }
 
-  return { list, get, create, update, setStatus, resendSetPassword, sendTest, self, changePresence, heartbeat };
+  return { list, get, create, update, setStatus, sendTest, self, changePresence, heartbeat };
 }
 
 export type ProfessionalService = ReturnType<typeof createProfessionalService>;

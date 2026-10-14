@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { addAddress, customerWithCart, onlineProfessional, payWithTestSheet } from "./flows";
-import { expectNoViolations, logIn, STRONG_PASSWORD } from "./support";
+import { expectNoViolations, logIn } from "./support";
 
 /**
  * The instant booking, end to end in two browsers (plan Part E; W3–W10): a customer books and
@@ -16,7 +16,7 @@ test.describe("Instant booking (Part E)", () => {
     const HOME = { latitude: 28.6282, longitude: 77.3735 }; // about 150 m away
 
     const pro = await onlineProfessional(browser, request, "Meera Joshi", PRO_AT);
-    await logIn(pro.page, pro.email, STRONG_PASSWORD);
+    await logIn(pro.page, pro.phone);
     await expect(pro.page).toHaveURL(/\/pro$/);
 
     const customer = await customerWithCart(browser, request, HOME);

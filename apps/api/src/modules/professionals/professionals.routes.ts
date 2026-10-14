@@ -43,11 +43,6 @@ export function adminProfessionalsRouter({ service }: { service: ProfessionalSer
     res.json(await service.setStatus(objectIdParam(req.params.id), status, reason, auditActor(req)));
   });
 
-  router.post("/:id/set-password-link", async (req, res) => {
-    await service.resendSetPassword(objectIdParam(req.params.id), auditActor(req));
-    res.status(204).end();
-  });
-
   router.post("/:id/test-alert", async (req, res) => {
     res.json(await service.sendTest(objectIdParam(req.params.id)));
   });

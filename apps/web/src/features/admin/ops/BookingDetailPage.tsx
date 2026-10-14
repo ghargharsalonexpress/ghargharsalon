@@ -129,7 +129,8 @@ export function BookingDetailPage() {
               <Field label={t("booking.customer")}>
                 <Link to={`/admin/customers/${d.customer.id}`}>{d.customer.name}</Link>
                 <Box component="span" sx={{ display: "block", color: "text.secondary" }}>
-                  <Link href={`tel:+91${d.customer.phone}`}>+91 {formatIndianMobile(d.customer.phone)}</Link> · {d.customer.email}
+                  <Link href={`tel:+91${d.customer.phone}`}>+91 {formatIndianMobile(d.customer.phone)}</Link>
+                  {d.customer.email ? ` · ${d.customer.email}` : null}
                 </Box>
                 {d.customer.status === "blocked" && <Badge tone="danger">{t("customers.blocked")}</Badge>}
               </Field>

@@ -18,7 +18,7 @@ const config = loadConfig(process.env);
 const logger = createLogger(config);
 
 await connectDb(config.MONGODB_URI);
-await ensureIndexes();
+await ensureIndexes((message) => logger.warn(message));
 
 const push = createPushService({ config, sender: createPushSender(config, logger), logger });
 const gateway = createGateway(config);

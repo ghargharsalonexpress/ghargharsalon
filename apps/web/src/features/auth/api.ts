@@ -1,12 +1,14 @@
 import type {
+  CompleteSignupData,
   ForgotPasswordData,
   LoginData,
   ProfileData,
   ResetPasswordData,
-  SignupData,
+  SendCodeResponse,
   TokenCheckResponse,
   UpdateMeInput,
   UserResponse,
+  VerifyCodeResponse,
 } from "@brand/shared";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/app/queryClient";
@@ -15,10 +17,25 @@ import { api } from "@/lib/api";
 
 const signedIn = ({ user }: UserResponse) => setSessionUser(user);
 
-export const useLogin = () => useMutation({ mutationFn: (input: LoginData) => api.post<UserResponse>("/v1/auth/login", input), onSuccess: signedIn });
+// ---------- customers and professionals: mobile number + SMS code (ADR-0020) ----------
 
-export const useSignup = () =>
-  useMutation({ mutationFn: (input: SignupData) => api.post<UserResponse>("/v1/auth/signup", input), onSuccess: signedIn });
+export const useSendCode = () => useMutation({ mutationFn: (phone: string) => api.post<SendCodeResponse>("/v1/auth/otp/send", { phone }) });
+
+/** A known number is signed in; a new one goes on to the name step. */
+export const useVerifyCode = () =>
+  useMutation({
+    mutationFn: (input: { phone: string; code: string }) => api.post<VerifyCodeResponse>("/v1/auth/otp/verify", input),
+    onSuccess: (result) => {
+      if (result.status === "signed-in") setSessionUser(result.user);
+    },
+  });
+
+export const useCompleteSignup = () =>
+  useMutation({ mutationFn: (input: CompleteSignupData) => api.post<UserResponse>("/v1/auth/otp/complete", input), onSuccess: signedIn });
+
+// ---------- Team login (admins): email + password ----------
+
+export const useLogin = () => useMutation({ mutationFn: (input: LoginData) => api.post<UserResponse>("/v1/auth/login", input), onSuccess: signedIn });
 
 export const useForgotPassword = () =>
   useMutation({ mutationFn: (input: ForgotPasswordData) => api.post<Record<string, never>>("/v1/auth/password/forgot", input) });

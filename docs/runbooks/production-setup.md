@@ -26,6 +26,10 @@ The API refuses to start in production if any required value is missing or unsaf
 | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` | Test keys on staging, live keys in production | Razorpay Dashboard → Account & Settings → API keys |
 | `RAZORPAY_WEBHOOK_SECRET` | The secret typed when creating the webhook | Section 2 |
 | `SELLER_NAME`, `SELLER_ADDRESS`, `SELLER_GSTIN` | The invoicing business, exactly as registered | The client's CA (assumption A1). A malformed GSTIN stops the API. |
+| `SMS_TRANSPORT` | `2factor` | Login codes by SMS (section 3a, ADR-0020) |
+| `TWOFACTOR_API_KEY`, `TWOFACTOR_OTP_TEMPLATE` | The 2Factor API key and the DLT-approved OTP template's name | Section 3a |
+| `SMS_DEV_CODE` | unset (off) | Local demos only; refused in production |
+| `LOGIN_RATE_LIMITS` | unset (on) | Never off in production |
 | `TEST_ROUTES` | unset (off) | Never on in production |
 | `CHECKOUT_RATE_LIMITS` | unset (on) | Never off in production |
 
@@ -46,6 +50,22 @@ The API refuses to start in production if any required value is missing or unsaf
 2. Ask for production access (SES starts in a sandbox that only sends to verified addresses).
 3. Set `EMAIL_FROM` to an address on the verified domain.
 4. Optional: an SNS topic for bounces and complaints.
+
+## 3a. SMS login codes (2Factor.in)
+
+Customers and professionals log in with their mobile number and a 6-digit code by SMS (ADR-0020). The API makes and checks the code; 2Factor only delivers it. Admins keep Team login (email + password), so they are unaffected.
+
+1. **2Factor account** in the company's name, with a prepaid SMS balance.
+2. **DLT registration** (a TRAI rule for every business SMS in India; 2Factor guides it):
+   - register the company as a Principal Entity (PAN/GST certificate) and note the Entity ID;
+   - a 6-letter sender ID (header), for example `GGSALN`;
+   - an OTP template, approved, with the code as the only variable, for example:
+     `{#var#} is your Ghar Ghar Salon Express login code. It is valid for 5 minutes. Do not share it with anyone.`
+   - link the approved template and sender ID in the 2Factor dashboard. This usually takes 2 to 7 working days.
+3. **API environment:** `SMS_TRANSPORT=2factor`, `TWOFACTOR_API_KEY` (from the 2Factor dashboard) and `TWOFACTOR_OTP_TEMPLATE` (the template's name there).
+4. **Test before switching the live site:** on a local API with these three values, send a code to a real phone from `/login` and log in with it.
+5. **Each database, once:** with this PC's IP in Atlas → Network Access, run `npm run migrate:otp-login` in `apps/api`. It lists numbers that belong to more than one account (fix those in Admin first), then moves the user indexes (email unique only when present, phone unique).
+6. **Then deploy.** Never deploy this login before steps 1–5: without a working SMS sender, customers and professionals can't log in.
 
 ## 4. Images (ImageKit)
 

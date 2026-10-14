@@ -57,7 +57,7 @@ const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$
 const pageOf = (value: unknown) => Math.max(1, Math.min(10_000, Number.parseInt(String(value ?? "1"), 10) || 1));
 const area = (address: BookingFields["address"]) => [address.street, address.city].filter(Boolean).join(", ");
 
-async function namesOf(ids: Array<Types.ObjectId | null | undefined>): Promise<Map<string, { name: string; phone: string; email: string }>> {
+async function namesOf(ids: Array<Types.ObjectId | null | undefined>): Promise<Map<string, { name: string; phone: string; email: string | null }>> {
   const unique = [...new Set(ids.filter((id): id is Types.ObjectId => Boolean(id)).map(String))];
   if (unique.length === 0) return new Map();
   const users = await User.find({ _id: { $in: unique } }, { name: 1, phone: 1, email: 1 }).lean();

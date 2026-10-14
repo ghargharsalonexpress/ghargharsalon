@@ -1,43 +1,45 @@
 import { describe, expect, it } from "vitest";
-import { loginSchema, resetPasswordSchema, signupSchema, updateMeSchema } from "./auth";
+import { completeSignupSchema, loginSchema, resetPasswordSchema, sendCodeSchema, updateMeSchema, verifyCodeSchema } from "./auth";
 
 const firstMessage = (result: { success: boolean; error?: { issues: Array<{ path: PropertyKey[]; message: string }> } }, path: string) =>
   result.error?.issues.find((issue) => issue.path.join(".") === path)?.message;
 
-const valid = { name: "Priya Sharma", phone: "9876543210", email: "Priya@Example.com ", password: "correct horse battery" };
-
-describe("signupSchema", () => {
-  it("accepts a valid sign-up and normalises the email", () => {
-    const result = signupSchema.safeParse(valid);
-    expect(result.success).toBe(true);
-    expect(result.data?.email).toBe("priya@example.com");
+describe("login by SMS code", () => {
+  it("needs a 10-digit mobile number", () => {
+    expect(sendCodeSchema.safeParse({ phone: "9876543210" }).success).toBe(true);
+    expect(firstMessage(sendCodeSchema.safeParse({ phone: "" }), "phone")).toBe("validation.required");
+    expect(firstMessage(sendCodeSchema.safeParse({ phone: "1123456789" }), "phone")).toBe("validation.phone");
   });
 
-  it("reports one message key per field, required before format", () => {
-    const result = signupSchema.safeParse({ name: "", phone: "", email: "", password: "" });
-    expect(result.success).toBe(false);
-    expect(firstMessage(result, "name")).toBe("validation.required");
-    expect(firstMessage(result, "phone")).toBe("validation.required");
-    expect(firstMessage(result, "email")).toBe("validation.required");
-    expect(firstMessage(result, "password")).toBe("validation.passwordShort");
+  it("needs a 6-digit code", () => {
+    expect(verifyCodeSchema.safeParse({ phone: "9876543210", code: "042917" }).success).toBe(true);
+    expect(firstMessage(verifyCodeSchema.safeParse({ phone: "9876543210", code: "" }), "code")).toBe("validation.required");
+    for (const code of ["12345", "1234567", "12a456"]) {
+      expect(firstMessage(verifyCodeSchema.safeParse({ phone: "9876543210", code }), "code")).toBe("validation.loginCode");
+    }
   });
 
-  it("rejects a bad email, a landline and a short password", () => {
-    const result = signupSchema.safeParse({ ...valid, email: "priya@", phone: "1123456789", password: "short" });
-    expect(firstMessage(result, "email")).toBe("validation.email");
-    expect(firstMessage(result, "phone")).toBe("validation.phone");
-    expect(firstMessage(result, "password")).toBe("validation.passwordShort");
+  it("asks a new number for a name, with the email optional and normalised", () => {
+    expect(completeSignupSchema.parse({ name: "Priya Sharma" }).email).toBeUndefined();
+    expect(completeSignupSchema.parse({ name: "Priya Sharma", email: "  " }).email).toBeNull();
+    // What the web's own parse produced is accepted again by the API.
+    expect(completeSignupSchema.parse({ name: "Priya Sharma", email: null }).email).toBeNull();
+    expect(completeSignupSchema.parse({ name: "Priya Sharma", email: "Priya@Example.com " }).email).toBe("priya@example.com");
+    expect(firstMessage(completeSignupSchema.safeParse({ name: "Priya Sharma", email: "priya@" }), "email")).toBe("validation.email");
+    expect(firstMessage(completeSignupSchema.safeParse({ name: "" }), "name")).toBe("validation.required");
   });
 
-  it("rejects unknown fields (blocks operator injection such as role)", () => {
-    const result = signupSchema.safeParse({ ...valid, role: "admin" });
-    expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.code).toBe("unrecognized_keys");
+  it("never takes a phone or a role in the name step (blocks injection)", () => {
+    for (const extra of [{ phone: "9876543210" }, { role: "admin" }]) {
+      const result = completeSignupSchema.safeParse({ name: "Priya Sharma", ...extra });
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0]?.code).toBe("unrecognized_keys");
+    }
   });
 
   it("rejects non-string values such as Mongo operators", () => {
-    const result = loginSchema.safeParse({ email: { $ne: "" }, password: { $gt: "" } });
-    expect(result.success).toBe(false);
+    expect(loginSchema.safeParse({ email: { $ne: "" }, password: { $gt: "" } }).success).toBe(false);
+    expect(verifyCodeSchema.safeParse({ phone: { $ne: "" }, code: { $gt: "" } }).success).toBe(false);
   });
 });
 
@@ -56,5 +58,11 @@ describe("updateMeSchema", () => {
   it("needs at least one field", () => {
     expect(updateMeSchema.safeParse({}).success).toBe(false);
     expect(updateMeSchema.safeParse({ locale: "hi" }).success).toBe(true);
+  });
+
+  it("can add or remove the email, but never changes the phone (it is the login)", () => {
+    expect(updateMeSchema.parse({ email: "neha@example.com" }).email).toBe("neha@example.com");
+    expect(updateMeSchema.parse({ email: "" }).email).toBeNull();
+    expect(updateMeSchema.safeParse({ phone: "9876543210" }).success).toBe(false);
   });
 });

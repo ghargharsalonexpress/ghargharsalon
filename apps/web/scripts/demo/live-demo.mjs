@@ -53,10 +53,11 @@ function readAccounts() {
   };
   const demo = file(".data/demo-accounts.txt");
   const env = file(".env");
+  // Lines like "professional: +91 98111 00001 (Priya Sharma)": they log in with the number (ADR-0020).
   const login = (role) => {
-    const match = new RegExp(`^${role}:\\s*(\\S+)\\s*/\\s*(\\S+)\\s*$`, "m").exec(demo);
-    if (!match) fail(`No ${role} login in apps/api/.data/demo-accounts.txt. Run "npm run seed:demo" in apps/api.`);
-    return { email: match[1], password: match[2] };
+    const match = new RegExp(`^${role}:\\s*\\+91\\s*([\\d ]{10,11})\\s*\\((.+)\\)\\s*$`, "m").exec(demo);
+    if (!match) fail(`No ${role} number in apps/api/.data/demo-accounts.txt. Run "npm run seed:demo" in apps/api.`);
+    return { phone: match[1].replace(/\s/g, ""), name: match[2] };
   };
   const envValue = (key) => {
     const match = new RegExp(`^${key}=(.*)$`, "m").exec(env);
@@ -67,7 +68,11 @@ function readAccounts() {
   return { customer: login("customer"), pro: login("professional"), admin: { email: envValue("ADMIN_EMAIL"), password: envValue("ADMIN_PASSWORD") } };
 }
 
-/** A logged-in API session (cookie, CSRF header and Origin, as the web app sends them). */
+/**
+ * A logged-in API session (cookie, CSRF header and Origin, as the web app sends them): Team login
+ * for the admin, mobile number + SMS code for the others. The local API hands the code back
+ * (SMS_DEV_CODE=1 with SMS_TRANSPORT=log in apps/api/.env).
+ */
 async function apiSession(account) {
   const http = await request.newContext({ baseURL: API, extraHTTPHeaders: { Origin: WEB } });
   const csrf = (await (await http.get("/v1/session")).json()).csrfToken;
@@ -78,7 +83,13 @@ async function apiSession(account) {
     return text ? JSON.parse(text) : null;
   };
   try {
-    const { user } = await call("POST", "/v1/auth/login", { email: account.email, password: account.password });
+    if (account.password) {
+      const { user } = await call("POST", "/v1/auth/login", { email: account.email, password: account.password });
+      return { call, user, close: () => http.dispose() };
+    }
+    const sent = await call("POST", "/v1/auth/otp/send", { phone: account.phone });
+    if (!sent.devCode) throw new Error("the API didn't return the login code. Set SMS_DEV_CODE=1 and SMS_TRANSPORT=log in apps/api/.env, then restart the API.");
+    const { user } = await call("POST", "/v1/auth/otp/verify", { phone: account.phone, code: sent.devCode });
     return { call, user, close: () => http.dispose() };
   } catch (error) {
     await http.dispose();
@@ -210,16 +221,16 @@ async function main() {
   // and the hours open if it's outside them right now.
   const setup = await asAdmin(accounts, async (admin) => {
     const pros = await admin.call("GET", "/v1/admin/professionals");
-    const row = (Array.isArray(pros) ? pros : pros.rows).find((item) => item.email.toLowerCase() === accounts.pro.email.toLowerCase());
+    const row = (Array.isArray(pros) ? pros : pros.rows).find((item) => item.phone === accounts.pro.phone);
     if (!row) fail(`The demo professional isn't in the database. Run "npm run seed:demo" in apps/api.`);
     if (!row.verifiedAt || row.status !== "active") fail("The demo professional must be verified and active (Admin → Professionals).");
-    const customers = await admin.call("GET", `/v1/admin/customers?q=${encodeURIComponent(accounts.customer.email)}`);
-    const customer = customers.rows.find((item) => item.email?.toLowerCase() === accounts.customer.email.toLowerCase()) ?? customers.rows[0];
+    const customers = await admin.call("GET", `/v1/admin/customers?q=${encodeURIComponent(accounts.customer.phone)}`);
+    const customer = customers.rows.find((item) => item.phone === accounts.customer.phone);
     if (!customer) fail(`The demo customer isn't in the database. Run "npm run seed:demo" in apps/api.`);
 
     const open = [
       ...(await admin.call("GET", `/v1/admin/bookings?view=active&professionalId=${row.id}`)).rows,
-      ...(await admin.call("GET", `/v1/admin/bookings?view=searching&q=${encodeURIComponent(accounts.customer.email)}`)).rows,
+      ...(await admin.call("GET", `/v1/admin/bookings?view=searching&q=${encodeURIComponent(accounts.customer.phone)}`)).rows,
     ];
     for (const booking of new Map(open.map((item) => [item.id, item])).values()) {
       await admin.call("POST", `/v1/admin/bookings/${booking.id}/cancel`, { reason: "Closed before a demo run", feePaise: 0 });

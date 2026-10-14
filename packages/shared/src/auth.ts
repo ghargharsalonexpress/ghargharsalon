@@ -24,17 +24,51 @@ export const nameSchema = z.string(V.required).trim().min(1, V.required).min(2, 
 /** Ten digits without +91 or spaces; the PhoneField produces exactly this. */
 export const phoneSchema = z.string(V.required).trim().min(1, V.required).refine(isIndianMobile, V.phone);
 
+/**
+ * An email the person may leave out: empty means none (null). null is accepted as input too,
+ * because the web parses a form with this schema and sends the result to the API, which parses
+ * it again.
+ */
+export const optionalEmailSchema = z
+  .union([z.null(), z.string(V.invalid).trim().toLowerCase().max(254, V.email).pipe(z.union([z.literal(""), z.email(V.email)]))])
+  .transform((value) => (value === "" ? null : value))
+  .optional();
+
 export const languageSchema = z.enum(LANGUAGES);
 
-export const signupSchema = z.strictObject({
+/**
+ * Customers and professionals log in with their mobile number and a code sent by SMS
+ * (ADR-0020); new numbers become customers after a name step. Admins keep email + password.
+ */
+export const LOGIN_CODE_LENGTH = 6;
+export const LOGIN_CODE_TIMING = {
+  /** A code works this long. */
+  expiresSeconds: 5 * 60,
+  /** A new code can be asked for after this. */
+  resendSeconds: 30,
+  /** After a code for a new number, the name step must be finished within this. */
+  signupSeconds: 15 * 60,
+} as const;
+
+export const loginCodeSchema = z
+  .string(V.required)
+  .trim()
+  .min(1, V.required)
+  .regex(new RegExp(`^\\d{${LOGIN_CODE_LENGTH}}$`), V.loginCode);
+
+export const sendCodeSchema = z.strictObject({ phone: phoneSchema });
+
+export const verifyCodeSchema = z.strictObject({ phone: phoneSchema, code: loginCodeSchema });
+
+/** The name step for a new number. The phone comes from the verified code, never from the body. */
+export const completeSignupSchema = z.strictObject({
   name: nameSchema,
-  phone: phoneSchema,
-  email: emailSchema,
-  password: passwordSchema,
+  email: optionalEmailSchema,
   /** The language the person used while signing up becomes their profile language. */
   locale: languageSchema.optional(),
 });
 
+/** Team (admin) login. */
 export const loginSchema = z.strictObject({
   email: emailSchema,
   password: z.string(V.required).min(1, V.required).max(PASSWORD_MAX_LENGTH, V.passwordLong),
@@ -53,20 +87,26 @@ export const checkTokenSchema = z.strictObject({ token: tokenSchema });
 
 export const resetPasswordSchema = z.strictObject({ token: tokenSchema, password: passwordSchema });
 
-/** The profile form: name and phone are always sent together. */
-export const profileSchema = z.strictObject({ name: nameSchema, phone: phoneSchema });
+/**
+ * The profile form: name and email are sent together. The phone is the login, so it can't be
+ * changed here (a new number would need its own code).
+ */
+export const profileSchema = z.strictObject({ name: nameSchema, email: optionalEmailSchema });
 
 export const updateMeSchema = z
   .strictObject({
     name: nameSchema.optional(),
-    phone: phoneSchema.optional(),
+    /** null or "" removes the email. */
+    email: optionalEmailSchema,
     locale: languageSchema.optional(),
   })
   .refine((value) => Object.values(value).some((field) => field !== undefined), V.invalid);
 
 /** What a form holds (input) and what the API works with after parsing (data). */
-export type SignupInput = z.input<typeof signupSchema>;
-export type SignupData = z.output<typeof signupSchema>;
+export type SendCodeInput = z.input<typeof sendCodeSchema>;
+export type VerifyCodeInput = z.input<typeof verifyCodeSchema>;
+export type CompleteSignupInput = z.input<typeof completeSignupSchema>;
+export type CompleteSignupData = z.output<typeof completeSignupSchema>;
 export type LoginInput = z.input<typeof loginSchema>;
 export type LoginData = z.output<typeof loginSchema>;
 export type ForgotPasswordInput = z.input<typeof forgotPasswordSchema>;
@@ -78,18 +118,30 @@ export type ProfileData = z.output<typeof profileSchema>;
 export type UpdateMeInput = z.input<typeof updateMeSchema>;
 export type UpdateMeData = z.output<typeof updateMeSchema>;
 
-/** reset_password: "Forgot password" (30 min). set_password: new professional's welcome link (72 h). */
-export type TokenType = "reset_password" | "set_password";
+/** reset_password: a team member's "Forgot password" link (30 min). */
+export type TokenType = "reset_password";
 
 /** The signed-in person as the web sees them. Contact details of others are never part of this. */
 export interface UserDto {
   id: string;
   role: Role;
   name: string;
-  email: string;
+  /** Optional for customers and professionals; admins always have one. */
+  email: string | null;
   phone: string;
   locale: Language;
 }
+
+/** POST /v1/auth/otp/send: the same answer whether or not the number has an account. */
+export interface SendCodeResponse {
+  resendAfterSeconds: number;
+  expiresInSeconds: number;
+  /** Only on a local demo server (SMS_DEV_CODE=1 with the log transport); never in production. */
+  devCode?: string;
+}
+
+/** POST /v1/auth/otp/verify: signed in, or a new number that needs the name step. */
+export type VerifyCodeResponse = { status: "signed-in"; user: UserDto } | { status: "new" };
 
 /** GET /v1/session: always 200, `user` is null for guests. */
 export interface SessionDto {

@@ -9,6 +9,8 @@ declare module "express-session" {
   interface SessionData {
     userId: string;
     role: Role;
+    /** A new number whose SMS code was right, waiting for the name step (ADR-0020). Epoch ms. */
+    pendingPhone: { phone: string; until: number };
   }
 }
 
@@ -63,6 +65,17 @@ export async function startSession(req: Request, user: { id: string; role: Role 
   req.session.userId = user.id;
   req.session.role = user.role;
   req.session.cookie.maxAge = SESSION_MAX_AGE_MS[user.role];
+  await save(req);
+}
+
+/**
+ * A verified new number, held in a fresh session until the name step: only this browser can
+ * finish the sign-up, and a planted session id can't be used to claim the number.
+ */
+export async function startPendingSignup(req: Request, phone: string, forMs: number): Promise<void> {
+  await regenerate(req);
+  req.session.pendingPhone = { phone, until: Date.now() + forMs };
+  req.session.cookie.maxAge = forMs;
   await save(req);
 }
 

@@ -49,7 +49,7 @@ Then:
 ```bash
 npm run seed:admin              # creates the first admin; add --reset-password to change it later
 npm run seed:catalog            # loads the migrated catalogue (add -- --replace to overwrite)
-npm run seed:demo               # a verified demo professional and a demo customer (logins in .data/demo-accounts.txt)
+npm run seed:demo               # a verified demo professional and a demo customer (their numbers in .data/demo-accounts.txt)
 npm run dev                     # restarts on every change
 ```
 
@@ -63,6 +63,12 @@ Check it with http://localhost:4000/health/ready.
 
 **Emails:** nothing is sent in development. Each email is saved as an `.html` file in `apps/api/.mail/`. Open it in a browser to follow reset links.
 
+**SMS login codes (ADR-0020):** customers and professionals log in with their mobile number and a 6-digit code. With `SMS_TRANSPORT=log` (the default) no SMS is sent: the code appears in the API window. For demos, also set these in `apps/api/.env` (this PC only, never on a server):
+- `SMS_DEV_CODE=1`: the login screen shows the code as "Test code …". It works only with the log transport and a localhost `WEB_URL`.
+- `LOGIN_RATE_LIMITS=0`: no 30-second resend wait and no per-number limits, so demo people can log in again and again.
+
+Admins use **Team login** at `/admin/login` with `ADMIN_EMAIL` and `ADMIN_PASSWORD`.
+
 ## 4. Web (port 5174)
 ```bash
 cd apps/web && npm run dev
@@ -70,9 +76,9 @@ cd apps/web && npm run dev
 
 | Page | What it is |
 |---|---|
-| http://localhost:5174/signup | Create a customer account |
-| http://localhost:5174/login | Log in (the admin from step 3 lands on `/admin`) |
-| http://localhost:5174/forgot-password | Reset flow; the link is in `apps/api/.mail/` |
+| http://localhost:5174/login | Customers and professionals: mobile number + SMS code. A new number becomes a customer after a name step. |
+| http://localhost:5174/admin/login | Team login: the admin from step 3, email + password |
+| http://localhost:5174/forgot-password | Team password reset; the link is in `apps/api/.mail/` |
 | http://localhost:5174/styleguide | Design system and brand samples |
 
 **API address:** the web calls `http://localhost:4000` by default. To change it, copy `apps/web/.env.example` to `.env.local` and set `VITE_API_URL`.
@@ -92,9 +98,9 @@ Before handing work over, also run `npm run typecheck`, `npm run lint` and `npm 
 
 The whole flow runs locally without any client keys: payments use a test payment sheet, alerts and emails are logged, and maps fall back to text.
 
-1. Demo logins: `npm run seed:demo` in `apps/api` (once). The logins are in `apps/api/.data/demo-accounts.txt`; the admin login is in `apps/api/.env`.
-2. **Professional** (one browser, for example Edge): log in as the demo professional and open `/pro`. Do the readiness steps (allow alerts and send a test alert, allow location), then switch **Online**. Keep this window visible.
-3. **Customer** (a second browser or a private window): log in as the demo customer, add a service, open the cart and **Checkout**. Add an address with "Use my current location", then **Pay**. The test payment sheet appears; choose **Pay**.
+1. Demo logins: `npm run seed:demo` in `apps/api` (once). Their mobile numbers are in `apps/api/.data/demo-accounts.txt` (log in at `/login`; the code shows on screen with `SMS_DEV_CODE=1`, or in the API window); the admin's Team login is in `apps/api/.env`.
+2. **Professional** (one browser, for example Edge): log in with the demo professional's number and open `/pro`. Do the readiness steps (allow alerts and send a test alert, allow location), then switch **Online**. Keep this window visible.
+3. **Customer** (a second browser or a private window): log in with the demo customer's number, add a service, open the cart and **Checkout**. Add an address with "Use my current location", then **Pay**. The test payment sheet appears; choose **Pay**.
 4. The professional's window opens the job alert by itself (with a sound once the Online switch has been tapped). **Accept job**, then **I've arrived**. Type the start code that the customer's booking page shows, then **Complete service**.
 5. The customer rates the service and opens the invoice. The admin sees everything in Dashboard, Live board and Bookings.
 

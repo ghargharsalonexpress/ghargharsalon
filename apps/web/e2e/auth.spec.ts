@@ -1,88 +1,120 @@
-import { expect, test } from "@playwright/test";
-import { createUser, latestEmailLink, logIn, SEEDED, STRONG_PASSWORD, uniqueEmail } from "./support";
+import { expect, type Page, test } from "@playwright/test";
+import { createUser, latestCode, latestEmailLink, logIn, logInAsTeam, SEEDED, uniqueEmail, uniquePhone } from "./support";
 
-/** Plan workflows W2 (sign up / log in / reset), W11 (set password) and W18 (language). */
+/**
+ * Plan workflows W2 (log in / sign up, now by mobile number and SMS code, ADR-0020), Team login
+ * with its reset path, and W18 (language).
+ */
 
-test.describe("Sign up and log in (W2)", () => {
-  test("a new customer signs up, lands on services, logs out and back in", async ({ page }) => {
-    const email = uniqueEmail("signup");
-    await page.goto("/signup");
+/** Phone step → code step, from the login page that is already open. Returns the code sent. */
+async function askForCode(page: Page, phone: string): Promise<string> {
+  await page.getByLabel("Mobile number").fill(phone);
+  await page.getByRole("button", { name: "Get OTP" }).click();
+  await expect(page.getByRole("heading", { name: "Enter the code" })).toBeVisible();
+  return latestCode(page.request, phone);
+}
+
+async function typeCode(page: Page, code: string) {
+  await page.locator('input[autocomplete="one-time-code"]').click();
+  await page.keyboard.type(code);
+}
+
+const wrongCodeFor = (code: string) => (code === "000000" ? "111111" : "000000");
+
+test.describe("Mobile number login (W2, ADR-0020)", () => {
+  test("a new number signs up with just a name, lands on services, logs out and back in", async ({ page }) => {
+    const phone = uniquePhone();
+    await page.goto("/login");
+    await expect(page.getByRole("heading", { name: "Log in or sign up", level: 1 })).toBeVisible();
+    const code = await askForCode(page, phone);
+    await expect(page.getByText(`We sent a 6-digit code to +91 ${phone.slice(0, 5)} ${phone.slice(5)}.`)).toBeVisible();
+    await typeCode(page, code);
+
+    // A new number: one more step, then a customer account.
+    await expect(page.getByRole("heading", { name: "Welcome! What's your name?" })).toBeVisible();
     await page.getByLabel("Full name").fill("Neha Kapoor");
-    await page.getByLabel("Mobile number").fill("98765 43210");
-    await page.getByLabel("Email", { exact: true }).fill(email);
-    await page.getByLabel("Password", { exact: true }).fill(STRONG_PASSWORD);
     await page.getByRole("button", { name: "Create account" }).click();
-
     await expect(page).toHaveURL(/\/services$/);
     await expect(page.getByText("Account created. Welcome, Neha")).toBeVisible();
+
     // "Account" opens the customer's bookings; the profile is one step further (plan A7).
     await page.getByRole("link", { name: "Account" }).first().click();
     await expect(page.getByRole("heading", { name: "Your bookings", level: 1 })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "No bookings yet" })).toBeVisible();
     await page.getByRole("navigation", { name: "Account" }).getByRole("link", { name: "Profile" }).click();
-    await expect(page.getByRole("heading", { name: "Your profile" })).toBeVisible();
     await expect(page.getByLabel("Full name")).toHaveValue("Neha Kapoor");
+    await expect(page.getByLabel("Mobile number")).toBeDisabled();
+    await expect(page.getByLabel("Email (optional)")).toHaveValue("");
 
     await page.getByRole("button", { name: "Log out" }).click();
     await expect(page).toHaveURL(/\/login$/);
     await expect(page.getByText("You're logged out")).toBeVisible();
 
-    // Signed out, the profile sends people to log in and back again.
+    // Signed out, the profile sends people to log in and back again. A wrong code says so.
     await page.goto("/account");
     await expect(page).toHaveURL(/\/login\?next=%2Faccount$/);
-    await page.getByLabel("Email", { exact: true }).fill(email);
+    const again = await askForCode(page, phone);
+    await typeCode(page, wrongCodeFor(again));
+    await expect(page.getByText("That code is wrong.")).toBeVisible();
+    await typeCode(page, again);
+    await expect(page).toHaveURL(/\/account$/);
+  });
+
+  test("checks the number, and lets people change it", async ({ page }) => {
+    await page.goto("/login");
+    await page.getByRole("button", { name: "Get OTP" }).click();
+    await expect(page.getByText("This is required.")).toBeVisible();
+    await expect(page.getByLabel("Mobile number")).toBeFocused();
+    await page.getByLabel("Mobile number").fill("12345");
+    await page.getByRole("button", { name: "Get OTP" }).click();
+    await expect(page.getByText("Enter a 10-digit mobile number.")).toBeVisible();
+
+    const phone = uniquePhone();
+    await askForCode(page, phone);
+    await expect(page.getByText(/^Resend code in \d+s$/)).toBeVisible();
+    await page.getByRole("button", { name: "Change number" }).click();
+    await expect(page.getByRole("heading", { name: "Log in or sign up" })).toBeVisible();
+    await expect(page.getByLabel("Mobile number")).toHaveValue(`${phone.slice(0, 5)} ${phone.slice(5)}`);
+  });
+
+  test("an admin's number is sent to Team login, only after the right code", async ({ page }) => {
+    await page.goto("/login");
+    const code = await askForCode(page, SEEDED.admin.phone);
+    await typeCode(page, code);
+    await expect(page.getByRole("alert")).toContainText("This number belongs to a team account. Use Team login.");
+    await page.getByRole("link", { name: "Go to Team login" }).click();
+    await expect(page).toHaveURL(/\/admin\/login$/);
+    await expect(page.getByRole("heading", { name: "Team login", level: 1 })).toBeVisible();
+  });
+
+  test("a professional logs in with their number and lands in Hindi", async ({ page, request }) => {
+    const { phone } = await createUser(request, { role: "professional", name: "Sunita Devi", locale: "hi" });
+    await logIn(page, phone);
+    await expect(page).toHaveURL(/\/pro$/);
+    await expect(page.getByRole("heading", { name: "नमस्ते, Sunita" })).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("lang", "hi");
+  });
+});
+
+test.describe("Team login (admins keep email + password)", () => {
+  test("a wrong password says so; the right one opens the dashboard", async ({ page }) => {
+    await page.goto("/admin");
+    await expect(page).toHaveURL(/\/admin\/login\?next=%2Fadmin$/);
+    await page.getByLabel("Email", { exact: true }).fill(SEEDED.admin.email);
     await page.getByLabel("Password", { exact: true }).fill("not-my-password-77");
     await page.getByRole("button", { name: "Log in" }).click();
     await expect(page.getByRole("alert")).toContainText("That email and password don't match");
 
-    await page.getByLabel("Password", { exact: true }).fill(STRONG_PASSWORD);
+    await page.getByLabel("Password", { exact: true }).fill(SEEDED.admin.password);
     await page.getByRole("button", { name: "Log in" }).click();
-    await expect(page).toHaveURL(/\/account$/);
+    await expect(page).toHaveURL(/\/admin$/);
+    await expect(page.getByRole("heading", { name: "Dashboard", level: 1 })).toBeVisible();
   });
 
-  test("empty fields show messages and focus the first one", async ({ page }) => {
-    await page.goto("/signup");
-    await page.getByRole("button", { name: "Create account" }).click();
-    await expect(page.getByLabel("Full name")).toBeFocused();
-    await expect(page.getByText("This is required.")).toHaveCount(3);
-    await expect(page.getByText("Use at least 8 characters.")).toBeVisible();
-  });
+  test("the emailed reset link sets a new password, signs in, and can't be reused", async ({ page, request }) => {
+    const email = uniqueEmail("team");
+    await createUser(request, { role: "admin", email, password: "harbour-lamp-west-42" });
 
-  test("a registered email offers to log in instead", async ({ page, request }) => {
-    const email = uniqueEmail("taken");
-    await createUser(request, { role: "customer", email, password: STRONG_PASSWORD });
-
-    await page.goto("/signup");
-    await page.getByLabel("Full name").fill("Ritu Malhotra");
-    await page.getByLabel("Mobile number").fill("9812345678");
-    await page.getByLabel("Email", { exact: true }).fill(email);
-    await page.getByLabel("Password", { exact: true }).fill("another-quiet-harbour-5");
-    await page.getByRole("button", { name: "Create account" }).click();
-
-    await expect(page.getByText("An account with this email already exists.")).toBeVisible();
-    await page.getByRole("link", { name: "Log in instead" }).click();
-    await expect(page).toHaveURL(new RegExp(`/login\\?email=${encodeURIComponent(email)}`));
-    await expect(page.getByLabel("Email", { exact: true })).toHaveValue(email);
-  });
-
-  test("the server's password rules show on the field", async ({ page }) => {
-    await page.goto("/signup");
-    await page.getByLabel("Full name").fill("Aman Verma");
-    await page.getByLabel("Mobile number").fill("9898989898");
-    await page.getByLabel("Email", { exact: true }).fill(uniqueEmail("weak"));
-    await page.getByLabel("Password", { exact: true }).fill("Password@123");
-    await page.getByRole("button", { name: "Create account" }).click();
-    await expect(page.getByText("This password is too easy to guess.")).toBeVisible();
-    await expect(page.getByLabel("Password", { exact: true })).toBeFocused();
-  });
-});
-
-test.describe("Password reset (W2) and set password (W11)", () => {
-  test("the emailed link sets a new password, signs in, and can't be reused", async ({ page, request }) => {
-    const email = uniqueEmail("reset");
-    await createUser(request, { role: "customer", email, password: STRONG_PASSWORD });
-
-    await page.goto("/login");
+    await page.goto("/admin/login");
     await page.getByLabel("Email", { exact: true }).fill(email);
     await page.getByRole("link", { name: "Forgot password?" }).click();
     await expect(page.getByLabel("Email", { exact: true })).toHaveValue(email);
@@ -98,27 +130,12 @@ test.describe("Password reset (W2) and set password (W11)", () => {
 
     await page.getByLabel("New password", { exact: true }).fill("copper-kettle-sunrise-4");
     await page.getByRole("button", { name: "Save password" }).click();
-    await expect(page).toHaveURL(/\/services$/);
+    await expect(page).toHaveURL(/\/admin$/);
     await expect(page.getByText("Password saved. You're logged in.")).toBeVisible();
 
     await page.goto(link);
     await expect(page.getByRole("heading", { name: "This link has already been used" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Request a new link" })).toBeVisible();
-  });
-
-  test("a new professional sets a password from the welcome link and lands in Hindi", async ({ page, request }) => {
-    const email = uniqueEmail("pro");
-    const { setPasswordUrl } = await createUser(request, { role: "professional", email, name: "Sunita Devi", locale: "hi" });
-    expect(setPasswordUrl).toContain("mode=set");
-
-    await page.goto(setPasswordUrl ?? "");
-    await expect(page.getByRole("heading", { name: "Set your password" })).toBeVisible();
-    await page.getByLabel("New password", { exact: true }).fill("mango-river-lantern-8");
-    await page.getByRole("button", { name: "Set password and continue" }).click();
-
-    await expect(page).toHaveURL(/\/pro$/);
-    await expect(page.getByRole("heading", { name: "नमस्ते, Sunita" })).toBeVisible();
-    await expect(page.locator("html")).toHaveAttribute("lang", "hi");
   });
 
   test("an expired or unknown link explains itself", async ({ page }) => {
@@ -131,17 +148,16 @@ test.describe("Password reset (W2) and set password (W11)", () => {
 
 test.describe("Roles and sessions", () => {
   test("each role lands on its own home and is sent back from the others (A7)", async ({ page, request }) => {
-    await logIn(page, SEEDED.admin.email, SEEDED.admin.password);
+    await logInAsTeam(page, SEEDED.admin.email, SEEDED.admin.password);
     await expect(page).toHaveURL(/\/admin$/);
     await expect(page.getByRole("heading", { name: "Dashboard", level: 1 })).toBeVisible();
     await page.goto("/account");
     await expect(page).toHaveURL(/\/admin$/);
     await page.getByRole("button", { name: "Log out" }).click();
-    await expect(page).toHaveURL(/\/login$/);
+    await expect(page).toHaveURL(/\/admin\/login$/);
 
-    const email = uniqueEmail("roles");
-    await createUser(request, { role: "customer", email, password: STRONG_PASSWORD });
-    await logIn(page, email, STRONG_PASSWORD);
+    const { phone } = await createUser(request, { role: "customer" });
+    await logIn(page, phone);
     await expect(page).toHaveURL(/\/services$/);
     await page.goto("/admin");
     await expect(page).toHaveURL(/\/services$/);
@@ -150,9 +166,8 @@ test.describe("Roles and sessions", () => {
   });
 
   test("when the session ends mid-visit, the next action returns to login and back", async ({ page, context, request }) => {
-    const email = uniqueEmail("expired");
-    await createUser(request, { role: "customer", email, password: STRONG_PASSWORD, name: "Kavita Rao" });
-    await logIn(page, email, STRONG_PASSWORD);
+    const { phone } = await createUser(request, { role: "customer", name: "Kavita Rao" });
+    await logIn(page, phone);
     await expect(page).toHaveURL(/\/services$/);
     await page.goto("/account");
     await expect(page.getByRole("heading", { name: "Your profile" })).toBeVisible();
@@ -163,18 +178,15 @@ test.describe("Roles and sessions", () => {
 
     await expect(page).toHaveURL(/\/login\?next=%2Faccount&reason=expired$/);
     await expect(page.getByText("Your session ended. Log in again to continue.")).toBeVisible();
-    await page.getByLabel("Email", { exact: true }).fill(email);
-    await page.getByLabel("Password", { exact: true }).fill(STRONG_PASSWORD);
-    await page.getByRole("button", { name: "Log in" }).click();
+    await typeCode(page, await askForCode(page, phone));
     await expect(page).toHaveURL(/\/account$/);
   });
 });
 
 test.describe("Language (W18)", () => {
   test("a switch while signed in is saved to the profile and follows the person to a new device", async ({ page, context, request }) => {
-    const email = uniqueEmail("lang");
-    await createUser(request, { role: "customer", email, password: STRONG_PASSWORD, locale: "en" });
-    await logIn(page, email, STRONG_PASSWORD);
+    const { phone } = await createUser(request, { role: "customer", locale: "en" });
+    await logIn(page, phone);
     await expect(page).toHaveURL(/\/services$/);
     await page.goto("/account");
     await expect(page.getByRole("heading", { name: "Your profile" })).toBeVisible();
@@ -189,7 +201,7 @@ test.describe("Language (W18)", () => {
     // A new device: no cookies, no stored language. The profile brings Hindi back after login.
     await context.clearCookies();
     await page.evaluate(() => window.localStorage.clear());
-    await logIn(page, email, STRONG_PASSWORD);
+    await logIn(page, phone);
     await expect(page.getByRole("heading", { name: "सेवाएँ", level: 1 })).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("lang", "hi");
   });

@@ -1,5 +1,5 @@
 import { type Browser, expect, type Page } from "@playwright/test";
-import { createUser, logIn, STRONG_PASSWORD, uniqueEmail } from "./support";
+import { createUser, logIn, uniqueEmail } from "./support";
 
 /** Shared steps of the booking flow (customer and professional), used by several specs. */
 
@@ -7,18 +7,18 @@ export type Point = { latitude: number; longitude: number };
 
 export async function onlineProfessional(browser: Browser, request: Parameters<typeof createUser>[0], name: string, at: Point) {
   const email = uniqueEmail("pro");
-  await createUser(request, { role: "professional", email, password: STRONG_PASSWORD, name, locale: "en", verified: true, online: { lat: at.latitude, lng: at.longitude } });
+  const { phone } = await createUser(request, { role: "professional", email, name, locale: "en", verified: true, online: { lat: at.latitude, lng: at.longitude } });
   const context = await browser.newContext({ geolocation: at, permissions: ["geolocation"] });
   const page = await context.newPage();
-  return { page, email, context, close: () => context.close() };
+  return { page, email, phone, context, close: () => context.close() };
 }
 
 export async function customerWithCart(browser: Browser, request: Parameters<typeof createUser>[0], at: Point, viewport = { width: 1280, height: 900 }, name = "Neha Kapoor") {
   const email = uniqueEmail("customer");
-  await createUser(request, { role: "customer", email, password: STRONG_PASSWORD, name });
+  const { phone } = await createUser(request, { role: "customer", email, name });
   const context = await browser.newContext({ geolocation: at, permissions: ["geolocation"], viewport });
   const page = await context.newPage();
-  await logIn(page, email, STRONG_PASSWORD);
+  await logIn(page, phone);
   await expect(page).toHaveURL(/\/services$/);
   await page.goto("/services?category=salon-for-women");
   await page.getByRole("button", { name: "Add Fruit facial" }).click();
@@ -26,7 +26,7 @@ export async function customerWithCart(browser: Browser, request: Parameters<typ
   // The cart's button says "Continue to checkout"; on phones the sticky bar says "Checkout".
   await page.getByRole("link", { name: viewport.width < 900 ? "Checkout" : "Continue to checkout", exact: true }).click();
   await expect(page).toHaveURL(/\/checkout$/);
-  return { page, email, close: () => context.close() };
+  return { page, email, phone, close: () => context.close() };
 }
 
 /** First address at checkout: the pin from the phone, then the flat and street (W3). */

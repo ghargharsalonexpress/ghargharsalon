@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { type AddressInput, type BookingDto, type CategoryInput, DEFAULT_SETTINGS, type QuoteDto, type ServiceInput, type Skill } from "@brand/shared";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { hashPassword } from "../src/modules/auth/password";
 import { Quote } from "../src/modules/availability/availability.service";
 import { Booking } from "../src/modules/bookings/booking.model";
 import { Refund } from "../src/modules/payments/payment.model";
@@ -10,7 +9,7 @@ import { Professional, toPoint } from "../src/modules/professionals/professional
 import { dispatchOutbox } from "../src/modules/system/outbox";
 import { User } from "../src/modules/users/user.model";
 import { createLogger } from "../src/logger";
-import { type Client, createUser, loginAs, startTestApp, type TestContext, WEB_ORIGIN } from "./helpers";
+import { type Client, createUser, loginAs, startTestApp, type TestContext, uniquePhone, WEB_ORIGIN } from "./helpers";
 import request from "supertest";
 
 let ctx: TestContext;
@@ -71,7 +70,7 @@ const address = (overrides: Partial<AddressInput> = {}): AddressInput => ({
 const LINES = [{ serviceSlug: "fruit-facial", tierId: "standard", quantity: 1, seenUnitPricePaise: 64_900 }];
 
 async function onlinePro(skills: Skill[] = ["salon_women"], location = NEAR) {
-  const user = await User.create({ role: "professional", name: "Priya Verma", email: `pro.${randomUUID().slice(0, 6)}@example.com`, phone: "9811100001", locale: "hi", passwordHash: await hashPassword("x-unused-password-1") });
+  const user = await User.create({ role: "professional", name: "Priya Verma", email: `pro.${randomUUID().slice(0, 6)}@example.com`, phone: uniquePhone(), locale: "hi" });
   await Professional.create({
     userId: user._id,
     gender: "female",

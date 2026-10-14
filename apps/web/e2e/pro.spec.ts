@@ -1,6 +1,5 @@
-import { randomUUID } from "node:crypto";
 import { type BrowserContext, expect, type Page, test } from "@playwright/test";
-import { API_URL, latestEmailLink, logIn, SEEDED } from "./support";
+import { API_URL, logIn, logInAsTeam, SEEDED, uniquePhone } from "./support";
 
 /** Plan workflows W11 (onboarding) and W12 (go online / offline), Phase 4. */
 
@@ -35,32 +34,28 @@ async function preparePhone(context: BrowserContext, page: Page) {
 }
 
 test.describe("Onboarding (W11)", () => {
-  test("the admin adds a professional, who sets a password and sees what's left before going online", async ({ page, request }) => {
+  test("the admin adds a professional, who logs in with their number and sees what's left before going online", async ({ page }) => {
     // Three accounts' pages in one test; the first test of a run also meets a cold dev server.
     test.setTimeout(60_000);
-    const email = `kiran.${randomUUID().slice(0, 6)}@example.com`;
-    await logIn(page, SEEDED.admin.email, SEEDED.admin.password);
+    const phone = uniquePhone();
+    await logInAsTeam(page, SEEDED.admin.email, SEEDED.admin.password);
     await expect(page).toHaveURL(/\/admin$/);
     await page.goto("/admin/professionals/new");
     await page.getByLabel("Full name").fill("Kiran Yadav");
-    await page.getByLabel("Mobile number").fill("98123 45678");
-    await page.getByLabel("Email", { exact: true }).fill(email);
+    await page.getByLabel("Mobile number").fill(phone);
+    // No email needed: the mobile number is the login (ADR-0020).
     await page.getByLabel("Salon for women (facials, waxing, threading)").check();
     await page.getByLabel("Base area").fill("Sector 21, Faridabad");
-    await page.getByRole("button", { name: "Add and send email" }).click();
+    await page.getByRole("button", { name: "Add professional" }).click();
 
-    await expect(page.getByText("Professional added. We emailed them a link to set their password.")).toBeVisible();
+    await expect(page.getByText("Professional added. They can log in now with their mobile number.")).toBeVisible();
     await expect(page).toHaveURL(/\/admin\/professionals\/[a-f0-9]{24}$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Kiran Yadav");
-    await expect(page.getByText("Not set yet")).toBeVisible();
+    await expect(page.getByText("Not logged in yet")).toBeVisible();
     await page.getByRole("button", { name: "Log out" }).click();
+    await expect(page).toHaveURL(/\/admin\/login$/);
 
-    const link = await latestEmailLink(request, email);
-    await page.goto(link);
-    await expect(page.getByRole("heading", { name: "Set your password" })).toBeVisible();
-    await page.getByLabel("New password", { exact: true }).fill("mango-river-lantern-8");
-    await page.getByRole("button", { name: "Set password and continue" }).click();
-
+    await logIn(page, phone);
     await expect(page).toHaveURL(/\/pro$/);
     await expect(page.getByRole("heading", { name: "नमस्ते, Kiran" })).toBeVisible();
     await expect(page.getByText("आपकी प्रोफ़ाइल की जाँच चल रही है")).toBeVisible();
@@ -73,7 +68,7 @@ test.describe("Going online (W12)", () => {
   test("a verified professional proves alerts work, goes online, shows up for the admin, and goes offline", async ({ page, context, request, browser }) => {
     test.setTimeout(90_000);
     await preparePhone(context, page);
-    await logIn(page, SEEDED.professional.email, SEEDED.professional.password);
+    await logIn(page, SEEDED.professional.phone);
     await expect(page).toHaveURL(/\/pro$/);
     const toggle = page.getByRole("switch");
     await expect(toggle).toBeDisabled();
@@ -97,7 +92,7 @@ test.describe("Going online (W12)", () => {
 
     // The admin sees her online.
     const adminPage = await browser.newPage();
-    await logIn(adminPage, SEEDED.admin.email, SEEDED.admin.password);
+    await logInAsTeam(adminPage, SEEDED.admin.email, SEEDED.admin.password);
     await expect(adminPage).toHaveURL(/\/admin$/);
     await adminPage.goto("/admin/professionals?online=1");
     await expect(adminPage.getByRole("button", { name: "Open Priya Verma" })).toBeVisible();
@@ -108,7 +103,7 @@ test.describe("Going online (W12)", () => {
   });
 
   test("the bottom tabs reach jobs, earnings and profile", async ({ page }) => {
-    await logIn(page, SEEDED.professional.email, SEEDED.professional.password);
+    await logIn(page, SEEDED.professional.phone);
     await expect(page).toHaveURL(/\/pro$/);
     await page.getByRole("link", { name: "मेरे काम" }).click();
     await expect(page.getByRole("heading", { name: "अभी कोई काम नहीं" })).toBeVisible();

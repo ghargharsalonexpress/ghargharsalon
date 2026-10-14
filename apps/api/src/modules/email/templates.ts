@@ -125,38 +125,6 @@ export function passwordResetEmail(input: LinkEmailInput, context: EmailContext)
   return { to: input.to, subject: copy.subject, html, text, tag: "password-reset" };
 }
 
-/** A new professional's welcome: set a password within 72 hours (plan W11). Hindi by default for professionals. */
-export function setPasswordEmail(input: LinkEmailInput, context: EmailContext): EmailMessage {
-  const name = input.name.split(" ")[0] ?? input.name;
-  const copy =
-    input.lang === "hi"
-      ? {
-          subject: `${context.brandName} में आपका स्वागत है: अपना पासवर्ड बनाएँ`,
-          preheader: "यह लिंक 72 घंटे तक और एक ही बार काम करेगा।",
-          heading: `${context.brandName} में आपका स्वागत है`,
-          paragraphs: [`नमस्ते ${name},`, "आपका प्रोफेशनल खाता तैयार है। अपना जॉब पैनल खोलने के लिए पासवर्ड बनाएँ। यह लिंक एक ही बार काम करेगा और 72 घंटे में बंद हो जाएगा।"],
-          button: "पासवर्ड बनाएँ",
-          fallback: "अगर बटन काम न करे, तो यह लिंक अपने ब्राउज़र में खोलें:",
-          closing: "अगर आपने हमारे साथ काम करने के लिए आवेदन नहीं किया, तो इस ईमेल को अनदेखा करें।",
-          help: "मदद चाहिए?",
-        }
-      : {
-          subject: `Welcome to ${context.brandName}: set your password`,
-          preheader: "This link works once and expires in 72 hours.",
-          heading: `Welcome to ${context.brandName}`,
-          paragraphs: [`Hi ${name},`, "Your professional account is ready. Set your password to open your job panel. The link works once and expires in 72 hours."],
-          button: "Set my password",
-          fallback: "If the button doesn't work, copy this link into your browser:",
-          closing: "If you didn't apply to work with us, you can ignore this email.",
-          help: "Need help?",
-        };
-  const { html, text } = render(
-    { lang: input.lang, preheader: copy.preheader, heading: copy.heading, paragraphs: copy.paragraphs, button: { label: copy.button, url: input.url }, fallback: copy.fallback, closing: copy.closing, help: copy.help },
-    context,
-  );
-  return { to: input.to, subject: copy.subject, html, text, tag: "set-password" };
-}
-
 /** Contact form acknowledgement in the visitor's language (plan W17). */
 export function contactAckEmail(input: { to: string; name: string; lang: Language }, context: EmailContext): EmailMessage {
   const name = input.name.split(" ")[0] ?? input.name;

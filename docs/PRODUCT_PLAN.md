@@ -69,8 +69,8 @@ Pilot targets (supply-dependent; measured from backend events):
 | Payment | Upfront via Razorpay (UPI intent/QR, cards, netbanking, wallets), auto-capture; automatic full refund if nobody accepts |
 | Tracking and start | Live professional location while en route or arrived; 4-digit OTP starts the service |
 | Contact | Phone numbers visible to each other only from accept to completion |
-| Accounts | Email + password for all roles; phone number collected |
-| Onboarding | External Google Form → admin creates account → set-password email → PWA install |
+| Accounts | Customers and professionals: mobile number + SMS code (2Factor.in); a new number becomes a customer after a name step. Admins: email + password ("Team login"). Changed 2026-10-15, [ADR-0020](adr/0020-mobile-otp-login.md); was email + password for all roles |
+| Onboarding | External Google Form → admin creates account with the mobile number → the professional logs in with an SMS code → PWA install (no set-password email since ADR-0020) |
 | Platforms | Responsive website; Professional panel is an installable PWA; no native apps |
 | Languages | Customer and Professional: Hindi + English; Admin: English |
 | Infrastructure | AWS (S3 + CloudFront, Lightsail, SES, Route 53), MongoDB Atlas Mumbai, Google Maps Platform, Razorpay |
@@ -93,7 +93,7 @@ Pilot targets (supply-dependent; measured from backend events):
 | A6 | Scale for v1: one city, ≤ 300 professionals, ≤ 100 online, ≤ 30 concurrent jobs, ≤ 1,000 bookings/day | Infrastructure | One API instance; scale triggers in C18 |
 | A7 | Professionals mostly use Android Chrome. iPhone professionals need iOS 17+ and the panel added to the Home Screen (for push). Customers use Chrome/Edge 117+, Firefox 121+ or Safari 17+ (iOS 17+). The floor is set by MUI 9 (ADR-0017). | Support matrix | As stated |
 | A8 | Web pages cannot share location in the background, so the professional's location updates only while the panel is open and visible (Wake Lock keeps the screen on) | Tracking UX | "Location paused" state designed |
-| A9 | No SMS, WhatsApp or masked calling in v1 | Reliability | Push + in-app for professionals; in-app + email for customers |
+| A9 | No SMS, WhatsApp or masked calling in v1, except the SMS login code (ADR-0020) | Reliability | Push + in-app for professionals; in-app + email for customers |
 | A10 | Customers don't get web push in v1, because the permission prompt adds friction; they get email on accept | Comms | In-app + email |
 | A11 | ID and background checks happen offline from the Google Form documents; we store only "verified on date by admin" | Privacy | As stated |
 | A12 | Service hours and active area are admin settings; outside them we block booking and show the next opening time | UX | 08:00–21:00, one city polygon |
@@ -855,7 +855,7 @@ Every phase uses the same template: Goal · Scope · Screens · UX decisions · 
   - After login, return to the intended page; a cart in progress is preserved.
   - Session-expiry interstitial that keeps form state where it is safe.
 - **Workflows:**
-  - **W2. Sign up / log in / reset.**
+  - **W2. Sign up / log in / reset.** *Since 2026-10-15 (ADR-0020): customers and professionals enter their mobile number, then the 6-digit SMS code; a new number adds a name and becomes a customer. Admins log in at `/admin/login` with email + password, and the reset path below is theirs only. The steps below describe the original email flow.*
     1. Start: Login (or "Continue" at checkout).
     2. The user enters email and password and submits.
     3. API: rate-limit check, argon2 verify, session created, role returned.

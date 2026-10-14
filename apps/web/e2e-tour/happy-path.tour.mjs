@@ -14,7 +14,6 @@ import { PARTS, runHappyPath } from "../scripts/demo/flow.mjs";
 const API_URL = "http://localhost:4100";
 const WEB_ORIGIN = "http://localhost:5175";
 const OUT_DIR = process.env.WALKTHROUGH_DIR ?? fileURLToPath(new URL("../../../../Proposal/happy-path/", import.meta.url));
-const PASSWORD = "lantern-orchid-91-river";
 const ADMIN = { email: "admin@e2e.test", password: "admin-e2e-password-1" };
 
 // Sector 21C, Faridabad: the professional starts about 300 m from the customer and walks over.
@@ -40,6 +39,16 @@ const SCREENSHOT_STYLE = ".MuiSnackbar-root { visibility: hidden !important; }";
 async function createUser(request, user) {
   const res = await request.post(`${API_URL}/__test__/users`, { data: user });
   expect(res.status(), await res.text()).toBe(201);
+}
+
+/** A number no other account on the E2E server has: one account per number (ADR-0020). */
+const newPhone = () => `9${String(Math.floor(Math.random() * 1e9)).padStart(9, "0")}`;
+
+/** The SMS login code the E2E API "sent" (customers and professionals log in with it). */
+async function latestCode(request, phone) {
+  const res = await request.get(`${API_URL}/__test__/sms/latest`, { params: { phone } });
+  expect(res.ok(), `no SMS code for ${phone}`).toBe(true);
+  return (await res.json()).code;
 }
 
 /** The admin API, logged in with the request fixture (CSRF header and Origin as the web app sends them). */
@@ -83,12 +92,12 @@ test("the happy path, screen by screen", async ({ browser, request }) => {
 
   const tag = randomUUID().slice(0, 4);
   const accounts = {
-    customer: { name: "Neha Kapoor", email: `neha.kapoor.${tag}@example.com`, password: PASSWORD },
-    pro: { name: "Meera Joshi", email: `meera.joshi.${tag}@example.com`, password: PASSWORD },
+    customer: { name: "Neha Kapoor", email: `neha.kapoor.${tag}@example.com`, phone: newPhone() },
+    pro: { name: "Meera Joshi", email: `meera.joshi.${tag}@example.com`, phone: newPhone() },
     admin: ADMIN,
   };
-  await createUser(request, { role: "customer", ...accounts.customer, phone: "9876543210", locale: "en" });
-  await createUser(request, { role: "professional", ...accounts.pro, phone: "9812345678", locale: "hi", verified: true });
+  await createUser(request, { role: "customer", ...accounts.customer, locale: "en" });
+  await createUser(request, { role: "professional", ...accounts.pro, locale: "hi", verified: true });
 
   const customerContext = await browser.newContext({ ...PHONE, geolocation: HOME, permissions: ["geolocation"] });
   const proContext = await browser.newContext({ ...PHONE, geolocation: PRO_START, permissions: ["geolocation", "notifications"] });
@@ -136,6 +145,7 @@ test("the happy path, screen by screen", async ({ browser, request }) => {
     pro: pages.pro,
     proContext,
     accounts,
+    codeFor: (phone) => latestCode(request, phone),
     service: { slug: "fruit-facial", category: "salon-for-women", name: "Fruit facial" },
     preference: "female",
     address: { house: "Flat 12", street: "Sector 21C", landmark: "Town Park", city: "Faridabad", pincode: "121001", note: "Ring the bell twice" },

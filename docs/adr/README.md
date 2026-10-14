@@ -28,6 +28,7 @@ Each significant decision is recorded once, here, so nobody has to re-decide it 
 | [0017](0017-frontend-versions-and-browser-floor.md) | Front-end versions (MUI 9, Vite 8, React Router 7.18, TS 6, ESLint 10) and the Safari/iOS 17+ floor | Accepted |
 | [0018](0018-interim-package-linking.md) | Link packages by path until the legacy cutover (npm workspaces in Phase 3) | Accepted (temporary) |
 | [0019](0019-pwa-worker-and-presence.md) | Hand-written service worker, two manifests and the presence sweeper | Accepted |
+| [0020](0020-mobile-otp-login.md) | Mobile number + SMS code login (2Factor.in) for customers and professionals; admins keep email + password | Accepted (supersedes 0005 for passwords) |
 
 ## Template
 

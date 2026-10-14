@@ -1,4 +1,4 @@
-import { type ClipboardEvent, type KeyboardEvent, useId, useRef } from "react";
+import { type ClipboardEvent, type KeyboardEvent, useEffect, useId, useRef } from "react";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
@@ -47,16 +47,34 @@ export interface OtpInputProps {
   attemptsLeft?: number;
   disabled?: boolean;
   autoFocus?: boolean;
+  /** Called once every box holds a digit (the SMS login code submits itself, ADR-0020). */
+  onComplete?: (code: string) => void;
+  /** Puts the caret in the first box when the boxes appear (a step that only asks for the code). */
+  focusOnMount?: boolean;
 }
 
-/** Professional side: four boxes, numeric keypad, paste support, auto-advance (plan B8). */
-export function OtpInput({ value, onChange, length = 4, label, error, attemptsLeft, disabled, autoFocus }: OtpInputProps) {
+/**
+ * Boxes for a numeric code, with numeric keypad, paste and SMS autofill support and
+ * auto-advance (plan B8): four for the job start code, six for the SMS login code.
+ */
+export function OtpInput({ value, onChange, length = 4, label, error, attemptsLeft, disabled, autoFocus, onComplete, focusOnMount }: OtpInputProps) {
   const { t } = useTranslation();
   const { tokens } = useTheme();
   const refs = useRef<Array<HTMLInputElement | null>>([]);
   const groupId = useId();
   const messageId = `${groupId}-message`;
   const digits = Array.from({ length }, (_, i) => value[i] ?? "");
+  // Six boxes must fit a 360px phone inside the login card.
+  const compact = length > 4;
+
+  useEffect(() => {
+    if (focusOnMount) refs.current[0]?.focus();
+  }, [focusOnMount]);
+
+  const emit = (next: string) => {
+    onChange(next);
+    if (next.length === length && /^\d+$/.test(next)) onComplete?.(next);
+  };
 
   // The boxes as they are on screen right now. Reading the DOM (not the last render) keeps fast
   // typing from losing a digit when two keys land before React re-renders.
@@ -65,7 +83,7 @@ export function OtpInput({ value, onChange, length = 4, label, error, attemptsLe
   const setDigit = (index: number, digit: string) => {
     const next = onScreen();
     next[index] = digit;
-    onChange(next.join("").slice(0, length));
+    emit(next.join("").slice(0, length));
   };
 
   const handleChange = (index: number, raw: string) => {
@@ -79,7 +97,7 @@ export function OtpInput({ value, onChange, length = 4, label, error, attemptsLe
         .forEach((digit, offset) => {
           next[index + offset] = digit;
         });
-      onChange(next.join("").slice(0, length));
+      emit(next.join("").slice(0, length));
       refs.current[Math.min(index + typed.length, length - 1)]?.focus();
       return;
     }
@@ -106,7 +124,7 @@ export function OtpInput({ value, onChange, length = 4, label, error, attemptsLe
     const pasted = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, length);
     if (!pasted) return;
     event.preventDefault();
-    onChange(pasted);
+    emit(pasted);
     refs.current[Math.min(pasted.length, length - 1)]?.focus();
   };
 
@@ -117,7 +135,7 @@ export function OtpInput({ value, onChange, length = 4, label, error, attemptsLe
       <Typography id={`${groupId}-label`} variant="label" component="p" sx={{ m: 0, mb: 2 }}>
         {label ?? t("otp.enterTitle")}
       </Typography>
-      <Box sx={{ display: "flex", gap: 3 }}>
+      <Box sx={{ display: "flex", gap: compact ? 2 : 3 }}>
         {digits.map((digit, index) => (
           <Box
             key={index}
@@ -142,11 +160,11 @@ export function OtpInput({ value, onChange, length = 4, label, error, attemptsLe
             aria-label={t("otp.digit", { index: index + 1, count: length })}
             aria-invalid={error ? true : undefined}
             sx={{
-              width: 56,
-              height: 64,
+              width: compact ? 44 : 56,
+              height: compact ? 56 : 64,
               textAlign: "center",
               fontFamily: "inherit",
-              fontSize: 28,
+              fontSize: compact ? 24 : 28,
               fontWeight: 600,
               fontVariantNumeric: "tabular-nums",
               color: tokens.neutral[900],

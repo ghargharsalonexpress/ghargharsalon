@@ -4,7 +4,7 @@ import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import { useTheme } from "@mui/material/styles";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useCurrentUser } from "@/app/session";
 import { Button, InlineAlert, LanguageSwitch, PageHeader, PhoneField, TextField, useToast } from "@/design-system";
@@ -31,7 +31,6 @@ export function ProfilePage() {
 
   const {
     register,
-    control,
     handleSubmit,
     setError,
     reset,
@@ -39,7 +38,7 @@ export function ProfilePage() {
   } = useForm<ProfileInput, unknown, ProfileData>({
     resolver: standardSchemaResolver(profileSchema),
     mode: "onTouched",
-    values: { name: user?.name ?? "", phone: user?.phone ?? "" },
+    values: { name: user?.name ?? "", email: user?.email ?? "" },
   });
 
   const onSubmit = handleSubmit(async (values) => {
@@ -50,10 +49,10 @@ export function ProfilePage() {
     }
     try {
       const { user: saved } = await update.mutateAsync(values);
-      reset({ name: saved.name, phone: saved.phone });
+      reset({ name: saved.name, email: saved.email ?? "" });
       toast(t("profile.saved"));
     } catch (error) {
-      setFormError(applyServerErrors(error, setError, ["name", "phone"]));
+      setFormError(applyServerErrors(error, setError, ["name", "email"]));
     }
   });
 
@@ -63,22 +62,17 @@ export function ProfilePage() {
       <Box component="form" noValidate onSubmit={onSubmit} sx={{ display: "grid", gap: 5 }}>
         {formError ? <InlineAlert tone="danger">{errorText(t, formError)}</InlineAlert> : null}
         <TextField label={t("profile.name")} autoComplete="name" {...fieldProps(register("name"))} error={fieldText(t, errors.name?.message)} />
-        <Controller
-          control={control}
-          name="phone"
-          render={({ field }) => (
-            <PhoneField
-              label={t("profile.phone")}
-              name={field.name}
-              value={field.value}
-              onChange={field.onChange}
-              onBlur={field.onBlur}
-              inputRef={field.ref}
-              error={fieldText(t, errors.phone?.message)}
-            />
-          )}
+        {/* The number is the login (ADR-0020): changing it goes through support. */}
+        <PhoneField label={t("profile.phone")} name="phone" value={user?.phone ?? ""} onChange={() => undefined} disabled hint={t("profile.phoneHint")} />
+        <TextField
+          label={t("profile.email")}
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          hint={t("profile.emailHint")}
+          {...fieldProps(register("email"))}
+          error={fieldText(t, errors.email?.message)}
         />
-        <TextField label={t("profile.email")} value={user?.email ?? ""} disabled hint={t("profile.emailHint")} />
         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
           <Button type="submit" size="lg" loading={update.isPending}>
             {t("profile.save")}

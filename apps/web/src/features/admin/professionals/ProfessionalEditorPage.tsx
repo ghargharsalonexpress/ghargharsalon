@@ -59,7 +59,7 @@ const blank = (): ProfessionalInput => ({
 
 const toInput = (dto: ProfessionalDto): ProfessionalInput => ({
   name: dto.name,
-  email: dto.email,
+  email: dto.email ?? "",
   phone: dto.phone,
   gender: dto.gender,
   skills: dto.skills,
@@ -157,7 +157,7 @@ function ProfessionalEditor({ initial }: { initial: ProfessionalDto | null }) {
             { shouldFocus: index === 0 },
           ),
         );
-        if (error.code === "VALIDATION_FAILED" || error.code === "EMAIL_TAKEN")
+        if (error.code === "VALIDATION_FAILED" || error.code === "EMAIL_TAKEN" || error.code === "PHONE_TAKEN")
           return;
       }
       setFormError(error);
@@ -211,6 +211,7 @@ function ProfessionalEditor({ initial }: { initial: ProfessionalDto | null }) {
                   onChange={field.onChange}
                   onBlur={field.onBlur}
                   inputRef={field.ref}
+                  hint={t("proEditor.phoneHint")}
                   error={fieldText(t, errors.phone?.message)}
                 />
               )}
@@ -220,7 +221,7 @@ function ProfessionalEditor({ initial }: { initial: ProfessionalDto | null }) {
               type="email"
               inputMode="email"
               autoComplete="off"
-              hint={initial ? undefined : t("proEditor.emailHint")}
+              hint={t("proEditor.emailHint")}
               {...fieldProps(register("email"))}
               error={fieldText(t, errors.email?.message)}
             />

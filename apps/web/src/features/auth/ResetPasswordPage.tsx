@@ -20,7 +20,8 @@ type FormInput = z.input<typeof formSchema>;
 type FormData = z.output<typeof formSchema>;
 
 /**
- * W2 reset path, step 2, and W11's "set your password" for new professionals (?mode=set).
+ * Team login's reset path, step 2 (admins only: customers and professionals log in with an SMS
+ * code, ADR-0020).
  * The link is checked first, so an expired one never makes anyone type a password for nothing.
  */
 export function ResetPasswordPage() {
@@ -29,7 +30,6 @@ export function ResetPasswordPage() {
   const toast = useToast();
   const [params] = useSearchParams();
   const token = params.get("token") ?? "";
-  const isSet = params.get("mode") === "set";
   const check = useTokenCheck(token);
   const reset = useResetPassword();
   const [formError, setFormError] = useState<unknown>(null);
@@ -41,7 +41,7 @@ export function ResetPasswordPage() {
     formState: { errors },
   } = useForm<FormInput, unknown, FormData>({ resolver: standardSchemaResolver(formSchema), mode: "onTouched", defaultValues: { password: "" } });
 
-  const title = t(isSet ? "reset.setTitle" : "reset.title");
+  const title = t("reset.title");
 
   if (!token || check.isError) {
     const code = check.error instanceof ApiError ? check.error.code : "TOKEN_INVALID";
@@ -95,7 +95,7 @@ export function ResetPasswordPage() {
   });
 
   return (
-    <AuthShell title={title} description={t(isSet ? "reset.setDescription" : "reset.description")}>
+    <AuthShell title={title} description={t("reset.description")}>
       <Box component="form" noValidate onSubmit={onSubmit} sx={{ display: "grid", gap: 5 }}>
         {formError ? <InlineAlert tone="danger">{errorText(t, formError)}</InlineAlert> : null}
         <PasswordField
@@ -106,7 +106,7 @@ export function ResetPasswordPage() {
           error={fieldText(t, errors.password?.message)}
         />
         <Button type="submit" size="lg" fullWidth loading={reset.isPending}>
-          {t(isSet ? "reset.setSubmit" : "reset.submit")}
+          {t("reset.submit")}
         </Button>
       </Box>
     </AuthShell>

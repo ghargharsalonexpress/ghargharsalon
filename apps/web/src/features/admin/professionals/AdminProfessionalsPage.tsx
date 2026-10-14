@@ -86,7 +86,7 @@ export function AdminProfessionalsPage() {
       cell: (row) => (
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
           {row.status === "suspended" ? <Badge tone="danger">{t("professionals.suspended")}</Badge> : row.verifiedAt ? <Badge tone="success">{t("professionals.verified")}</Badge> : <Badge tone="warning">{t("professionals.unverified")}</Badge>}
-          {!row.passwordSet && <Badge>{t("professionals.noPassword")}</Badge>}
+          {!row.lastLoginAt && <Badge>{t("professionals.neverLoggedIn")}</Badge>}
         </Box>
       ),
     },

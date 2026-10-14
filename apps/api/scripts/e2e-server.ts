@@ -18,6 +18,7 @@ import { createLogger } from "../src/logger";
 import { hashPassword } from "../src/modules/auth/password";
 import { Category, Service } from "../src/modules/catalog/catalog.models";
 import { MemoryTransport } from "../src/modules/email/transport";
+import { MemorySmsTransport } from "../src/modules/sms/transport";
 import type { Jobs } from "../src/modules/jobs/jobs.service";
 import type { Matching } from "../src/modules/matching/matching.service";
 import { emailHandler } from "../src/modules/notifications/notifications";
@@ -45,6 +46,9 @@ const config = loadConfig({
   WEB_URL: E2E_WEB_ORIGIN,
   EMAIL_TRANSPORT: "memory",
   PUSH_TRANSPORT: "memory",
+  SMS_TRANSPORT: "memory",
+  // Every browser in a run shares one IP and logs the same seeded people in many times.
+  LOGIN_RATE_LIMITS: "0",
   TEST_ROUTES: "1",
   // Uploads from the admin specs stay out of the development media folder.
   MEDIA_DIR: join(tmpdir(), "brand-e2e-media"),
@@ -53,10 +57,11 @@ const config = loadConfig({
 await connectDb(config.MONGODB_URI);
 await ensureIndexes();
 
-// Known accounts for the E2E specs (e2e/auth.spec.ts in apps/web).
+// Known accounts for the E2E specs (e2e/support.ts in apps/web): the admin uses Team login,
+// the professional their mobile number and an SMS code (read from /__test__/sms/latest).
 const [admin, pro] = await User.create([
   { role: "admin", name: "Asha Admin", email: "admin@e2e.test", phone: "9000000001", locale: "en", passwordHash: await hashPassword("admin-e2e-password-1") },
-  { role: "professional", name: "Priya Verma", email: "pro@e2e.test", phone: "9000000002", locale: "hi", passwordHash: await hashPassword("pro-e2e-password-1") },
+  { role: "professional", name: "Priya Verma", email: "pro@e2e.test", phone: "9000000002", locale: "hi" },
 ]);
 // Priya is verified, so the pro panel specs can go online.
 await Professional.create({
@@ -88,10 +93,11 @@ await Category.create(E2E_CATALOG.categories);
 await Service.create(E2E_CATALOG.services.map((service) => ({ ...service, version: 1 })));
 
 const email = new MemoryTransport();
+const sms = new MemorySmsTransport();
 const logger = createLogger(config);
 const push = createPushService({ config, sender: new MemoryPushSender(), logger });
 const gateway = new LocalGateway("e2e-payment-secret");
-const app = createApp({ config, logger, email, mongoClient: mongoose.connection.getClient(), push, gateway });
+const app = createApp({ config, logger, email, sms, mongoClient: mongoose.connection.getClient(), push, gateway });
 const server = createServer(app);
 attachRealtime(server, { config, logger, sessionMiddleware: app.locals.sessionMiddleware as RequestHandler });
 const matching = app.locals.matching as Matching;

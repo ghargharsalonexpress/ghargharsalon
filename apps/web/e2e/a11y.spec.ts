@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { AUTH_PAGES, type Brand, expectNoViolations, type Lang, logIn, openPage, PAGES, SEEDED } from "./support";
+import { AUTH_PAGES, type Brand, expectNoViolations, type Lang, latestCode, logIn, logInAsTeam, openPage, PAGES, SEEDED, uniquePhone } from "./support";
 
 // axe walks the whole DOM, and expectNoViolations first waits for toasts and dialogs to settle.
 // On a busy machine that is more than Playwright's 30 s default, and a timeout here looks like
@@ -87,7 +87,7 @@ test.describe("WCAG 2.2 AA (axe)", () => {
       // Four pages, each fully scanned.
       test.setTimeout(120_000);
       await page.setViewportSize({ width, height: 900 });
-      await logIn(page, SEEDED.admin.email, SEEDED.admin.password);
+      await logInAsTeam(page, SEEDED.admin.email, SEEDED.admin.password);
       await expect(page).toHaveURL(/\/admin$/);
       for (const path of ["/admin/services", "/admin/services/new", "/admin/categories", "/admin/messages"]) {
         await page.goto(path);
@@ -102,7 +102,7 @@ test.describe("WCAG 2.2 AA (axe)", () => {
     test.setTimeout(120_000);
     // Tall enough that nothing sits under the sticky tabs, so axe sees every target uncovered.
     await page.setViewportSize({ width: 360, height: 1600 });
-    await logIn(page, SEEDED.professional.email, SEEDED.professional.password);
+    await logIn(page, SEEDED.professional.phone);
     await expect(page).toHaveURL(/\/pro$/);
     for (const path of ["/pro", "/pro/jobs", "/pro/earnings", "/pro/profile"]) {
       await page.goto(path);
@@ -115,7 +115,7 @@ test.describe("WCAG 2.2 AA (axe)", () => {
   test("admin professionals pages · 1440px", async ({ page }) => {
     test.setTimeout(120_000);
     await page.setViewportSize({ width: 1440, height: 900 });
-    await logIn(page, SEEDED.admin.email, SEEDED.admin.password);
+    await logInAsTeam(page, SEEDED.admin.email, SEEDED.admin.password);
     await expect(page).toHaveURL(/\/admin$/);
     await page.goto("/admin/professionals");
     await expect(page.getByRole("heading", { name: "Professionals", level: 1 })).toBeVisible();
@@ -131,10 +131,30 @@ test.describe("WCAG 2.2 AA (axe)", () => {
   test("login form with errors showing", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await openPage(page, "/login");
-    await page.getByRole("button", { name: "Log in" }).click();
+    await page.getByRole("button", { name: "Get OTP" }).click();
     await expect(page.getByText("This is required.").first()).toBeVisible();
     await expectNoViolations(page);
   });
+
+  for (const lang of ["en", "hi"] as const) {
+    test(`login code and name steps · ${lang} · 360px`, async ({ page }) => {
+      await page.setViewportSize({ width: 360, height: 800 });
+      await openPage(page, "/login", { lang });
+      const phone = uniquePhone();
+      await page.locator('input[autocomplete="tel-national"]').fill(phone);
+      await page.locator('form button[type="submit"]').click();
+      const first = page.locator('input[autocomplete="one-time-code"]');
+      await first.waitFor();
+      // Six boxes fit a 360px phone: nothing scrolls sideways.
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+      await expectNoViolations(page);
+
+      await first.click();
+      await page.keyboard.type(await latestCode(page.request, phone));
+      await expect(page.locator('input[autocomplete="name"]')).toBeVisible();
+      await expectNoViolations(page);
+    });
+  }
 
   test("bottom sheet and full-screen form dialog on a phone", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });

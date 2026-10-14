@@ -27,6 +27,22 @@ const schema = z.object({
   EMAIL_LOG_DIR: z.string().min(1).optional(),
   AWS_REGION: z.string().min(1).default("ap-south-1"),
 
+  /**
+   * Login codes by SMS (ADR-0020): 2factor (2Factor.in) live; log writes the code to the API's
+   * log while developing; memory in tests.
+   */
+  SMS_TRANSPORT: z.enum(["log", "memory", "2factor"]).default("log"),
+  TWOFACTOR_API_KEY: z.string().min(10).optional(),
+  /** The DLT-approved OTP template's name in the 2Factor account. */
+  TWOFACTOR_OTP_TEMPLATE: z.string().min(1).optional(),
+  /**
+   * Local demos only: the API also returns the code, so the login screen can show it. Honoured
+   * only with SMS_TRANSPORT=log and a localhost WEB_URL; refused in production.
+   */
+  SMS_DEV_CODE: flag.default(false),
+  /** Resend wait, per-number and per-IP limits on login codes. Off only for E2E runs (refused off in production). */
+  LOGIN_RATE_LIMITS: flag.default(true),
+
   /** Test-only helpers under /__test__ (read sent emails, create users). Refused in production. */
   TEST_ROUTES: flag.default(false),
   /** Checkout rate limits (plan C11); only load tests and stress tests switch them off. Refused off in production. */
@@ -86,11 +102,22 @@ export function loadConfig(env: Record<string, string | undefined>) {
     if (values.PAYMENT_PROVIDER !== "razorpay" || !values.RAZORPAY_KEY_ID || !values.RAZORPAY_KEY_SECRET || !values.RAZORPAY_WEBHOOK_SECRET) {
       problems.push("PAYMENT_PROVIDER must be 'razorpay' with the key id, key secret and webhook secret set");
     }
+    if (values.SMS_TRANSPORT !== "2factor" || !values.TWOFACTOR_API_KEY) problems.push("SMS_TRANSPORT must be '2factor' with TWOFACTOR_API_KEY set");
+    if (values.SMS_DEV_CODE) problems.push("SMS_DEV_CODE must be off");
+    if (!values.LOGIN_RATE_LIMITS) problems.push("LOGIN_RATE_LIMITS must be on");
     if (problems.length > 0) throw new Error(`Unsafe production configuration: ${problems.join("; ")}`);
+  }
+  if (values.SMS_TRANSPORT === "2factor" && !values.TWOFACTOR_API_KEY) {
+    throw new Error("Invalid environment configuration: SMS_TRANSPORT=2factor needs TWOFACTOR_API_KEY");
   }
 
   // Without keys a development server still runs: alerts are logged instead of sent.
   const pushTransport = values.PUSH_TRANSPORT === "webpush" && (!values.VAPID_PUBLIC_KEY || !values.VAPID_PRIVATE_KEY) ? "log" : values.PUSH_TRANSPORT;
 
-  return { ...values, isProd, webOrigins, pushTransport };
+  // Showing the login code on screen is for this PC's demos only: never with a real SMS sender
+  // or a public address, whatever NODE_ENV says.
+  const localWeb = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(values.WEB_URL.replace(/\/$/, ""));
+  const smsDevCode = values.SMS_DEV_CODE && values.SMS_TRANSPORT === "log" && localWeb && !isProd;
+
+  return { ...values, isProd, webOrigins, pushTransport, smsDevCode };
 }

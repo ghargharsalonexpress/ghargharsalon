@@ -1,19 +1,20 @@
-import { emailSchema, nameSchema, passwordSchema, phoneSchema, ROLES, z } from "@brand/shared";
+import { nameSchema, optionalEmailSchema, passwordSchema, phoneSchema, ROLES, z } from "@brand/shared";
 import { Router } from "express";
 import { AppError } from "../../errors";
 import { bodyOf, validateBody } from "../../http/validate";
-import type { AuthService } from "../auth/auth.service";
 import { hashPassword } from "../auth/password";
 import type { MemoryTransport } from "../email/transport";
 import { Professional } from "../professionals/professional.model";
 import type { MemoryPushSender } from "../professionals/push";
+import type { MemorySmsTransport } from "../sms/transport";
 import { User } from "../users/user.model";
 
 const createUserSchema = z.strictObject({
   role: z.enum(ROLES),
   name: nameSchema,
-  email: emailSchema,
+  email: optionalEmailSchema,
   phone: phoneSchema,
+  /** Admins only: customers and professionals log in with an SMS code (ADR-0020). */
   password: passwordSchema.optional(),
   locale: z.enum(["en", "hi"]).optional(),
   /** Professionals: verified, and online at this point (as if the panel just sent a heartbeat). */
@@ -23,9 +24,9 @@ const createUserSchema = z.strictObject({
 
 /**
  * E2E helpers, mounted only when TEST_ROUTES=1 (refused in production by config.ts).
- * They let browser tests read the emails a flow sent and create users directly.
+ * They let browser tests read the emails and SMS codes a flow sent, and create users directly.
  */
-export function testRouter({ email, auth, push }: { email: MemoryTransport; auth: AuthService; push?: MemoryPushSender }): Router {
+export function testRouter({ email, sms, push }: { email: MemoryTransport; sms: MemorySmsTransport; push?: MemoryPushSender }): Router {
   const router = Router();
 
   // Alerts the E2E browser's fake push subscription would have received.
@@ -42,12 +43,21 @@ export function testRouter({ email, auth, push }: { email: MemoryTransport; auth
     res.json({ subject: message.subject, text: message.text, tag: message.tag, links: [...new Set(links)].filter((link) => !link?.startsWith("mailto:")) });
   });
 
+  // The newest SMS login code sent to a number.
+  router.get("/sms/latest", (req, res) => {
+    const phone = typeof req.query.phone === "string" ? req.query.phone : "";
+    const code = sms.latestTo(phone);
+    if (!code) throw new AppError("NOT_FOUND");
+    res.json({ code });
+  });
+
   router.post("/users", validateBody(createUserSchema), async (req, res) => {
     const input = bodyOf(req, createUserSchema);
+    if (input.password && input.role !== "admin") throw new AppError("VALIDATION_FAILED", { fields: { password: "validation.invalid" } });
     const user = await User.create({
       role: input.role,
       name: input.name,
-      email: input.email,
+      email: input.email ?? null,
       phone: input.phone,
       locale: input.locale ?? (input.role === "professional" ? "hi" : "en"),
       passwordHash: input.password ? await hashPassword(input.password) : null,
@@ -79,8 +89,7 @@ export function testRouter({ email, auth, push }: { email: MemoryTransport; auth
           : {}),
       });
     }
-    const setPasswordUrl = input.password ? null : await auth.sendSetPasswordLink(user);
-    res.status(201).json({ id: user.id as string, setPasswordUrl });
+    res.status(201).json({ id: user.id as string });
   });
 
   return router;

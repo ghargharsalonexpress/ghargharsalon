@@ -15,7 +15,7 @@ interface AuthTokenFields {
 const authTokenSchema = new Schema<AuthTokenFields>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    type: { type: String, enum: ["reset_password", "set_password"], required: true },
+    type: { type: String, enum: ["reset_password"], required: true },
     tokenHash: { type: String, required: true },
     expiresAt: { type: Date, required: true },
     usedAt: { type: Date, default: null },
@@ -31,10 +31,9 @@ authTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 24 * 60 * 60 });
 export const AuthToken = model<AuthTokenFields>("AuthToken", authTokenSchema, "auth_tokens");
 export type AuthTokenDoc = HydratedDocument<AuthTokenFields>;
 
-/** Reset links last 30 minutes; a new professional's set-password link lasts 72 hours (plan C11). */
+/** A team member's reset link lasts 30 minutes (plan C11). Customers and professionals have no password (ADR-0020). */
 export const TOKEN_TTL_MS: Record<TokenType, number> = {
   reset_password: 30 * 60 * 1000,
-  set_password: 72 * 60 * 60 * 1000,
 };
 
 const sha256 = (value: string) => createHash("sha256").update(value).digest("hex");

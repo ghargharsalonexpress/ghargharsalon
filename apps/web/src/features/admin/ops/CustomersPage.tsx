@@ -32,7 +32,7 @@ export function CustomersPage() {
             {row.name}
           </Typography>
           <Typography variant="caption" component="span" sx={{ display: "block", color: "text.secondary", overflowWrap: "anywhere" }}>
-            {row.email}
+            {row.email ?? "—"}
           </Typography>
         </Box>
       ),

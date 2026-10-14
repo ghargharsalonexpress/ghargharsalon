@@ -19,7 +19,7 @@ export function ProProfilePage() {
 
   const rows: Array<[string, string]> = [
     [t("profile.phone"), `+91 ${formatIndianMobile(me.phone)}`],
-    [t("profile.email"), me.email],
+    [t("profile.email"), me.email ?? "—"],
     [t("profile.area"), me.baseArea],
     [t("profile.radius"), t("profile.radiusValue", { count: me.travelRadiusKm })],
     [t("profile.skills"), me.skills.map((skill) => SKILL_LABELS[skill][lang]).join(", ")],

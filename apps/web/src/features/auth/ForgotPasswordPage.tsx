@@ -14,7 +14,7 @@ import { fieldProps } from "@/lib/fieldProps";
 import { applyServerErrors } from "@/lib/forms";
 import { useForgotPassword } from "./api";
 
-/** W2 reset path, step 1. The answer never reveals whether an account exists. */
+/** Team login's reset path, step 1 (admins only). The answer never reveals whether an account exists. */
 export function ForgotPasswordPage() {
   const { t } = useTranslation("auth");
   const { tokens } = useTheme();
@@ -60,7 +60,7 @@ export function ForgotPasswordPage() {
             {t("forgot.sentHint")}
           </Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mt: 2 }}>
-            <Button to={`/login?email=${encodeURIComponent(sentTo)}`} size="lg">
+            <Button to={`/admin/login?email=${encodeURIComponent(sentTo)}`} size="lg">
               {t("forgot.back")}
             </Button>
             <Button
@@ -89,7 +89,7 @@ export function ForgotPasswordPage() {
         </Button>
       </Box>
       <Typography sx={{ mt: 8, textAlign: "center" }}>
-        <Link to="/login" standalone>
+        <Link to="/admin/login" standalone>
           {t("forgot.back")}
         </Link>
       </Typography>

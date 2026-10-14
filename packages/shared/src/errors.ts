@@ -7,10 +7,14 @@ export const ERRORS = {
   PAYMENT_VERIFICATION_FAILED: { status: 400, messageKey: "errors.paymentVerificationFailed" },
   OTP_INVALID: { status: 400, messageKey: "errors.otpInvalid" },
   TOKEN_INVALID: { status: 400, messageKey: "errors.tokenInvalid" },
+  /** The SMS login code (not the 4-digit job start code, which is OTP_*). */
+  LOGIN_CODE_INVALID: { status: 400, messageKey: "errors.loginCodeInvalid" },
   AUTH_REQUIRED: { status: 401, messageKey: "errors.authRequired" },
   INVALID_CREDENTIALS: { status: 401, messageKey: "errors.invalidCredentials" },
   ACCOUNT_BLOCKED: { status: 403, messageKey: "errors.accountBlocked" },
   ACCOUNT_SUSPENDED: { status: 403, messageKey: "errors.accountSuspended" },
+  /** An admin's number on the customer/professional login: admins use Team login. */
+  TEAM_LOGIN_REQUIRED: { status: 403, messageKey: "errors.teamLoginRequired" },
   FORBIDDEN: { status: 403, messageKey: "errors.forbidden" },
   CSRF_FAILED: { status: 403, messageKey: "errors.csrfFailed" },
   ORIGIN_NOT_ALLOWED: { status: 403, messageKey: "errors.originNotAllowed" },
@@ -31,12 +35,19 @@ export const ERRORS = {
   OUTSIDE_HOURS: { status: 422, messageKey: "errors.outsideHours" },
   OTP_LOCKED: { status: 423, messageKey: "errors.otpLocked" },
   EMAIL_TAKEN: { status: 409, messageKey: "errors.emailTaken" },
+  PHONE_TAKEN: { status: 409, messageKey: "errors.phoneTaken" },
   VERSION_CONFLICT: { status: 409, messageKey: "errors.versionConflict" },
   TOKEN_EXPIRED: { status: 410, messageKey: "errors.tokenExpired" },
   TOKEN_USED: { status: 410, messageKey: "errors.tokenUsed" },
+  /** The code is older than 5 minutes, or the name step came too late: send a new code. */
+  LOGIN_CODE_EXPIRED: { status: 410, messageKey: "errors.loginCodeExpired" },
   PAYLOAD_TOO_LARGE: { status: 413, messageKey: "errors.payloadTooLarge" },
   RATE_LIMITED: { status: 429, messageKey: "errors.rateLimited" },
+  /** Five wrong tries: the code no longer works. */
+  LOGIN_CODE_LOCKED: { status: 429, messageKey: "errors.loginCodeLocked" },
   INTERNAL: { status: 500, messageKey: "errors.internal" },
+  /** The SMS company refused or didn't answer. */
+  SMS_SEND_FAILED: { status: 502, messageKey: "errors.smsSendFailed" },
   SERVICE_UNAVAILABLE: { status: 503, messageKey: "errors.serviceUnavailable" },
 } as const satisfies Record<string, { status: number; messageKey: string }>;
 

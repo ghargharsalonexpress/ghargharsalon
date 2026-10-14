@@ -17,6 +17,7 @@ import { adminCatalogRouter, catalogRouter } from "./modules/catalog/catalog.rou
 import { contactRouter } from "./modules/contact/contact.module";
 import { createMediaStorage, localMediaDir } from "./modules/media/storage";
 import { type EmailTransport, MemoryTransport } from "./modules/email/transport";
+import { createSmsTransport, MemorySmsTransport, type SmsTransport } from "./modules/sms/transport";
 import { healthRouter } from "./modules/health/health.routes";
 import { addressesRouter } from "./modules/addresses/addresses";
 import { bookingsRouter, webhooksRouter } from "./modules/bookings/bookings.routes";
@@ -41,6 +42,8 @@ export interface AppDeps {
   config: Config;
   logger: Logger;
   email: EmailTransport;
+  /** SMS login codes; built from config when not given (tests pass a MemorySmsTransport). */
+  sms?: SmsTransport;
   mongoClient: ReturnType<typeof mongoose.connection.getClient>;
   /** Web Push; built from config when not given (index.ts shares it with the presence sweeper). */
   push?: PushService;
@@ -51,7 +54,7 @@ export interface AppDeps {
 const REQUEST_ID = /^[\w-]{8,64}$/;
 
 /** Builds the Express app. index.ts runs it; tests drive it in memory with supertest. */
-export function createApp({ config, logger, email, mongoClient, push: givenPush, gateway: givenGateway }: AppDeps): Express {
+export function createApp({ config, logger, email, sms: givenSms, mongoClient, push: givenPush, gateway: givenGateway }: AppDeps): Express {
   const app = express();
   app.disable("x-powered-by");
   app.set("trust proxy", config.TRUST_PROXY);
@@ -105,9 +108,10 @@ export function createApp({ config, logger, email, mongoClient, push: givenPush,
   app.use("/v1/webhooks", webhooksRouter({ gateway, logger }));
 
   app.use(express.json({ limit: "100kb" }));
-  const auth = createAuthService({ config, email, logger });
+  const sms = givenSms ?? createSmsTransport(config, logger);
+  const auth = createAuthService({ config, email, sms, logger });
   const push = givenPush ?? createPushService({ config, sender: createPushSender(config, logger), logger });
-  const professionals = createProfessionalService({ auth, push, logger });
+  const professionals = createProfessionalService({ push, logger });
   const matching: Matching = createMatching({ push, logger });
   resolvePassingAlerts();
   const jobs: Jobs = createJobs({ push, logger, config });
@@ -115,7 +119,8 @@ export function createApp({ config, logger, email, mongoClient, push: givenPush,
   // Test helpers sit before sessions and CSRF: they're called by test runners, not browsers.
   if (config.TEST_ROUTES) {
     if (!(email instanceof MemoryTransport)) throw new Error("TEST_ROUTES needs EMAIL_TRANSPORT=memory");
-    app.use("/__test__", testRouter({ email, auth, push: push.sender instanceof MemoryPushSender ? push.sender : undefined }));
+    if (!(sms instanceof MemorySmsTransport)) throw new Error("TEST_ROUTES needs SMS_TRANSPORT=memory");
+    app.use("/__test__", testRouter({ email, sms, push: push.sender instanceof MemoryPushSender ? push.sender : undefined }));
   }
 
   app.use(cookieParser());

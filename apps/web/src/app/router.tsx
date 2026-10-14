@@ -85,9 +85,11 @@ export const router = createBrowserRouter([
       // Printable invoice (plan C9): no site header or footer around it.
       { path: "/bookings/:id/invoice", loader: requireRole("customer", "admin"), lazy: page(() => import("@/features/booking/InvoicePage"), "InvoicePage", "booking") },
 
-      // Authentication (W2)
+      // Authentication (W2, ADR-0020): mobile number + SMS code; admins use Team login.
       { path: "/login", loader: guestOnly, lazy: page(() => import("@/features/auth/LoginPage"), "LoginPage", "auth") },
-      { path: "/signup", loader: guestOnly, lazy: page(() => import("@/features/auth/SignupPage"), "SignupPage", "auth") },
+      // Sign-up is part of /login now: a new number gets the name step.
+      { path: "/signup", loader: ({ request }) => redirect(`/login${new URL(request.url).search}`) },
+      { path: "/admin/login", loader: guestOnly, lazy: page(() => import("@/features/auth/TeamLoginPage"), "TeamLoginPage", "auth") },
       { path: "/forgot-password", loader: prefetchSession, lazy: page(() => import("@/features/auth/ForgotPasswordPage"), "ForgotPasswordPage", "auth") },
       { path: "/reset-password", loader: prefetchSession, lazy: page(() => import("@/features/auth/ResetPasswordPage"), "ResetPasswordPage", "auth") },
 

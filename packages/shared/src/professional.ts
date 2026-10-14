@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { emailSchema, languageSchema, nameSchema, phoneSchema } from "./auth";
+import { languageSchema, nameSchema, optionalEmailSchema, phoneSchema } from "./auth";
 import { type ImageRef, imageSchema, SKILLS, type Skill } from "./catalog";
 import type { Language } from "./language";
 import { V } from "./validation";
@@ -35,10 +35,13 @@ export const locationFixSchema = z.strictObject({
 });
 export type LocationFix = z.infer<typeof locationFixSchema>;
 
-/** What an admin enters from the professional's application (plan Phase 4, W11). */
+/**
+ * What an admin enters from the professional's application (plan Phase 4, W11). The mobile
+ * number is their login (an SMS code, ADR-0020); email is optional.
+ */
 export const professionalInputSchema = z.strictObject({
   name: nameSchema,
-  email: emailSchema,
+  email: optionalEmailSchema,
   phone: phoneSchema,
   gender: z.enum(PRO_GENDERS, V.required),
   skills: z.array(z.enum(SKILLS)).min(1, V.required).max(SKILLS.length),
@@ -74,7 +77,7 @@ export interface PresenceDto {
 export interface ProfessionalDto {
   id: string;
   name: string;
-  email: string;
+  email: string | null;
   phone: string;
   locale: Language;
   gender: ProGender;
@@ -87,8 +90,8 @@ export interface ProfessionalDto {
   status: "active" | "suspended";
   verifiedAt: string | null;
   verifiedBy: string | null;
-  /** False until they open the set-password email. */
-  passwordSet: boolean;
+  /** Null until they first log in with their mobile number. */
+  lastLoginAt: string | null;
   presence: PresenceDto;
   /** Phones and browsers that can receive alerts. */
   devices: number;
@@ -97,13 +100,13 @@ export interface ProfessionalDto {
   createdAt: string;
 }
 
-export type AdminProfessionalRow = Pick<ProfessionalDto, "id" | "name" | "phone" | "email" | "gender" | "skills" | "baseArea" | "status" | "verifiedAt" | "passwordSet" | "presence" | "devices">;
+export type AdminProfessionalRow = Pick<ProfessionalDto, "id" | "name" | "phone" | "email" | "gender" | "skills" | "baseArea" | "status" | "verifiedAt" | "lastLoginAt" | "presence" | "devices">;
 
 /** What the professional's own panel shows and needs. */
 export interface ProSelfDto {
   name: string;
   phone: string;
-  email: string;
+  email: string | null;
   locale: Language;
   gender: ProGender;
   skills: Skill[];

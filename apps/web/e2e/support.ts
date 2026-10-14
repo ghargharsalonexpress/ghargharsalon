@@ -9,18 +9,16 @@ export type Brand = "orange" | "berry" | "teal";
 export const FIXED_NOW = new Date("2026-10-05T16:31:00+05:30");
 
 export const PAGES = ["/styleguide", "/samples/home", "/samples/checkout", "/samples/job-alert", "/samples/admin"] as const;
-export const AUTH_PAGES = ["/login", "/signup", "/forgot-password", "/reset-password?token=not-a-real-token-but-long-enough-0123456789"] as const;
+export const AUTH_PAGES = ["/login", "/admin/login", "/forgot-password", "/reset-password?token=not-a-real-token-but-long-enough-0123456789"] as const;
 
 /** The E2E API (apps/api/scripts/e2e-server.ts). */
 export const API_URL = "http://localhost:4100";
 
-/** Seeded by the E2E API. */
+/** Seeded by the E2E API: the admin uses Team login, the professional their mobile number (ADR-0020). */
 export const SEEDED = {
-  admin: { email: "admin@e2e.test", password: "admin-e2e-password-1" },
-  professional: { email: "pro@e2e.test", password: "pro-e2e-password-1" },
+  admin: { email: "admin@e2e.test", password: "admin-e2e-password-1", phone: "9000000001" },
+  professional: { email: "pro@e2e.test", phone: "9000000002" },
 } as const;
-
-export const STRONG_PASSWORD = "lantern-orchid-91-river";
 
 /** Opens a page in a given language and brand with frozen time and loaded fonts. */
 export async function openPage(page: Page, path: string, { lang = "en", brand = "orange" }: { lang?: Lang; brand?: Brand } = {}) {
@@ -42,12 +40,15 @@ export async function openPage(page: Page, path: string, { lang = "en", brand = 
 
 export const uniqueEmail = (prefix = "e2e") => `${prefix}.${randomUUID().slice(0, 8)}@example.com`;
 
-/** Creates an account through the E2E API; without a password it returns the set-password link. */
+/** A mobile number no other E2E account has (one account per number, ADR-0020). */
+export const uniquePhone = () => `9${String(Math.floor(Math.random() * 1e9)).padStart(9, "0")}`;
+
+/** Creates an account through the E2E API. Only admins can have a password. */
 export async function createUser(
   request: APIRequestContext,
   user: {
     role: "customer" | "professional" | "admin";
-    email: string;
+    email?: string;
     name?: string;
     phone?: string;
     password?: string;
@@ -56,12 +57,21 @@ export async function createUser(
     verified?: boolean;
     online?: { lat: number; lng: number };
   },
-): Promise<{ id: string; setPasswordUrl: string | null }> {
+): Promise<{ id: string; phone: string }> {
+  const phone = user.phone ?? uniquePhone();
   const res = await request.post(`${API_URL}/__test__/users`, {
-    data: { name: user.name ?? "Test Person", phone: user.phone ?? "9876543210", ...user },
+    data: { name: user.name ?? "Test Person", ...user, phone },
   });
   expect(res.status(), await res.text()).toBe(201);
-  return (await res.json()) as { id: string; setPasswordUrl: string | null };
+  const { id } = (await res.json()) as { id: string };
+  return { id, phone };
+}
+
+/** The newest SMS login code the E2E API "sent" to a number. */
+export async function latestCode(request: APIRequestContext, phone: string): Promise<string> {
+  const res = await request.get(`${API_URL}/__test__/sms/latest`, { params: { phone } });
+  expect(res.ok(), `no SMS code for ${phone}`).toBe(true);
+  return ((await res.json()) as { code: string }).code;
 }
 
 /** The link in the newest email sent to an address. */
@@ -74,8 +84,25 @@ export async function latestEmailLink(request: APIRequestContext, to: string, co
   return link;
 }
 
-export async function logIn(page: Page, email: string, password: string) {
+/**
+ * Customers and professionals: mobile number → "Get OTP" → the 6-digit code (typed like a
+ * person; the last digit submits it). Works in English and Hindi. Waits until /login is left.
+ */
+export async function logIn(page: Page, phone: string) {
   await page.goto("/login");
+  await page.locator('input[autocomplete="tel-national"]').fill(phone);
+  await page.locator('form button[type="submit"]').click();
+  const first = page.locator('input[autocomplete="one-time-code"]');
+  await first.waitFor();
+  const code = await latestCode(page.request, phone);
+  await first.click();
+  await page.keyboard.type(code);
+  await page.waitForURL((url) => url.pathname !== "/login");
+}
+
+/** Admins: Team login with email + password. */
+export async function logInAsTeam(page: Page, email: string, password: string) {
+  await page.goto("/admin/login");
   await page.getByLabel("Email", { exact: true }).fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Log in" }).click();

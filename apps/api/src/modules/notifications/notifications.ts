@@ -99,7 +99,8 @@ export function emailHandler({ config, email }: { config: Config; email: EmailTr
     const booking = await Booking.findById(payload.bookingId).lean();
     if (!booking) return;
     const customer = await User.findById(booking.customerId, { name: 1, email: 1, locale: 1 }).lean();
-    if (!customer) return;
+    // Customers may sign up without an email (ADR-0020): the booking page and alerts still update.
+    if (!customer?.email) return;
     const base = { to: customer.email, name: customer.name, lang: customer.locale, number: booking.number, url: `${web}/bookings/${String(booking._id)}` };
 
     switch (kind) {

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { addAddress, customerWithCart, onlineProfessional, payWithTestSheet } from "./flows";
-import { expectNoViolations, logIn, SEEDED } from "./support";
+import { expectNoViolations, logInAsTeam, SEEDED } from "./support";
 
 /**
  * Admin operations (plan Phase 8, W14–W16): a booking that's searching is found from the
@@ -25,7 +25,7 @@ test.describe("Admin operations (Phase 8)", () => {
 
     // The dashboard and the live board show it searching.
     await page.setViewportSize({ width: 1440, height: 900 });
-    await logIn(page, SEEDED.admin.email, SEEDED.admin.password);
+    await logInAsTeam(page, SEEDED.admin.email, SEEDED.admin.password);
     await expect(page).toHaveURL(/\/admin$/);
     await expect(page.getByRole("heading", { name: "Right now" })).toBeVisible();
     await expectNoViolations(page);

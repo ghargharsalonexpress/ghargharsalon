@@ -2,10 +2,13 @@
 /**
  * Load test for the instant-booking API (plan C17), run with k6 (https://k6.io):
  *
- *   k6 run -e API=https://api.load.brand.in -e ORIGIN=https://load.brand.in -e PASSWORD=... apps/api/load/k6-instant.js
+ *   k6 run -e API=http://localhost:4000 -e ORIGIN=http://localhost:5174 apps/api/load/k6-instant.js
  *
  * Needs the accounts from `npm run seed:load` and an API with PAYMENT_PROVIDER=fake (the local
  * gateway's test payment route), so payments can be scripted. Never point it at production.
+ * People log in with their mobile number and an SMS code (ADR-0020), so the API must hand the
+ * code back: SMS_TRANSPORT=log, SMS_DEV_CODE=1 and LOGIN_RATE_LIMITS=0, which it only allows
+ * with a localhost WEB_URL. Run the API for the load test on that machine.
  *
  * Scenarios (the plan's sizing: ≤ 300 professionals online, ≤ 30 active jobs, ≤ 20 bookings a minute):
  *   pros      300 professionals online, a heartbeat with location every 20 s; they accept alerts and
@@ -19,7 +22,6 @@ import { Counter, Trend } from "k6/metrics";
 
 const API = __ENV.API || "http://localhost:4000";
 const ORIGIN = __ENV.ORIGIN || "http://localhost:5174";
-const PASSWORD = __ENV.PASSWORD;
 const PROS = Number(__ENV.PROS || 300);
 const CUSTOMERS = Number(__ENV.CUSTOMERS || 200);
 const CENTRE = { lat: 28.4089, lng: 77.3178 };
@@ -52,11 +54,14 @@ export const options = {
 };
 
 /** A browser-like session: cookies from the jar, Origin and the CSRF token on writes. */
-function session(email) {
+function session(phone) {
   const first = http.get(`${API}/v1/session`, { headers: { Origin: ORIGIN }, tags: { kind: "read" } });
   let csrf = first.json("csrfToken");
-  const login = http.post(`${API}/v1/auth/login`, JSON.stringify({ email, password: PASSWORD }), { headers: { "Content-Type": "application/json", Origin: ORIGIN, "X-CSRF-Token": csrf } });
-  check(login, { "logged in": (res) => res.status === 200 });
+  const headers = { "Content-Type": "application/json", Origin: ORIGIN, "X-CSRF-Token": csrf };
+  const sent = http.post(`${API}/v1/auth/otp/send`, JSON.stringify({ phone }), { headers });
+  check(sent, { "code sent": (res) => res.status === 202 && Boolean(res.json("devCode")) });
+  const login = http.post(`${API}/v1/auth/otp/verify`, JSON.stringify({ phone, code: sent.json("devCode") }), { headers });
+  check(login, { "logged in": (res) => res.status === 200 && res.json("status") === "signed-in" });
   // A new session after login carries its own token.
   csrf = http.get(`${API}/v1/session`, { headers: { Origin: ORIGIN }, tags: { kind: "read" } }).json("csrfToken");
   const write = (path, body, tags = {}, extra = {}) =>
@@ -75,7 +80,7 @@ function proHome(index) {
 
 export function professional() {
   const index = ((__VU - 1) % PROS) + 1;
-  const api = session(`load.pro.${index}@loadtest.invalid`);
+  const api = session(`90000${String(index).padStart(5, "0")}`);
   let here = proHome(index);
   api.write("/v1/pro/presence", { online: true, location: jitter(here, 20) });
 
@@ -108,7 +113,7 @@ export function professional() {
 
 export function customer() {
   const index = Math.floor(Math.random() * CUSTOMERS) + 1;
-  const api = session(`load.customer.${index}@loadtest.invalid`);
+  const api = session(`91000${String(index).padStart(5, "0")}`);
   const addresses = api.read("/v1/me/addresses");
   const address = addresses.status === 200 ? addresses.json()[0] : null;
   if (!address) return;

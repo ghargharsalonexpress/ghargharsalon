@@ -3,7 +3,6 @@ import { type BookingDto, type CategoryInput, DEFAULT_SETTINGS, type OfferDto, t
 import type { Express } from "express";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createLogger } from "../src/logger";
-import { hashPassword } from "../src/modules/auth/password";
 import { Booking } from "../src/modules/bookings/booking.model";
 import type { Matching } from "../src/modules/matching/matching.service";
 import { Offer } from "../src/modules/matching/offer.model";
@@ -13,7 +12,7 @@ import { refundHandler } from "../src/modules/payments/payments.service";
 import { Professional, toPoint } from "../src/modules/professionals/professional.model";
 import { dispatchOutbox } from "../src/modules/system/outbox";
 import { User } from "../src/modules/users/user.model";
-import { type Client, createUser, loginAs, STRONG_PASSWORD, startTestApp, type TestContext, WEB_ORIGIN } from "./helpers";
+import { type Client, createUser, loginAs, startTestApp, type TestContext, uniquePhone, WEB_ORIGIN } from "./helpers";
 
 let ctx: TestContext;
 let admin: Client;
@@ -58,7 +57,7 @@ const service: ServiceInput = {
 /** An online, verified professional `metres` north of HOME, logged in. */
 async function pro(metres: number, overrides: { rating?: number } = {}): Promise<{ id: string; client: Client }> {
   const email = `pro.${randomUUID().slice(0, 8)}@example.com`;
-  const user = await User.create({ role: "professional", name: `Pro ${metres}`, email, phone: "9811100001", locale: "en", passwordHash: await hashPassword(STRONG_PASSWORD) });
+  const user = await User.create({ role: "professional", name: `Pro ${metres}`, email, phone: uniquePhone(), locale: "en" });
   await Professional.create({
     userId: user._id,
     gender: "female",
@@ -169,7 +168,7 @@ describe("matching (plan C6, W5/W6)", () => {
 
     // The customer now sees who is coming, their phone, and the start code.
     const view = (await customer.get(`/v1/bookings/${booking.id}`)).body as BookingDto;
-    expect(view).toMatchObject({ status: "accepted", professional: { phone: "9811100001" } });
+    expect(view).toMatchObject({ status: "accepted", professional: { phone: expect.stringMatching(/^[6-9]\d{9}$/) } });
     expect(view.otp).toMatch(/^\d{4}$/);
 
     await admin.send("put", "/v1/admin/settings", { version: (await admin.get("/v1/admin/settings")).body.version, settings: { ...current.body.settings, matching: { ...current.body.settings.matching, offersPerRound: 3 } } });

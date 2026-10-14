@@ -1,7 +1,7 @@
 import { onAuthLost } from "@/lib/api";
 import { queryClient } from "./queryClient";
 import type { router as appRouter } from "./router";
-import { sessionQuery, setSessionUser } from "./session";
+import { loginPathFor, sessionQuery, setSessionUser } from "./session";
 
 /**
  * When the API reports that a signed-in person's session is gone (expired, revoked after
@@ -13,6 +13,6 @@ export function installAuthLostHandler(router: typeof appRouter): void {
     if (!wasSignedIn) return;
     setSessionUser(null);
     const here = window.location.pathname + window.location.search;
-    void router.navigate(`/login?next=${encodeURIComponent(here)}&reason=expired`, { replace: true });
+    void router.navigate(`${loginPathFor(window.location.pathname)}?next=${encodeURIComponent(here)}&reason=expired`, { replace: true });
   });
 }

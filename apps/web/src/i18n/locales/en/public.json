@@ -207,8 +207,8 @@
       "applyBody": "Fill in the application form with your skills, experience and identity documents.",
       "verifyTitle": "We verify you",
       "verifyBody": "Our team checks your documents and work. This usually takes a few working days.",
-      "passwordTitle": "Set your password",
-      "passwordBody": "Once approved, you get an email with a link to set your password.",
+      "loginTitle": "Log in with your mobile number",
+      "loginBody": "Once approved, log in with your mobile number. We send you a code by SMS: no password to remember.",
       "onlineTitle": "Install the app and go online",
       "onlineBody": "Add the professional app to your phone's home screen, allow alerts and location, and tap Online to start getting jobs."
     },

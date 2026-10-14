@@ -38,7 +38,10 @@ export function safeNext(next: string | null | undefined): string | null {
   return next;
 }
 
-const loginRedirect = (url: URL) => redirect(`/login?next=${encodeURIComponent(url.pathname + url.search)}`);
+/** The admin area has its own Team login (email + password); everyone else logs in by mobile number. */
+export const loginPathFor = (pathname: string): string => (pathname === "/admin" || pathname.startsWith("/admin/") ? "/admin/login" : "/login");
+
+const loginRedirect = (url: URL) => redirect(`${loginPathFor(url.pathname)}?next=${encodeURIComponent(url.pathname + url.search)}`);
 
 /** Route loader: a signed-in user with one of the roles, otherwise login or their own home. */
 export function requireRole(...roles: Role[]) {

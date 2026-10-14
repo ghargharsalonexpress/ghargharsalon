@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
 import { expect, type Page, test } from "@playwright/test";
-import { logIn, openPage, SEEDED } from "./support";
+import { logInAsTeam, openPage, SEEDED } from "./support";
 
 /** Plan workflows W13 (admin catalogue) and W17 (the admin side of contact messages). */
 
 async function logInAsAdmin(page: Page) {
-  await logIn(page, SEEDED.admin.email, SEEDED.admin.password);
+  await logInAsTeam(page, SEEDED.admin.email, SEEDED.admin.password);
   await expect(page).toHaveURL(/\/admin$/);
 }
 
@@ -62,7 +62,7 @@ test.describe("Admin catalogue (W13)", () => {
     const editUrl = page.url();
 
     const other = await browser.newPage();
-    await logIn(other, SEEDED.admin.email, SEEDED.admin.password);
+    await logInAsTeam(other, SEEDED.admin.email, SEEDED.admin.password);
     await expect(other).toHaveURL(/\/admin$/);
     await other.goto(editUrl);
     await other.getByLabel("Short description").fill("Shape, trim and a hot towel finish.");

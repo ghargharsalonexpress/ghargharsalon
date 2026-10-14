@@ -11,7 +11,7 @@ import { Avatar, Badge, Button, ConfirmDialog, EmptyState, InlineAlert, Link, Pa
 import { usePageMeta } from "@/features/public/usePageMeta";
 import { errorText } from "@/lib/errors";
 import { formatRelativeFromNow } from "@/lib/format";
-import { adminProfessionalQuery, useAdminTestAlert, useProfessionalStatus, useResendSetPassword } from "./api";
+import { adminProfessionalQuery, useAdminTestAlert, useProfessionalStatus } from "./api";
 import { PerformanceSection } from "./PerformanceSection";
 import { PresenceBadge } from "./PresenceBadge";
 
@@ -38,7 +38,6 @@ export function ProfessionalDetailsPage() {
   const toast = useToast();
   const professional = useQuery({ ...adminProfessionalQuery(id), refetchInterval: 15_000 });
   const status = useProfessionalStatus(id);
-  const resend = useResendSetPassword(id);
   const testAlert = useAdminTestAlert(id);
   const [confirm, setConfirm] = useState<"suspend" | "reactivate" | null>(null);
   const [reason, setReason] = useState("");
@@ -150,9 +149,7 @@ export function ProfessionalDetailsPage() {
             <Field label={t("proEditor.phone")}>
               <Link href={`tel:+91${p.phone}`}>+91 {formatIndianMobile(p.phone)}</Link>
             </Field>
-            <Field label={t("proEditor.email")}>
-              <Link href={`mailto:${p.email}`}>{p.email}</Link>
-            </Field>
+            <Field label={t("proEditor.email")}>{p.email ? <Link href={`mailto:${p.email}`}>{p.email}</Link> : "—"}</Field>
             <Field label={t("proEditor.skills")}>{p.skills.map((skill) => SKILL_LABELS[skill].en).join("; ")}</Field>
             <Field label={t("proEditor.baseArea")}>{t("details.areaValue", { area: p.baseArea, count: p.travelRadiusKm })}</Field>
             <Field label={t("proEditor.verification")}>{p.verifiedAt ? t("proEditor.verifiedBy", { name: p.verifiedBy ?? "", date: when(p.verifiedAt) ?? "" }) : t("professionals.unverified")}</Field>
@@ -165,17 +162,10 @@ export function ProfessionalDetailsPage() {
             {t("details.account")}
           </Typography>
           <Box component="dl" sx={{ m: 0, display: "grid", gap: 3 }}>
-            <Field label={t("details.password")}>{p.passwordSet ? t("details.passwordSet") : t("details.passwordNotSet")}</Field>
+            <Field label={t("details.login")}>{t("details.loginHow", { phone: formatIndianMobile(p.phone) })}</Field>
+            <Field label={t("details.lastLogin")}>{when(p.lastLoginAt) ?? t("details.neverLoggedIn")}</Field>
             <Field label={t("details.added")}>{when(p.createdAt)}</Field>
           </Box>
-          {resend.isError && (
-            <Box sx={{ mt: 4 }}>
-              <InlineAlert tone="danger">{errorText(t, resend.error)}</InlineAlert>
-            </Box>
-          )}
-          <Button variant="secondary" sx={{ mt: 5 }} disabled={suspended} loading={resend.isPending} onClick={() => resend.mutate(undefined, { onSuccess: () => toast(t("details.linkSent", { email: p.email })) })}>
-            {p.passwordSet ? t("details.sendReset") : t("details.resendLink")}
-          </Button>
         </Box>
         <PerformanceSection professionalId={p.id} name={p.name} />
       </Box>

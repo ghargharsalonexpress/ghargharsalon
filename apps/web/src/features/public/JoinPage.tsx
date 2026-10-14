@@ -7,7 +7,7 @@ import { brand } from "@/brand";
 import { Button } from "@/design-system";
 import { usePageMeta } from "./usePageMeta";
 
-const STEPS = ["apply", "verify", "password", "online"] as const;
+const STEPS = ["apply", "verify", "login", "online"] as const;
 
 /** A Google Form can be shown inside the page (?embedded=true); other form links only open. */
 function embeddableForm(url: string): string | null {

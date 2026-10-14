@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
+import { loginPathFor } from "@/app/session";
 import { useToast } from "@/design-system";
 import { useLogout } from "./api";
 
@@ -14,7 +15,7 @@ export function useSignOut() {
     logout.mutate(undefined, {
       onSettled: () => {
         toast(t("state.loggedOut"));
-        void navigate("/login", { replace: true });
+        void navigate(loginPathFor(window.location.pathname), { replace: true });
       },
     });
 

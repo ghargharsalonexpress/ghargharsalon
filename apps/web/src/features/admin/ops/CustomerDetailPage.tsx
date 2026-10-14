@@ -75,9 +75,7 @@ export function CustomerDetailPage() {
             <Field label={t("customers.colPhone")}>
               <Link href={`tel:+91${d.customer.phone}`}>+91 {formatIndianMobile(d.customer.phone)}</Link>
             </Field>
-            <Field label={t("customers.email")}>
-              <Link href={`mailto:${d.customer.email}`}>{d.customer.email}</Link>
-            </Field>
+            <Field label={t("customers.email")}>{d.customer.email ? <Link href={`mailto:${d.customer.email}`}>{d.customer.email}</Link> : "—"}</Field>
             <Field label={t("customers.language")}>{d.customer.locale === "hi" ? "Hindi" : "English"}</Field>
             <Field label={t("customers.spent")}>{rupees(d.spentPaise)}</Field>
           </Box>

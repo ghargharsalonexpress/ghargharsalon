@@ -11,7 +11,11 @@ afterAll(() => ctx.close());
 
 const tokenFrom = (url?: string) => new URL(url ?? "http://x").searchParams.get("token") ?? "";
 
-async function requestReset(email: string) {
+/** Only team accounts have a password (ADR-0020): customers and professionals use SMS codes. */
+const teamMember = (fields: Parameters<typeof createUser>[0] = {}) => createUser({ role: "admin", ...fields });
+
+async function requestReset(email: string | null) {
+  if (!email) throw new Error("team members always have an email");
   const res = await new Client(ctx.app).post("/v1/auth/password/forgot", { email });
   expect(res.status).toBe(202);
   const message = ctx.email.latestTo(email);
@@ -19,17 +23,20 @@ async function requestReset(email: string) {
   return { message, url, token: tokenFrom(url) };
 }
 
-describe("forgot password (W2)", () => {
-  it("answers the same for unknown emails and sends nothing", async () => {
+describe("forgot password (Team login)", () => {
+  it("answers the same for unknown emails and non-team accounts, and sends nothing", async () => {
+    const customer = await createUser({ role: "customer" });
     const before = ctx.email.sent.length;
-    const res = await new Client(ctx.app).post("/v1/auth/password/forgot", { email: "ghost@example.com" });
-    expect(res.status).toBe(202);
-    expect(res.body).toEqual({});
+    for (const email of ["ghost@example.com", customer.email]) {
+      const res = await new Client(ctx.app).post("/v1/auth/password/forgot", { email });
+      expect(res.status).toBe(202);
+      expect(res.body).toEqual({});
+    }
     expect(ctx.email.sent.length).toBe(before);
   });
 
   it("emails a 30-minute link in the person's language", async () => {
-    const user = await createUser({ locale: "hi", name: "Priya Verma" });
+    const user = await teamMember({ locale: "hi", name: "Priya Verma" });
     const { message, url, token } = await requestReset(user.email);
     expect(message?.tag).toBe("password-reset");
     expect(message?.subject).toContain("पासवर्ड");
@@ -45,7 +52,7 @@ describe("forgot password (W2)", () => {
   });
 
   it("limits requests to 3 per hour per email", async () => {
-    const user = await createUser();
+    const user = await teamMember();
     const client = new Client(ctx.app);
     for (let i = 0; i < 3; i++) expect((await client.post("/v1/auth/password/forgot", { email: user.email })).status).toBe(202);
     const limited = await client.post("/v1/auth/password/forgot", { email: user.email });
@@ -53,9 +60,9 @@ describe("forgot password (W2)", () => {
   });
 });
 
-describe("reset password (W2)", () => {
+describe("reset password (Team login)", () => {
   it("checks the link first, keeps it when the new password is weak, then resets and signs in", async () => {
-    const user = await createUser();
+    const user = await teamMember();
     const { token } = await requestReset(user.email);
 
     const check = await new Client(ctx.app).post("/v1/auth/password/check", { token });
@@ -83,7 +90,7 @@ describe("reset password (W2)", () => {
   });
 
   it("signs out every other session of that person", async () => {
-    const user = await createUser();
+    const user = await teamMember();
     const elsewhere = await loginAs(ctx.app, user.email);
     const { token } = await requestReset(user.email);
     await new Client(ctx.app).post("/v1/auth/password/reset", { token, password: "fresh-garden-path-42" });
@@ -91,7 +98,7 @@ describe("reset password (W2)", () => {
   });
 
   it("says when a link has expired, and only the newest link works", async () => {
-    const user = await createUser();
+    const user = await teamMember();
     const first = await requestReset(user.email);
     const second = await requestReset(user.email);
 

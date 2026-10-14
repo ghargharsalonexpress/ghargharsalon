@@ -1,11 +1,9 @@
 import { randomUUID } from "node:crypto";
 import type { ProfessionalDto, ProfessionalInput } from "@brand/shared";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { hashPassword } from "../src/modules/auth/password";
 import { Professional } from "../src/modules/professionals/professional.model";
 import { sweepPresence } from "../src/modules/professionals/professionals.service";
-import { User } from "../src/modules/users/user.model";
-import { Client, createUser, loginAs, STRONG_PASSWORD, startTestApp, type TestContext } from "./helpers";
+import { Client, createUser, lastCode, loginAs, loginByPhone, startTestApp, type TestContext, uniquePhone } from "./helpers";
 
 let ctx: TestContext;
 let admin: Client;
@@ -13,7 +11,7 @@ let admin: Client;
 const input = (overrides: Partial<ProfessionalInput> = {}): ProfessionalInput => ({
   name: "Sunita Devi",
   email: `sunita.${randomUUID().slice(0, 6)}@example.com`,
-  phone: "9812345670",
+  phone: uniquePhone(),
   gender: "female",
   skills: ["salon_women", "makeup"],
   baseArea: "Sector 15, Faridabad",
@@ -28,13 +26,12 @@ const input = (overrides: Partial<ProfessionalInput> = {}): ProfessionalInput =>
 const FIX = { lat: 28.4089, lng: 77.3178, accuracy: 25 };
 const SUBSCRIPTION = (endpoint = `https://push.example.com/${randomUUID()}`) => ({ endpoint, expirationTime: null, keys: { p256dh: "BOrlb0pKXsmL5H6CpGW0Qn4UZ9z2lQ", auth: "pq8d0tRkLdQ2bJ5w" } });
 
-/** Creates a professional through the admin API and gives them a password, as the set-password email would. */
+/** Creates a professional through the admin API, then they log in with their number and an SMS code. */
 async function professional(overrides: Partial<ProfessionalInput> = {}): Promise<{ dto: ProfessionalDto; client: Client }> {
   const res = await admin.post("/v1/admin/professionals", input(overrides));
   expect(res.status, JSON.stringify(res.body)).toBe(201);
   const dto = res.body as ProfessionalDto;
-  await User.updateOne({ _id: dto.id }, { $set: { passwordHash: await hashPassword(STRONG_PASSWORD) } });
-  return { dto, client: await loginAs(ctx.app, dto.email) };
+  return { dto, client: await loginByPhone(ctx.app, dto.phone) };
 }
 
 beforeAll(async () => {
@@ -46,28 +43,45 @@ afterAll(async () => {
 });
 
 describe("admin: professionals (W11, W15)", () => {
-  it("creates the login and profile, emails the set-password link, and lists them", async () => {
+  it("creates the account and profile without sending anything, and lists them", async () => {
     const res = await admin.post("/v1/admin/professionals", input({ email: "sunita.devi@example.com" }));
     expect(res.status).toBe(201);
-    expect(res.body).toMatchObject({ name: "Sunita Devi", passwordSet: false, verifiedAt: null, presence: { state: "offline" }, devices: 0, version: 1 });
-    expect(ctx.email.latestTo("sunita.devi@example.com")?.html).toContain("/reset-password?token=");
+    expect(res.body).toMatchObject({ name: "Sunita Devi", lastLoginAt: null, verifiedAt: null, presence: { state: "offline" }, devices: 0, version: 1 });
+    // No set-password email any more: they log in with their mobile number (ADR-0020).
+    expect(ctx.email.latestTo("sunita.devi@example.com")).toBeUndefined();
 
     const list = await admin.get("/v1/admin/professionals");
-    expect(list.body).toEqual(expect.arrayContaining([expect.objectContaining({ email: "sunita.devi@example.com", status: "active" })]));
+    expect(list.body).toEqual(expect.arrayContaining([expect.objectContaining({ email: "sunita.devi@example.com", status: "active", lastLoginAt: null })]));
 
-    const again = await admin.post("/v1/admin/professionals", input({ email: "sunita.devi@example.com" }));
-    expect(again.status).toBe(409);
-    expect(again.body.error).toMatchObject({ code: "EMAIL_TAKEN", fields: { email: "validation.emailTaken" } });
+    const sameEmail = await admin.post("/v1/admin/professionals", input({ email: "sunita.devi@example.com" }));
+    expect(sameEmail.status).toBe(409);
+    expect(sameEmail.body.error).toMatchObject({ code: "EMAIL_TAKEN", fields: { email: "validation.emailTaken" } });
+    const sameNumber = await admin.post("/v1/admin/professionals", input({ phone: res.body.phone }));
+    expect(sameNumber.status).toBe(409);
+    expect(sameNumber.body.error).toMatchObject({ code: "PHONE_TAKEN", fields: { phone: "validation.phoneTaken" } });
+  });
+
+  it("needs no email, and shows when the professional first logs in", async () => {
+    const res = await admin.post("/v1/admin/professionals", input({ email: "" }));
+    expect(res.status).toBe(201);
+    expect(res.body.email).toBeNull();
+    // The admin form sends what its own parse produced: null for an empty email.
+    const fromForm = await admin.post("/v1/admin/professionals", input({ email: null }));
+    expect(fromForm.status, JSON.stringify(fromForm.body)).toBe(201);
+
+    await loginByPhone(ctx.app, res.body.phone);
+    const after = await admin.get(`/v1/admin/professionals/${res.body.id}`);
+    expect(after.body.lastLoginAt).toBeTruthy();
   });
 
   it("verifies with a stamp of who and when, and refuses a stale version", async () => {
     const { dto } = await professional();
-    const verified = await admin.send("put", `/v1/admin/professionals/${dto.id}`, { version: 1, professional: input({ email: dto.email, verified: true, verificationNote: "Aadhaar and PAN checked" }) });
+    const verified = await admin.send("put", `/v1/admin/professionals/${dto.id}`, { version: 1, professional: input({ email: dto.email ?? "", phone: dto.phone, verified: true, verificationNote: "Aadhaar and PAN checked" }) });
     expect(verified.status).toBe(200);
     expect(verified.body).toMatchObject({ verifiedBy: "Asha Admin", verificationNote: "Aadhaar and PAN checked", version: 2 });
     expect(verified.body.verifiedAt).toBeTruthy();
 
-    const stale = await admin.send("put", `/v1/admin/professionals/${dto.id}`, { version: 1, professional: input({ email: dto.email, verified: true }) });
+    const stale = await admin.send("put", `/v1/admin/professionals/${dto.id}`, { version: 1, professional: input({ email: dto.email ?? "", phone: dto.phone, verified: true }) });
     expect(stale.status).toBe(409);
     expect(stale.body.error.code).toBe("VERSION_CONFLICT");
   });
@@ -163,8 +177,10 @@ describe("suspension (W15)", () => {
     expect(res.body).toMatchObject({ status: "suspended", presence: { state: "offline" } });
     expect((await client.get("/v1/pro/me")).status).toBe(401);
 
-    const login = await new Client(ctx.app).post("/v1/auth/login", { email: dto.email, password: STRONG_PASSWORD });
-    expect(login.body.error.code).toBe("ACCOUNT_SUSPENDED");
+    const login = new Client(ctx.app);
+    await login.post("/v1/auth/otp/send", { phone: dto.phone });
+    const refused = await login.post("/v1/auth/otp/verify", { phone: dto.phone, code: lastCode(ctx.app, dto.phone) });
+    expect(refused.body.error.code).toBe("ACCOUNT_SUSPENDED");
 
     expect((await admin.post(`/v1/admin/professionals/${dto.id}/status`, { status: "active", reason: "" })).body.status).toBe("active");
   });

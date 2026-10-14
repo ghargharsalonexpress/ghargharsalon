@@ -40,10 +40,6 @@ export function useProfessionalStatus(id: string) {
   });
 }
 
-export function useResendSetPassword(id: string) {
-  return useMutation({ mutationFn: () => api.post<void>(`/v1/admin/professionals/${id}/set-password-link`) });
-}
-
 export function useAdminTestAlert(id: string) {
   return useMutation({ mutationFn: () => api.post<{ sent: number; removed: number; failed: number }>(`/v1/admin/professionals/${id}/test-alert`) });
 }

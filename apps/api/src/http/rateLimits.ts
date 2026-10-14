@@ -35,14 +35,22 @@ const emailKey = (req: Request): string => {
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 
+const passThrough: RequestHandler = (_req, _res, next) => next();
+
 /**
  * Plan C11 limits. In-memory stores are correct for one API instance; the scale path
  * (C18) moves them to Redis. Created per app so tests start clean.
+ *
+ * Login codes (ADR-0020) also have per-number limits in the database (loginCode.ts). The
+ * per-IP ones here stop one source from paying for SMS to many numbers ("SMS pumping").
+ * `loginCodes: false` is for E2E runs only, where every browser shares one IP.
  */
-export function createAuthLimits() {
+export function createAuthLimits({ loginCodes = true }: { loginCodes?: boolean } = {}) {
   return {
     login: limiter("login", { windowMs: MINUTE, limit: 5, key: emailKey, skipSuccessful: true }),
-    signup: limiter("signup", { windowMs: HOUR, limit: 10 }),
+    signup: loginCodes ? limiter("signup", { windowMs: HOUR, limit: 10 }) : passThrough,
+    codeSend: loginCodes ? limiter("code-send", { windowMs: HOUR, limit: 20 }) : passThrough,
+    codeVerify: loginCodes ? limiter("code-verify", { windowMs: 10 * MINUTE, limit: 30 }) : passThrough,
     forgotPerEmail: limiter("forgot", { windowMs: HOUR, limit: 3, key: emailKey }),
     forgotPerIp: limiter("forgot-ip", { windowMs: HOUR, limit: 20 }),
     tokenCheck: limiter("token-check", { windowMs: HOUR, limit: 30 }),
@@ -61,8 +69,6 @@ export function createProLimits() {
     pushTest: limiter("push-test", { windowMs: 10 * MINUTE, limit: 6, key: userKey }),
   };
 }
-
-const passThrough: RequestHandler = (_req, _res, next) => next();
 
 /** Checkout limits (plan C11: quote 30/min). Off only for stress tests (config refuses that in production). */
 export function createCheckoutLimits(enabled = true) {

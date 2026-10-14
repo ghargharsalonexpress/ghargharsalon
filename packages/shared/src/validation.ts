@@ -8,6 +8,8 @@ export const V = {
   nameShort: "validation.nameShort",
   nameLong: "validation.nameLong",
   phone: "validation.phone",
+  phoneTaken: "validation.phoneTaken",
+  loginCode: "validation.loginCode",
   passwordShort: "validation.passwordShort",
   passwordLong: "validation.passwordLong",
   passwordWeak: "validation.passwordWeak",

@@ -106,7 +106,7 @@ export interface AdminBookingRow {
 
 export interface AdminBookingDetailDto {
   booking: BookingDto;
-  customer: { id: string; name: string; phone: string; email: string; status: string };
+  customer: { id: string; name: string; phone: string; email: string | null; status: string };
   history: Array<{ status: BookingStatus; at: string; by: string }>;
   offers: Array<{
     id: string;
@@ -158,7 +158,8 @@ export type AdminCancelInput = z.input<typeof adminCancelSchema>;
 export interface AdminCustomerRow {
   id: string;
   name: string;
-  email: string;
+  /** Customers may sign up without one (mobile login, ADR-0020). */
+  email: string | null;
   phone: string;
   status: "active" | "blocked";
   createdAt: string;

@@ -37,8 +37,13 @@ await connectDb(config.MONGODB_URI);
 await ensureIndexes();
 
 const existing = await User.findOne({ email });
+// One account per mobile number (ADR-0020): an admin can't share a customer's or professional's.
+const phoneOwner = existing ? null : await User.findOne({ phone });
 if (existing && existing.role !== "admin") {
   console.error(`${email} already belongs to a ${existing.role}; use another email.`);
+} else if (phoneOwner) {
+  console.error(`ADMIN_PHONE ${phone} already belongs to a ${phoneOwner.role} account; use another number.`);
+  process.exitCode = 1;
 } else if (existing && !resetPassword) {
   console.log(`Admin ${email} already exists. Run with --reset-password to change the password.`);
 } else if (existing) {

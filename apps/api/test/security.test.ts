@@ -1,6 +1,6 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { Client, signupBody, startTestApp, type TestContext, WEB_ORIGIN } from "./helpers";
+import { Client, createUser, lastCode, startTestApp, type TestContext, WEB_ORIGIN } from "./helpers";
 
 let ctx: TestContext;
 beforeAll(async () => {
@@ -41,8 +41,10 @@ describe("CSRF and origin (plan C11)", () => {
     expect(csrfCookie).toMatch(/^csrf=/);
     expect(csrfCookie).not.toMatch(/HttpOnly/i);
 
-    const signup = await client.post("/v1/auth/signup", signupBody());
-    const sid = (signup.headers["set-cookie"] as unknown as string[]).find((cookie) => cookie.startsWith("sid="));
+    const customer = await createUser();
+    await client.post("/v1/auth/otp/send", { phone: customer.phone });
+    const signedIn = await client.post("/v1/auth/otp/verify", { phone: customer.phone, code: lastCode(ctx.app, customer.phone) });
+    const sid = (signedIn.headers["set-cookie"] as unknown as string[]).find((cookie) => cookie.startsWith("sid="));
     expect(sid).toMatch(/HttpOnly/i);
     expect(sid).toMatch(/SameSite=Lax/i);
     expect(sid).not.toMatch(/Secure/i); // test env is plain http; production sets Secure

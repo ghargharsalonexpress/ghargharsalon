@@ -62,9 +62,33 @@ export const PARTS = {
   E: { title: "The team's view", who: "Admin on a computer" },
 };
 
-async function logIn(page, account, t) {
-  await page.getByLabel(t("auth:login.email"), { exact: true }).fill(account.email);
-  await page.getByLabel(t("auth:login.password"), { exact: true }).fill(account.password);
+/** Team login (admins): email and password, typed in. */
+async function logInAsTeam(page, account, t) {
+  await page.getByLabel(t("auth:team.email"), { exact: true }).fill(account.email);
+  await page.getByLabel(t("auth:team.password"), { exact: true }).fill(account.password);
+}
+
+/**
+ * Customers and professionals (ADR-0020): mobile number → "Get OTP" → the code screen. The code
+ * comes from `codeFor` (the E2E stack's test route), or from the "Test code" line a local demo
+ * server shows (SMS_DEV_CODE=1). Returns the code; typing it signs the person in.
+ */
+async function askForCode(page, account, t, codeFor) {
+  await page.getByLabel(t("auth:login.phone"), { exact: true }).fill(account.phone);
+  await page.getByRole("button", { name: t("auth:login.submit") }).click();
+  const first = page.locator('input[autocomplete="one-time-code"]');
+  await first.waitFor({ timeout: 30_000 });
+  if (codeFor) return codeFor(account.phone);
+  const line = page.getByText(startsWith(t("auth:code.devCode", { code: "" }).split(":")[0]));
+  const text = await line.textContent({ timeout: 10_000 }).catch(() => null);
+  const code = /(\d{6})\s*$/.exec(text ?? "")?.[1];
+  if (!code) throw new Error("No test code on the login screen. Set SMS_DEV_CODE=1 (with SMS_TRANSPORT=log) in apps/api/.env and restart the API.");
+  return code;
+}
+
+async function typeCode(page, code, typeDelay) {
+  await page.locator('input[autocomplete="one-time-code"]').click();
+  await page.keyboard.type(code, { delay: typeDelay });
 }
 
 /**
@@ -75,7 +99,8 @@ async function logIn(page, account, t) {
  * ctx:
  * - customer, pro: Playwright pages (separate browser contexts); proContext moves the professional.
  * - openAdmin(): resolves to the admin page, opened when the team first looks (during the job).
- * - accounts: { customer, pro, admin } with email, password and (customer, pro) name.
+ * - accounts: { customer, pro } with phone and name; { admin } with email and password.
+ * - codeFor(phone): optional; the SMS login code (without it, the local demo's on-screen code).
  * - service: { slug, category, name }; preference: "female" | "any";
  * - address: { house, street, landmark, city, pincode, note }; route: points to the door (the last
  *   one within 200 m of the address pin).
@@ -94,8 +119,7 @@ export async function runHappyPath(ctx) {
 
   // ---------- A. The professional gets ready (Hindi) ----------
   await pp.goto("/login");
-  await logIn(pp, accounts.pro, hi);
-  await pp.getByRole("button", { name: hi("auth:login.submit") }).click();
+  await typeCode(pp, await askForCode(pp, accounts.pro, hi, ctx.codeFor), typeDelay);
   await pp.waitForURL(/\/pro$/);
   const toggle = pp.getByRole("switch");
   await toggle.waitFor();
@@ -178,15 +202,15 @@ export async function runHappyPath(ctx) {
 
   await toCheckout.click();
   await cp.waitForURL(/\/login\?/);
-  await logIn(cp, accounts.customer, en);
+  const customerCode = await askForCode(cp, accounts.customer, en, ctx.codeFor);
   await stage({
     id: "b5-login",
     part: "B",
-    title: "Log in to book",
-    caption: "Anyone can browse. To book, the customer logs in (or signs up in a minute) and comes straight back to checkout.",
+    title: "Log in with a mobile number",
+    caption: "Anyone can browse. To book, the customer types their mobile number and the 6-digit code that comes by SMS (a new number just adds a name), then comes straight back to checkout.",
     shots: [{ who: "customer" }],
   });
-  await cp.getByRole("button", { name: en("auth:login.submit") }).click();
+  await typeCode(cp, customerCode, typeDelay);
   await cp.waitForURL(/\/checkout$/);
 
   const addAddress = cp.getByRole("button", { name: en("booking:checkout.addAddress"), exact: true });
@@ -339,9 +363,9 @@ export async function runHappyPath(ctx) {
 
   // Meanwhile the team watches it on the admin's live board.
   const ap = await ctx.openAdmin();
-  await ap.goto("/login");
-  await logIn(ap, accounts.admin, en);
-  await ap.getByRole("button", { name: en("auth:login.submit") }).click();
+  await ap.goto("/admin/login");
+  await logInAsTeam(ap, accounts.admin, en);
+  await ap.getByRole("button", { name: en("auth:team.submit") }).click();
   await ap.waitForURL(/\/admin$/);
   await ap.goto("/admin/live");
   await ap.getByRole("heading", { name: en("admin:live.title"), level: 1 }).waitFor();
