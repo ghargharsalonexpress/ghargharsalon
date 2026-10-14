@@ -1,0 +1,1054 @@
+{
+  "note": "First-draft Hindi by machine translation; a native speaker must review before launch (plan assumption A14).",
+  "services": {
+    "wedding-glamm-pack": {
+      "name": "वेडिंग ग्लैम पैक",
+      "summary": "कोरियन ग्लो फ़ेशियल + गोल्ड रोल-ऑन वैक्स + थ्रेडिंग",
+      "tiers": {}
+    },
+    "top-to-toe-glow": {
+      "name": "सिर से पाँव तक ग्लो",
+      "summary": "कोरियन बॉडी पॉलिशिंग + हेड मसाज",
+      "tiers": {}
+    },
+    "shaadi-diva-essential": {
+      "name": "शादी दिवा एसेंशियल",
+      "summary": "विटामिन सी क्लीनअप + हनी वैक्स + थ्रेडिंग",
+      "tiers": {}
+    },
+    "korean-waxing-ritual": {
+      "name": "कोरियन वैक्सिंग रिचुअल – पूरी बाँहें + पूरे पैर + अंडरआर्म्स",
+      "summary": "",
+      "tiers": {}
+    },
+    "rica-gold-roll-on": {
+      "name": "Rica गोल्ड रोल-ऑन – पूरी बाँहें + पूरे पैर + अंडरआर्म्स",
+      "summary": "",
+      "tiers": {}
+    },
+    "stripless-korean-bikini-wax": {
+      "name": "स्ट्रिपलेस कोरियन बिकिनी वैक्स",
+      "summary": "एक बार इस्तेमाल होने वाला पील-ऑफ़ वैक्स",
+      "tiers": {}
+    },
+    "first-korean-hydra-facial": {
+      "name": "फ़र्स्ट कोरियन हाइड्रा फ़ेशियल",
+      "summary": "गहरी नमी के साथ कोरियन स्टाइल ग्लो बूस्ट",
+      "tiers": {}
+    },
+    "insta-cologne-boost-hydra-facial": {
+      "name": "इंस्टा कोलोन बूस्ट हाइड्रा फ़ेशियल",
+      "summary": "ठंडक भरी नमी के साथ तुरंत ताज़गी",
+      "tiers": {}
+    },
+    "hydration-boost-hydra-facial": {
+      "name": "हाइड्रेशन बूस्ट हाइड्रा फ़ेशियल",
+      "summary": "रूखी त्वचा के लिए नमी लौटाने वाला फ़ेशियल",
+      "tiers": {}
+    },
+    "korean-glow-facial": {
+      "name": "कोरियन ग्लो फ़ेशियल",
+      "summary": "ग्लास-स्किन जैसी नमी भरी चमक देने वाला फ़ेशियल",
+      "tiers": {}
+    },
+    "o3-plus-shine-glow-facial": {
+      "name": "O3 Plus शाइन और ग्लो फ़ेशियल",
+      "summary": "चमक और निखार के लिए सैलून क्वालिटी वाला O3+ फ़ेशियल",
+      "tiers": {}
+    },
+    "vitamin-c-brightening-facial": {
+      "name": "विटामिन सी ब्राइटनिंग फ़ेशियल",
+      "summary": "विटामिन सी के गुणों से ग्लो बढ़ाने वाला फ़ेशियल",
+      "tiers": {}
+    },
+    "skin-tightening-facial": {
+      "name": "स्किन टाइटनिंग फ़ेशियल",
+      "summary": "त्वचा को कसाव और बेहतर लचीलापन देने वाला फ़ेशियल",
+      "tiers": {}
+    },
+    "d10-facial": {
+      "name": "D10 फ़ेशियल",
+      "summary": "धूप से टैन हुई त्वचा के लिए डी-टैन और ब्राइटनिंग फ़ेशियल",
+      "tiers": {}
+    },
+    "exotic-fruit-facial": {
+      "name": "एग्ज़ॉटिक फ़्रूट फ़ेशियल",
+      "summary": "फलों के एंज़ाइम से कोमल देखभाल और ग्लो",
+      "tiers": {}
+    },
+    "golden-glow-facial": {
+      "name": "गोल्डन ग्लो फ़ेशियल",
+      "summary": "खास मौकों के लिए चमकदार ग्लो वाला फ़ेशियल",
+      "tiers": {}
+    },
+    "o3-plus-t-young-facial": {
+      "name": "O3 Plus T Young फ़ेशियल",
+      "summary": "O3+ के गुणों से जवां ग्लो देने वाला फ़ेशियल",
+      "tiers": {}
+    },
+    "berry-bomb-ice-cream-facial": {
+      "name": "बेरी बॉम्ब आइसक्रीम फ़ेशियल",
+      "summary": "बेरी के गुणों से भरा, मज़ेदार और सुकून देने वाला फ़ेशियल",
+      "tiers": {}
+    },
+    "moroccan-argan-oil-facial": {
+      "name": "मोरक्कन आर्गन ऑयल फ़ेशियल",
+      "summary": "मोरक्कन आर्गन ऑयल से पोषण देने वाला फ़ेशियल",
+      "tiers": {}
+    },
+    "ayurvedic-facial": {
+      "name": "आयुर्वेदिक फ़ेशियल",
+      "summary": "संतुलित त्वचा के लिए हर्बल फ़ेशियल",
+      "tiers": {}
+    },
+    "o3-plus-sondria-facial": {
+      "name": "O3 Plus Sondria फ़ेशियल",
+      "summary": "निखरी, मुलायम त्वचा के लिए O3+ Sondria रेंज",
+      "tiers": {}
+    },
+    "korean-luxe-mani-pedi": {
+      "name": "कोरियन लक्स मैनीक्योर और पेडीक्योर",
+      "summary": "कोरियन स्टाइल स्पा स्टेप्स के साथ हाथों और पैरों की खास देखभाल",
+      "tiers": {}
+    },
+    "classic-mani-pedi-combo": {
+      "name": "क्लासिक मैनीक्योर और पेडीक्योर",
+      "summary": "हाथों और पैरों की रोज़मर्रा की सफ़ाई और देखभाल",
+      "tiers": {}
+    },
+    "ice-cream-mani-pedi": {
+      "name": "आइसक्रीम मैनीक्योर और पेडीक्योर",
+      "summary": "डेज़र्ट थीम वाला मज़ेदार मैनीक्योर-पेडीक्योर",
+      "tiers": {}
+    },
+    "o3-plus-mani-pedi": {
+      "name": "O3+ मैनीक्योर और पेडीक्योर",
+      "summary": "हाथों और पैरों की प्रोफ़ेशनल O3+ देखभाल",
+      "tiers": {}
+    },
+    "sara-mani-pedi": {
+      "name": "Sara मैनीक्योर और पेडीक्योर",
+      "summary": "हर्बल तत्वों से हाथों और पैरों की देखभाल",
+      "tiers": {}
+    },
+    "korean-luxe-pedicure": {
+      "name": "कोरियन लक्स पेडीक्योर",
+      "summary": "स्पा स्टाइल कोरियन पेडीक्योर",
+      "tiers": {}
+    },
+    "classic-pedicure": {
+      "name": "क्लासिक पेडीक्योर",
+      "summary": "पैरों की बेसिक सफ़ाई और आराम",
+      "tiers": {}
+    },
+    "ice-cream-pedicure": {
+      "name": "आइसक्रीम पेडीक्योर",
+      "summary": "मज़ेदार और ठंडक देने वाला पेडीक्योर",
+      "tiers": {}
+    },
+    "o3-plus-pedicure": {
+      "name": "O3+ पेडीक्योर",
+      "summary": "O3+ के साथ प्रोफ़ेशनल पेडीक्योर",
+      "tiers": {}
+    },
+    "sara-pedicure": {
+      "name": "Sara पेडीक्योर",
+      "summary": "मुलायम पैरों के लिए हर्बल तत्वों वाला पेडीक्योर",
+      "tiers": {}
+    },
+    "cut-file-polish-hands": {
+      "name": "कट, फ़ाइल और पॉलिश – हाथ",
+      "summary": "हाथों के नाखूनों को झटपट सँवारना",
+      "tiers": {}
+    },
+    "nail-paint-apply": {
+      "name": "नेल पेंट लगाना",
+      "summary": "सिर्फ़ नेल पॉलिश लगाना",
+      "tiers": {}
+    },
+    "bubble-jelly-foot-soak": {
+      "name": "बबल जेली फ़ुट सोक",
+      "summary": "थके पैरों को आराम देने के लिए जेली में पैर भिगोने वाला ऐड-ऑन",
+      "tiers": {}
+    },
+    "eyebrows-threading": {
+      "name": "आइब्रो थ्रेडिंग",
+      "summary": "आइब्रो की झटपट शेपिंग और सफ़ाई",
+      "tiers": {}
+    },
+    "upper-lip-threading": {
+      "name": "अपर लिप थ्रेडिंग",
+      "summary": "अपर लिप के बाल झटपट हटाना",
+      "tiers": {}
+    },
+    "korean-body-polishing": {
+      "name": "कोरियन बॉडी पॉलिशिंग",
+      "summary": "मुलायम और निखरी त्वचा के लिए फ़ुल बॉडी पॉलिशिंग",
+      "tiers": {}
+    },
+    "korean-full-body-scrub": {
+      "name": "कोरियन फ़ुल बॉडी स्क्रब",
+      "summary": "पूरे शरीर की डेड स्किन गहराई से हटाना",
+      "tiers": {}
+    },
+    "half-body-scrub": {
+      "name": "हाफ़ बॉडी स्क्रब",
+      "summary": "शरीर के ऊपरी या निचले हिस्से की डेड स्किन हटाना",
+      "tiers": {}
+    },
+    "full-hand-scrub": {
+      "name": "पूरे हाथों का स्क्रब",
+      "summary": "दोनों हाथों और बाँहों की डेड स्किन हटाना",
+      "tiers": {}
+    },
+    "full-leg-scrub": {
+      "name": "पूरे पैरों का स्क्रब",
+      "summary": "दोनों पैरों की डेड स्किन हटाना",
+      "tiers": {}
+    },
+    "bleach-face-neck": {
+      "name": "ब्लीच – चेहरा और गर्दन",
+      "summary": "चेहरे और गर्दन के लिए रेगुलर ब्लीच",
+      "tiers": {}
+    },
+    "bleach-face-only": {
+      "name": "ब्लीच – चेहरा",
+      "summary": "चेहरे के लिए झटपट ब्लीच",
+      "tiers": {}
+    },
+    "d-detan-face": {
+      "name": "T10 डी-टैन – चेहरा",
+      "summary": "चेहरे के लिए डी-टैन ट्रीटमेंट",
+      "tiers": {}
+    },
+    "3-in-1-led-night-therapy-mask": {
+      "name": "3-इन-1 एलईडी नाइट थेरेपी फ़ेस मास्क",
+      "summary": "ग्लो और सुकून के लिए एलईडी से प्रेरित ऐड-ऑन मास्क",
+      "tiers": {}
+    },
+    "charcoal-algae-peel-off-mask": {
+      "name": "चारकोल एल्गी पील-ऑफ़ मोल्ड मास्क",
+      "summary": "बंद पोर्स वाली त्वचा के लिए डिटॉक्स पील-ऑफ़ मास्क",
+      "tiers": {}
+    },
+    "keratin-harissa-treatment": {
+      "name": "केराटिन हेयर स्पा ट्रीटमेंट (सीरम के साथ)",
+      "summary": "रूखे-बिखरे बालों पर कंट्रोल + गहरा पोषण",
+      "tiers": {}
+    },
+    "hair-color-application": {
+      "name": "हेयर कलर लगाना",
+      "summary": "प्रोफ़ेशनल्स द्वारा बालों पर एक-सा कलर",
+      "tiers": {}
+    },
+    "head-massage": {
+      "name": "हेड मसाज",
+      "summary": "सिर की आरामदायक मसाज",
+      "tiers": {}
+    },
+    "henna-application": {
+      "name": "बालों में मेहंदी लगाना",
+      "summary": "चमक और ठंडक के लिए नेचुरल मेहंदी की परत",
+      "tiers": {}
+    },
+    "caffeine-scalp-scrub": {
+      "name": "कैफ़ीन स्कैल्प स्क्रब",
+      "summary": "गहरी सफ़ाई + रूसी पर कंट्रोल",
+      "tiers": {}
+    },
+    "eyebrow-threading": {
+      "name": "आइब्रो थ्रेडिंग",
+      "summary": "सटीक शेप और साफ़ फ़िनिश",
+      "tiers": {}
+    },
+    "face-wax": {
+      "name": "चेहरे का वैक्स",
+      "summary": "झटपट बाल हटाकर चिकनी त्वचा",
+      "tiers": {}
+    },
+    "shade-k-glow": {
+      "name": "Shade K ग्लो फ़ेशियल",
+      "summary": "तुरंत चमक के लिए एडवांस्ड ब्राइटनिंग फ़ेशियल",
+      "tiers": {}
+    },
+    "korean-hydraglow-facial": {
+      "name": "कोरियन HydraGlow फ़ेशियल",
+      "summary": "गहरी नमी + ओस जैसी चमक वाला कोरियन ग्लास-स्किन लुक",
+      "tiers": {}
+    },
+    "korean-waxing-ritual-full": {
+      "name": "कोरियन वैक्सिंग रिचुअल (पूरी बाँहें + पूरे पैर + अंडरआर्म्स)",
+      "summary": "प्रीमियम कोरियन रोल-ऑन वैक्सिंग का अनुभव",
+      "tiers": {}
+    },
+    "korean-lukes-cleanup": {
+      "name": "कोरियन लक्स क्लीनअप",
+      "summary": "तरोताज़ा त्वचा के लिए झटपट गहरी सफ़ाई",
+      "tiers": {}
+    },
+    "korean-mani-pedi": {
+      "name": "कोरियन मैनीक्योर और पेडीक्योर",
+      "summary": "कोरियन ग्लो फ़िनिश के साथ स्पा स्टाइल मैनीक्योर और पेडीक्योर",
+      "tiers": {}
+    },
+    "korean-hydra-update": {
+      "name": "कोरियन हाइड्रा फ़ेशियल अपडेट",
+      "summary": "ज़्यादा नमी + और भी बेहतर कोरियन ग्लो",
+      "tiers": {}
+    },
+    "kw-fullarms-fulllegs-underarms": {
+      "name": "कोरियन वैक्सिंग रिचुअल – पूरी बाँहें, पूरे पैर और अंडरआर्म्स",
+      "summary": "चिकनी, चमकती त्वचा के लिए प्रीमियम कोरियन वैक्सिंग का अनुभव।",
+      "tiers": {}
+    },
+    "rica-rollon-fullarms-fulllegs-underarms": {
+      "name": "Rica गोल्ड रोल-ऑन वैक्स – पूरी बाँहें, पूरे पैर और अंडरआर्म्स",
+      "summary": "चमकती और बिना जलन वाली त्वचा के लिए लग्ज़री Rica रोल-ऑन सिस्टम।",
+      "tiers": {}
+    },
+    "waxoff-tinwax-fullbodycombo": {
+      "name": "वैक्स ऑफ़ टिन वैक्स – पूरी बाँहें, पूरे पैर और अंडरआर्म्स",
+      "summary": "भरपूर चिकनाहट और देर तक टिकने वाले फ़िनिश के लिए मज़बूत पकड़ वाला टिन वैक्स।",
+      "tiers": {}
+    },
+    "kw-premium-tiered-ritual": {
+      "name": "कोरियन वैक्सिंग प्रीमियम रिचुअल",
+      "summary": "",
+      "tiers": {
+        "kw-tier-1": "1 सेशन",
+        "kw-tier-2": "2 सेशन (2 महीने)",
+        "kw-tier-4": "4 सेशन (4 महीने)"
+      }
+    },
+    "netrica-tinvex-premium-wax": {
+      "name": "NETRICA और TINVEX प्रीमियम वैक्स",
+      "summary": "",
+      "tiers": {
+        "nt-tier-1": "1 सेशन",
+        "nt-tier-2": "2 सेशन (2 महीने)",
+        "nt-tier-4": "4 सेशन (4 महीने)"
+      }
+    },
+    "korean-waxing-scrub-brightening": {
+      "name": "कोरियन वैक्सिंग रिचुअल – स्क्रब + वैक्स + व्हाइटनिंग लोशन",
+      "summary": "",
+      "tiers": {
+        "kw-scrub-fullcombo": "पूरी बाँहें + पूरे पैर + अंडरआर्म्स",
+        "kw-scrub-halfcombo": "पूरी बाँहें + आधे पैर + अंडरआर्म्स",
+        "kw-scrub-fullbody": "फ़ुल बॉडी कोरियन वैक्सिंग",
+        "kw-scrub-arm": "पूरी बाँहें",
+        "kw-scrub-halfleg": "आधे पैर",
+        "kw-scrub-fullback": "पूरी पीठ",
+        "kw-scrub-halfarm": "आधी बाँहें"
+      }
+    },
+    "instalight-underarms": {
+      "name": "अंडरआर्म्स की ब्राइटनिंग",
+      "summary": "अंडरआर्म्स को निखारने के लिए खास स्किन लाइटनिंग ट्रीटमेंट।",
+      "tiers": {}
+    },
+    "instalight-neck": {
+      "name": "गर्दन की ब्राइटनिंग",
+      "summary": "गर्दन का फीकापन और पिगमेंटेशन दूर करता है।",
+      "tiers": {}
+    },
+    "instalight-elbows": {
+      "name": "कोहनियों की ब्राइटनिंग",
+      "summary": "रूखी कोहनियों को मुलायम बनाता है और त्वचा का रंग निखारता है।",
+      "tiers": {}
+    },
+    "instalight-knees": {
+      "name": "घुटनों की ब्राइटनिंग",
+      "summary": "काले घुटनों का रंग हल्का करता है और त्वचा की बनावट सुधारता है।",
+      "tiers": {}
+    },
+    "corian-lukes-pedicure": {
+      "name": "कोरियन लक्स पेडीक्योर",
+      "summary": "गहरी सफ़ाई और पैरों को नई ताज़गी",
+      "tiers": {}
+    },
+    "o3plus-pedicure": {
+      "name": "O3+ पेडीक्योर",
+      "summary": "एडवांस्ड ब्राइटनिंग और डी-टैन स्पा",
+      "tiers": {}
+    },
+    "cut-file-polish": {
+      "name": "कट, फ़ाइल और पॉलिश",
+      "summary": "नाखूनों को झटपट साफ़-सुथरा बनाना",
+      "tiers": {}
+    },
+    "classic-manicure": {
+      "name": "क्लासिक मैनीक्योर",
+      "summary": "नमी के साथ हाथों की सफ़ाई और देखभाल",
+      "tiers": {}
+    },
+    "ice-cream-manicure": {
+      "name": "आइसक्रीम मैनीक्योर",
+      "summary": "ठंडक, ग्लो और पोषण देने वाला हाथों का स्पा",
+      "tiers": {}
+    },
+    "o3plus-manicure": {
+      "name": "O3+ मैनीक्योर",
+      "summary": "सैलून क्वालिटी वाला ब्राइटनिंग मैनीक्योर",
+      "tiers": {}
+    },
+    "sara-manicure": {
+      "name": "Sara मैनीक्योर",
+      "summary": "कोमल हर्बल मैनीक्योर",
+      "tiers": {}
+    },
+    "eyebrows-threading-addon": {
+      "name": "आइब्रो थ्रेडिंग",
+      "summary": "",
+      "tiers": {}
+    },
+    "upper-lips-threading-addon": {
+      "name": "अपर लिप थ्रेडिंग",
+      "summary": "",
+      "tiers": {}
+    },
+    "korean-body-polishing-9-steps": {
+      "name": "कोरियन बॉडी पॉलिशिंग – 9 स्टेप",
+      "summary": "डेड स्किन की गहरी सफ़ाई, निखार और ग्लो बूस्ट",
+      "tiers": {}
+    },
+    "korean-body-full-scrub": {
+      "name": "कोरियन फ़ुल बॉडी स्क्रब",
+      "summary": "एडवांस्ड तरीके से डेड स्किन हटाकर चिकनी त्वचा",
+      "tiers": {}
+    },
+    "half-back-scrub": {
+      "name": "आधी पीठ का स्क्रब",
+      "summary": "पीठ की डेड स्किन झटपट हटाना",
+      "tiers": {}
+    },
+    "korean-cleanup": {
+      "name": "कोरियन क्लीनअप",
+      "summary": "निखार और पोर्स की गहरी सफ़ाई",
+      "tiers": {}
+    },
+    "o3-plus-d10-cleanup": {
+      "name": "O3+ D10 क्लीनअप",
+      "summary": "एडवांस्ड डी-टैन और त्वचा की गहरी सफ़ाई",
+      "tiers": {}
+    },
+    "nutri-seed-cleanup": {
+      "name": "न्यूट्री सीड क्लीनअप",
+      "summary": "बीजों के अर्क से पोषण देने वाली सफ़ाई थेरेपी",
+      "tiers": {}
+    },
+    "vitc-brightening-cleanup": {
+      "name": "विटामिन सी ब्राइटनिंग क्लीनअप",
+      "summary": "खट्टे फलों के अर्क से ग्लो बढ़ाने वाला ट्रीटमेंट",
+      "tiers": {}
+    },
+    "fruit-cleanup": {
+      "name": "फ़्रूट क्लीनअप",
+      "summary": "फलों के एंज़ाइम से कोमल ग्लो थेरेपी",
+      "tiers": {}
+    },
+    "skin-tightening-cleanup": {
+      "name": "स्किन टाइटनिंग क्लीनअप",
+      "summary": "त्वचा को कसाव और लिफ़्ट देने वाली फ़ेशियल थेरेपी",
+      "tiers": {}
+    },
+    "d10-cleanup": {
+      "name": "D10 क्लीनअप",
+      "summary": "टैन हटाना और निखार",
+      "tiers": {}
+    },
+    "o3-plus-pore-cleanup": {
+      "name": "O3+ पोर्स क्लीनअप",
+      "summary": "एक्सपर्ट तरीके से बंद पोर्स खोलना और डिटॉक्स",
+      "tiers": {}
+    },
+    "led-light-therapy-mask": {
+      "name": "3-इन-1 एलईडी लाइट थेरेपी मास्क",
+      "summary": "",
+      "tiers": {}
+    },
+    "charcoal-algae-peel": {
+      "name": "चारकोल एल्गी पील-ऑफ़",
+      "summary": "",
+      "tiers": {}
+    },
+    "marine-algae-peel": {
+      "name": "समुद्री एल्गी पील-ऑफ़ जेल मास्क",
+      "summary": "",
+      "tiers": {}
+    },
+    "korean-sheet-mask": {
+      "name": "कोरियन डे-नाइट शीट मास्क",
+      "summary": "",
+      "tiers": {}
+    },
+    "vitamin-c-serum": {
+      "name": "विटामिन सी फ़ेस सीरम",
+      "summary": "",
+      "tiers": {}
+    },
+    "jade-roller-face-massage": {
+      "name": "जेड रोलर + गुआ शा मसाज",
+      "summary": "",
+      "tiers": {}
+    },
+    "eye-mask-jade-roller": {
+      "name": "आई मास्क + जेड रोलर मसाज",
+      "summary": "",
+      "tiers": {}
+    },
+    "sheet-mask-jade-roller": {
+      "name": "शीट मास्क + जेड रोलर",
+      "summary": "",
+      "tiers": {}
+    },
+    "face-neck-massage-addon": {
+      "name": "चेहरे और गर्दन की मसाज",
+      "summary": "",
+      "tiers": {}
+    },
+    "d10-face-neck-addon": {
+      "name": "D10 – चेहरा और गर्दन",
+      "summary": "",
+      "tiers": {}
+    },
+    "upperlip-threading-addon": {
+      "name": "अपर लिप थ्रेडिंग",
+      "summary": "",
+      "tiers": {}
+    },
+    "bleach-detan-face-and-neck": {
+      "name": "चेहरे और गर्दन का ब्लीच और डी-टैन",
+      "summary": "मुलायम, चमकती त्वचा के लिए निखार और डी-टैन ट्रीटमेंट",
+      "tiers": {
+        "bleach-detan-tier-o2-bleach": "O2 ब्लीच",
+        "bleach-detan-tier-vitamin-c-plus-bleach": "विटामिन सी प्लस ब्लीच",
+        "bleach-detan-tier-detan-mask": "डी-टैन मास्क"
+      }
+    },
+    "bleach-premium-package": {
+      "name": "ब्लीच प्रीमियम पैकेज",
+      "summary": "तुरंत निखार के लिए फ़ुल बॉडी ब्लीच के विकल्प",
+      "tiers": {
+        "bleach-tier-full-body": "फ़ुल बॉडी ब्लीच",
+        "bleach-tier-full-arms": "पूरी बाँहों का ब्लीच",
+        "bleach-tier-full-back": "पूरी पीठ का ब्लीच",
+        "bleach-tier-half-back": "आधी पीठ का ब्लीच",
+        "bleach-tier-underarms": "अंडरआर्म्स का ब्लीच",
+        "bleach-tier-stomach": "पेट का ब्लीच"
+      }
+    },
+    "detan-premium-package": {
+      "name": "डी-टैन प्रीमियम पैकेज",
+      "summary": "निखरी और एक जैसी रंगत वाली त्वचा के लिए गहरे डी-टैन के विकल्प",
+      "tiers": {
+        "detan-tier-full-body": "फ़ुल बॉडी डी-टैन",
+        "detan-tier-full-arms": "पूरी बाँहों का डी-टैन",
+        "detan-tier-full-body-face-neck": "फ़ुल बॉडी + चेहरे + गर्दन का डी-टैन",
+        "detan-tier-full-back": "पूरी पीठ का डी-टैन",
+        "detan-tier-half-back": "आधी पीठ का डी-टैन",
+        "detan-tier-stomach": "पेट का डी-टैन"
+      }
+    },
+    "3-in-1-led-light-therapy-face-mask": {
+      "name": "3-इन-1 एलईडी लाइट थेरेपी फ़ेस मास्क",
+      "summary": "जल्दी दिखने वाले ग्लो के लिए ट्रिपल-मोड एलईडी ट्रीटमेंट",
+      "tiers": {}
+    },
+    "charcoal-algae-peel-off-mold-mask": {
+      "name": "चारकोल एल्गी पील-ऑफ़ मोल्ड मास्क",
+      "summary": "चारकोल और एल्गी वाला डिटॉक्स पील-ऑफ़ मास्क",
+      "tiers": {}
+    },
+    "marine-algae-peel-off-gel-mask": {
+      "name": "समुद्री एल्गी पील-ऑफ़ जेल मास्क",
+      "summary": "गहरी नमी के लिए ठंडक देने वाला समुद्री एल्गी मास्क",
+      "tiers": {}
+    },
+    "korean-day-and-night-sheet-mask": {
+      "name": "कोरियन डे-नाइट शीट मास्क",
+      "summary": "तुरंत ग्लो के लिए नमी से भरपूर कोरियन शीट मास्क",
+      "tiers": {}
+    },
+    "basic-makeup": {
+      "name": "बेसिक मेकअप",
+      "summary": "अच्छी क्वालिटी के प्रोडक्ट्स से सॉफ़्ट ग्लैम लुक",
+      "tiers": {}
+    },
+    "hd-finish-makeup": {
+      "name": "एचडी फ़िनिश मेकअप",
+      "summary": "हाई-डेफ़िनिशन, देर तक टिकने वाला पार्टी मेकअप",
+      "tiers": {}
+    },
+    "premium-makeup": {
+      "name": "प्रीमियम मेकअप",
+      "summary": "हाई-एंड इंटरनेशनल प्रोडक्ट्स और बेहतरीन फ़िनिश",
+      "tiers": {}
+    },
+    "base-eye-makeup": {
+      "name": "बेस आई मेकअप",
+      "summary": "हल्का, नेचुरल निखार",
+      "tiers": {}
+    },
+    "advanced-eye-makeup": {
+      "name": "एडवांस्ड आई मेकअप",
+      "summary": "ज़्यादा बोल्ड और उभरा हुआ आँखों का मेकअप",
+      "tiers": {}
+    },
+    "basic-makeup-combo": {
+      "name": "बेसिक मेकअप कॉम्बो",
+      "summary": "किफ़ायती डुओ पैकेज",
+      "tiers": {}
+    },
+    "hd-makeup-combo": {
+      "name": "एचडी मेकअप कॉम्बो",
+      "summary": "स्टाइलिंग के साथ हाई-डेफ़िनिशन फ़िनिश",
+      "tiers": {}
+    },
+    "premium-makeup-combo": {
+      "name": "प्रीमियम मेकअप कॉम्बो",
+      "summary": "बेहतरीन मेकअप + हेयरस्टाइल पैकेज",
+      "tiers": {}
+    },
+    "wedding-basic-3": {
+      "name": "बेसिक मेकअप कॉम्बो – 3 लोग",
+      "summary": "परिवार के छोटे फ़ंक्शन के लिए बिल्कुल सही",
+      "tiers": {}
+    },
+    "wedding-basic-7": {
+      "name": "बेसिक मेकअप कॉम्बो – 7 लोग",
+      "summary": "शादी के दिन परिवार की तैयारी के लिए सबसे सही",
+      "tiers": {}
+    },
+    "wedding-basic-5": {
+      "name": "बेसिक मेकअप कॉम्बो – 5 लोग",
+      "summary": "मीडियम साइज़ के फ़ंक्शन के लिए बिल्कुल सही",
+      "tiers": {}
+    },
+    "basic-styling": {
+      "name": "बेसिक हेयर स्टाइलिंग",
+      "summary": "सादे कर्ल्स, स्ट्रेटनिंग या हल्की स्टाइलिंग",
+      "tiers": {}
+    },
+    "advanced-styling": {
+      "name": "एडवांस्ड हेयर स्टाइलिंग",
+      "summary": "चोटियाँ, टेक्सचर्ड लुक, कर्ल्स, पार्टी स्टाइलिंग",
+      "tiers": {}
+    },
+    "hd-makeup-combo-7": {
+      "name": "एचडी मेकअप कॉम्बो – 7 लोग",
+      "summary": "पूरे दिन के फ़ंक्शन के लिए देर तक टिकने वाला परफ़ेक्ट एचडी मेकओवर",
+      "tiers": {}
+    },
+    "hd-makeup-combo-5": {
+      "name": "एचडी मेकअप कॉम्बो – 5 लोग",
+      "summary": "मध्यम अवधि के फ़ंक्शन के लिए प्रोफ़ेशनल एचडी मेकअप",
+      "tiers": {}
+    },
+    "hd-makeup-combo-3": {
+      "name": "एचडी मेकअप कॉम्बो – 3 लोग",
+      "summary": "कम समय के फ़ंक्शन के लिए झटपट एचडी ग्लैम मेकअप",
+      "tiers": {}
+    },
+    "premium-makeup-3": {
+      "name": "प्रीमियम मेकअप कॉम्बो (3 लोग)",
+      "summary": "छोटे ब्राइडल ग्रुप के लिए पूरा प्रीमियम मेकओवर",
+      "tiers": {}
+    },
+    "premium-makeup-5": {
+      "name": "प्रीमियम मेकअप कॉम्बो (5 लोग)",
+      "summary": "मीडियम साइज़ के परिवारों के लिए सबसे अच्छा ग्रुप मेकअप पैकेज",
+      "tiers": {}
+    },
+    "premium-makeup-7": {
+      "name": "प्रीमियम मेकअप कॉम्बो (7 लोग)",
+      "summary": "बड़े परिवारों के ग्रुप के लिए पूरा मेकओवर पैकेज",
+      "tiers": {}
+    },
+    "basic-hair-styling": {
+      "name": "बेसिक स्टाइलिंग",
+      "summary": "",
+      "tiers": {}
+    },
+    "advanced-hair-styling": {
+      "name": "एडवांस्ड स्टाइलिंग",
+      "summary": "",
+      "tiers": {}
+    },
+    "engagement-premium-makeup": {
+      "name": "सगाई का प्रीमियम मेकअप",
+      "summary": "",
+      "tiers": {}
+    },
+    "engagement-basic-makeup": {
+      "name": "सगाई का बेसिक मेकअप",
+      "summary": "",
+      "tiers": {}
+    },
+    "bridal-basic-makeup": {
+      "name": "बेसिक ब्राइडल मेकअप",
+      "summary": "",
+      "tiers": {}
+    },
+    "bridal-premium-makeup": {
+      "name": "प्रीमियम ब्राइडल मेकअप",
+      "summary": "",
+      "tiers": {}
+    },
+    "haircut-blowdry": {
+      "name": "हेयरकट + ब्लो-ड्राई",
+      "summary": "स्मूद फ़िनिश वाले ब्लो-ड्राई के साथ प्रोफ़ेशनल हेयरकट",
+      "tiers": {}
+    },
+    "keratin-hair-spa-serum": {
+      "name": "केराटिन हेयर स्पा ट्रीटमेंट (सीरम के साथ)",
+      "summary": "पोषण देने वाले सीरम के साथ बालों को गहराई से रिपेयर करने वाला केराटिन स्पा",
+      "tiers": {}
+    },
+    "head-neck-shoulder-massage": {
+      "name": "सिर, गर्दन और कंधों की मसाज",
+      "summary": "तनाव से राहत के लिए आरामदायक प्रेशर थेरेपी",
+      "tiers": {}
+    },
+    "touchup-own-product": {
+      "name": "टच-अप (आपके अपने प्रोडक्ट से)",
+      "summary": "सिर्फ़ आपके प्रोडक्ट से जड़ों और हेयरलाइन का टच-अप",
+      "tiers": {}
+    },
+    "head-oil-massage": {
+      "name": "तेल वाली हेड मसाज",
+      "summary": "गुनगुने तेल से सिर को आराम देने वाली थेरेपी",
+      "tiers": {}
+    },
+    "full-hair-color": {
+      "name": "फ़ुल हेयर कलर लगाना",
+      "summary": "बालों की पूरी लंबाई में एक-सा कलर लगाना",
+      "tiers": {}
+    },
+    "temporary-hair-straightening": {
+      "name": "टेम्पररी हेयर स्ट्रेटनिंग",
+      "summary": "हीट स्टाइलिंग से कुछ समय के लिए स्मूद, सीधे बाल",
+      "tiers": {}
+    },
+    "hair-curls-waves": {
+      "name": "बालों में कर्ल्स और वेव्स",
+      "summary": "सॉफ़्ट कर्ल्स या ग्लैम वेव्स",
+      "tiers": {}
+    },
+    "mom-daughter-haircut-blowdry": {
+      "name": "माँ-बेटी हेयरकट + ब्लो-ड्राई",
+      "summary": "",
+      "tiers": {}
+    },
+    "haircare-head-neck-shoulder-massage": {
+      "name": "सिर, गर्दन और कंधों की मसाज",
+      "summary": "",
+      "tiers": {}
+    },
+    "touch-up-own-product": {
+      "name": "टच-अप (आपके अपने प्रोडक्ट से)",
+      "summary": "",
+      "tiers": {}
+    },
+    "full-hair-color-application": {
+      "name": "फ़ुल हेयर कलर लगाना",
+      "summary": "",
+      "tiers": {}
+    },
+    "temp-hair-straightening": {
+      "name": "टेम्पररी हेयर स्ट्रेटनिंग",
+      "summary": "किसी भी लंबाई के बालों के लिए स्ट्रेटनिंग",
+      "tiers": {}
+    },
+    "hair-curls-and-wave": {
+      "name": "बालों में कर्ल्स और वेव्स",
+      "summary": "किसी भी लंबाई के बालों में सुंदर कर्ल्स",
+      "tiers": {}
+    },
+    "full-body-swedish-massage": {
+      "name": "फ़ुल बॉडी स्वीडिश मसाज",
+      "summary": "आराम देने वाली बॉडी मसाज",
+      "tiers": {
+        "swedish-1-session": "1 सेशन",
+        "swedish-2-session-1month": "2 सेशन (1 महीने में)",
+        "swedish-4-session-2month": "4 सेशन (2 महीने में)",
+        "swedish-6-session-3month": "6 सेशन (3 महीने में)"
+      }
+    },
+    "deep-tissue-therapy": {
+      "name": "डीप टिशू हीलिंग थेरेपी",
+      "summary": "दर्द से राहत के लिए गहरी मसाज",
+      "tiers": {
+        "deep-tissue-1session": "1 सेशन",
+        "deep-tissue-2session": "2 सेशन (1 महीने में)",
+        "deep-tissue-4session": "4 सेशन (2 महीने में)",
+        "deep-tissue-6session": "6 सेशन (3 महीने में)"
+      }
+    },
+    "head-to-toe-pain-relief": {
+      "name": "सिर से पाँव तक दर्द से राहत",
+      "summary": "मांसपेशियों को पूरा आराम",
+      "tiers": {
+        "pain-relief-1session": "1 सेशन",
+        "pain-relief-2session": "2 सेशन (2 महीने में)",
+        "pain-relief-4session": "4 सेशन (2 महीने में)",
+        "pain-relief-6session": "6 सेशन (3 महीने में)"
+      }
+    },
+    "balinese-knees-massage": {
+      "name": "घुटनों की बालिनीज़ मसाज (स्ट्रेचिंग के साथ)",
+      "summary": "जोड़ों के लिए खास आराम",
+      "tiers": {
+        "balinese-1session": "1 सेशन",
+        "balinese-2session": "2 सेशन (1 महीने में)",
+        "balinese-4session": "4 सेशन (2 महीने में)",
+        "balinese-6session": "6 सेशन (3 महीने में)"
+      }
+    },
+    "jet-lag-relief": {
+      "name": "जेट लैग रिलीफ़ मसाज",
+      "summary": "शरीर में फिर से संतुलन और नई ऊर्जा",
+      "tiers": {
+        "jetlag-1session": "1 सेशन",
+        "jetlag-2session": "2 सेशन (1 महीने में)",
+        "jetlag-4session": "4 सेशन (2 महीने में)",
+        "jetlag-6session": "6 सेशन (3 महीने में)"
+      }
+    },
+    "swedish-stress-relief": {
+      "name": "स्वीडिश स्ट्रेस रिलीफ़ मसाज",
+      "summary": "मन और शरीर को आराम",
+      "tiers": {
+        "stress-1session": "1 सेशन",
+        "stress-2session": "2 सेशन (1 महीने में)",
+        "stress-4session": "4 सेशन (2 महीने में)",
+        "stress-6session": "6 सेशन (3 महीने में)"
+      }
+    },
+    "aromatherapy": {
+      "name": "अरोमाथेरेपी मसाज",
+      "summary": "गहरे सुकून के लिए एसेंशियल ऑयल्स",
+      "tiers": {}
+    },
+    "foot-reflexology": {
+      "name": "पैरों की रिफ़्लेक्सोलॉजी",
+      "summary": "प्रेशर पॉइंट्स से आराम",
+      "tiers": {}
+    },
+    "head-neck-shoulder": {
+      "name": "सिर, गर्दन और कंधों की मसाज",
+      "summary": "",
+      "tiers": {}
+    },
+    "sports-therapy": {
+      "name": "स्पोर्ट्स थेरेपी",
+      "summary": "एक्टिव महिलाओं के लिए गहरी रिकवरी",
+      "tiers": {}
+    },
+    "thigh-drying-massage": {
+      "name": "थाई ड्राई मसाज",
+      "summary": "",
+      "tiers": {}
+    },
+    "full-back-massage": {
+      "name": "पूरी पीठ की मसाज",
+      "summary": "",
+      "tiers": {}
+    },
+    "full-legs-massage": {
+      "name": "पूरे पैरों की मसाज",
+      "summary": "",
+      "tiers": {}
+    },
+    "full-body-polishing": {
+      "name": "फ़ुल बॉडी पॉलिशिंग स्पा",
+      "summary": "",
+      "tiers": {}
+    },
+    "face-neck-detan": {
+      "name": "चेहरे और गर्दन का डी-टैन",
+      "summary": "",
+      "tiers": {}
+    },
+    "full-back-scrub": {
+      "name": "पूरी पीठ का स्क्रब",
+      "summary": "",
+      "tiers": {}
+    },
+    "full-arm-scrub": {
+      "name": "पूरी बाँहों का स्क्रब",
+      "summary": "",
+      "tiers": {}
+    },
+    "post-natal-massage": {
+      "name": "डिलीवरी के बाद की मसाज",
+      "summary": "",
+      "tiers": {}
+    },
+    "period-pamper-massage": {
+      "name": "पीरियड्स में आराम देने वाली मसाज",
+      "summary": "",
+      "tiers": {}
+    },
+    "head-massage-addon": {
+      "name": "हेड मसाज",
+      "summary": "",
+      "tiers": {}
+    },
+    "kid-massage-addon": {
+      "name": "बच्चों की मसाज",
+      "summary": "",
+      "tiers": {}
+    },
+    "hot-pet-sheet": {
+      "name": "हॉट पेट शीट",
+      "summary": "",
+      "tiers": {}
+    },
+    "head-scalp-massager": {
+      "name": "हेड और स्कैल्प मसाजर",
+      "summary": "",
+      "tiers": {}
+    },
+    "face-massage-addon": {
+      "name": "चेहरे की मसाज",
+      "summary": "",
+      "tiers": {}
+    },
+    "full-body-massager-addon": {
+      "name": "फ़ुल बॉडी मसाजर",
+      "summary": "",
+      "tiers": {}
+    },
+    "full-body-stretching-addon": {
+      "name": "फ़ुल बॉडी स्ट्रेचिंग",
+      "summary": "",
+      "tiers": {}
+    },
+    "bamboo-massage-addon": {
+      "name": "बैम्बू मसाज",
+      "summary": "",
+      "tiers": {}
+    },
+    "potli-massage-addon": {
+      "name": "पोटली मसाज",
+      "summary": "",
+      "tiers": {}
+    },
+    "topup-20min": {
+      "name": "टॉप-अप (20 मिनट)",
+      "summary": "",
+      "tiers": {}
+    },
+    "topup-30min": {
+      "name": "टॉप-अप (30 मिनट)",
+      "summary": "",
+      "tiers": {}
+    },
+    "swedish-stress-relief-massage": {
+      "name": "स्वीडिश स्ट्रेस रिलीफ़ मसाज",
+      "summary": "हल्के से मीडियम प्रेशर वाली, पूरे शरीर को आराम देने वाली मसाज",
+      "tiers": {}
+    },
+    "head-neck-shoulder-relief": {
+      "name": "सिर, गर्दन और कंधों की मसाज",
+      "summary": "शरीर के ऊपरी हिस्से के तनाव से तुरंत राहत",
+      "tiers": {}
+    },
+    "men-foot-reflexology": {
+      "name": "पैरों की रिफ़्लेक्सोलॉजी",
+      "summary": "गहरे आराम के लिए पैरों पर प्रेशर थेरेपी",
+      "tiers": {}
+    },
+    "aroma-therapy": {
+      "name": "अरोमाथेरेपी",
+      "summary": "एसेंशियल ऑयल वाली आरामदायक मसाज",
+      "tiers": {}
+    },
+    "thai-dry-massage": {
+      "name": "थाई ड्राई मसाज",
+      "summary": "अकड़न दूर करने और पोस्चर सुधारने के लिए स्ट्रेचिंग वाली थेरेपी",
+      "tiers": {}
+    },
+    "bamboo-massage": {
+      "name": "बैम्बू मसाज थेरेपी",
+      "summary": "गर्म बैम्बू टूल्स से मांसपेशियों को गहराई तक राहत",
+      "tiers": {}
+    },
+    "back-massage": {
+      "name": "पीठ की मसाज",
+      "summary": "ऊपरी और निचली पीठ के दर्द से खास राहत",
+      "tiers": {}
+    },
+    "potli-massage": {
+      "name": "पोटली मसाज",
+      "summary": "मांसपेशियों के दर्द के लिए गर्म हर्बल पोटली थेरेपी",
+      "tiers": {}
+    },
+    "leg-massage": {
+      "name": "पैरों की मसाज",
+      "summary": "पूरे पैरों को आराम और बेहतर ब्लड सर्कुलेशन",
+      "tiers": {}
+    },
+    "men-sports-therapy": {
+      "name": "स्पोर्ट्स थेरेपी",
+      "summary": "खिलाड़ियों और एक्टिव पुरुषों के लिए गहरे प्रेशर वाली थेरेपी",
+      "tiers": {}
+    },
+    "face-neck-dtan": {
+      "name": "चेहरे और गर्दन का डी-टैन",
+      "summary": "तुरंत टैन हटाना और निखार",
+      "tiers": {}
+    },
+    "full-body-scrub": {
+      "name": "फ़ुल बॉडी स्क्रब",
+      "summary": "चमकती त्वचा के लिए डेड स्किन की गहरी सफ़ाई",
+      "tiers": {}
+    },
+    "men-full-back-scrub": {
+      "name": "पूरी पीठ का स्क्रब",
+      "summary": "पीठ का निखार और डेड स्किन की सफ़ाई",
+      "tiers": {}
+    },
+    "full-arms-scrub": {
+      "name": "पूरी बाँहों का स्क्रब",
+      "summary": "टैन और रूखापन हटाता है",
+      "tiers": {}
+    },
+    "full-legs-scrub": {
+      "name": "पूरे पैरों का स्क्रब",
+      "summary": "मुलायम और चमकते पैर",
+      "tiers": {}
+    },
+    "quick-fix-beard-trim-dtan": {
+      "name": "क्विक फ़िक्स – दाढ़ी ट्रिम + चेहरे का डी-टैन",
+      "summary": "साफ़-सुथरी ग्रूमिंग + तुरंत निखार",
+      "tiers": {}
+    },
+    "unwind-stress-massage": {
+      "name": "तनाव से राहत – सिर, गर्दन और कंधों की मसाज",
+      "summary": "झटपट आराम देने वाली मसाज",
+      "tiers": {}
+    },
+    "body-trimming": {
+      "name": "बॉडी ट्रिमिंग",
+      "summary": "हाइजीनिक तरीके से शरीर के बालों की ट्रिमिंग",
+      "tiers": {}
+    },
+    "korean-facial-glow-men": {
+      "name": "कोरियन फ़ेशियल ग्लो",
+      "summary": "ग्लास-स्किन जैसा निखार देने वाला फ़ेशियल",
+      "tiers": {}
+    },
+    "charcoal-facial-men": {
+      "name": "चारकोल फ़ेशियल",
+      "summary": "पिंपल्स वाली त्वचा के लिए डिटॉक्स फ़ेशियल",
+      "tiers": {}
+    },
+    "fruit-facial-men": {
+      "name": "फ़्रूट फ़ेशियल",
+      "summary": "फलों के एंज़ाइम से कोमल ग्लो देने वाला फ़ेशियल",
+      "tiers": {}
+    }
+  }
+}

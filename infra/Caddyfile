@@ -1,0 +1,11 @@
+# api.brand.in on Lightsail (plan C16). Caddy gets and renews the TLS certificate itself
+# and passes WebSocket upgrades through (Socket.IO, Phase 6).
+{$API_DOMAIN:api.brand.in} {
+	encode zstd gzip
+	reverse_proxy api:4000
+	header -Server
+	log {
+		output stdout
+		format json
+	}
+}

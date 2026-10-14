@@ -1,0 +1,3 @@
+# Local MongoDB data and emails written by the log transport.
+.data
+.mail

@@ -1,0 +1,32 @@
+/** Validation message keys. Schemas use these as messages; the web translates them (common.json → validation). */
+export const V = {
+  required: "validation.required",
+  invalid: "validation.invalid",
+  unknownField: "validation.unknownField",
+  email: "validation.email",
+  emailTaken: "validation.emailTaken",
+  nameShort: "validation.nameShort",
+  nameLong: "validation.nameLong",
+  phone: "validation.phone",
+  passwordShort: "validation.passwordShort",
+  passwordLong: "validation.passwordLong",
+  passwordWeak: "validation.passwordWeak",
+  time: "validation.time",
+  slug: "validation.slug",
+  slugTaken: "validation.slugTaken",
+  compareAtLow: "validation.compareAtLow",
+  tierRequired: "validation.tierRequired",
+  messageShort: "validation.messageShort",
+  imageUnreadable: "validation.imageUnreadable",
+  imageType: "validation.imageType",
+  imageTooLarge: "validation.imageTooLarge",
+  unknownCategory: "validation.unknownCategory",
+  unknownFilter: "validation.unknownFilter",
+  hoursOrder: "validation.hoursOrder",
+  pincode: "validation.pincode",
+  otp: "validation.otp",
+  areaPolygon: "validation.areaPolygon",
+  acceptWindowTooLong: "validation.acceptWindowTooLong",
+} as const;
+
+export type ValidationKey = (typeof V)[keyof typeof V];

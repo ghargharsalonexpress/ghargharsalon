@@ -1,0 +1,37 @@
+{
+  "Name": "brand-web-security-headers",
+  "Comment": "Response headers for the web app on CloudFront (plan C11, C16). Allows Razorpay Checkout and the Google Maps JavaScript API (per both vendors' CSP guidance). For staging, replace api.brand.in with api.staging.brand.in in connect-src and img-src.",
+  "SecurityHeadersConfig": {
+    "ContentSecurityPolicy": {
+      "Override": true,
+      "ContentSecurityPolicy": "default-src 'self'; script-src 'self' https://checkout.razorpay.com https://maps.googleapis.com https://*.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://api.brand.in https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.googleusercontent.com https://*.razorpay.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.brand.in wss://api.brand.in https://*.googleapis.com https://*.google.com https://*.gstatic.com https://api.razorpay.com https://lumberjack.razorpay.com; frame-src https://api.razorpay.com https://checkout.razorpay.com https://*.google.com; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+    },
+    "StrictTransportSecurity": {
+      "Override": true,
+      "AccessControlMaxAgeSec": 63072000,
+      "IncludeSubdomains": true,
+      "Preload": false
+    },
+    "ContentTypeOptions": {
+      "Override": true
+    },
+    "FrameOptions": {
+      "Override": true,
+      "FrameOption": "DENY"
+    },
+    "ReferrerPolicy": {
+      "Override": true,
+      "ReferrerPolicy": "strict-origin-when-cross-origin"
+    }
+  },
+  "CustomHeadersConfig": {
+    "Quantity": 1,
+    "Items": [
+      {
+        "Header": "Permissions-Policy",
+        "Value": "geolocation=(self), camera=(), microphone=(), payment=(self \"https://checkout.razorpay.com\"), usb=(), interest-cohort=()",
+        "Override": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "draftNotice": "Draft for review by our legal adviser. Last updated {{date}}.",
+  "updated": "Last updated {{date}}",
+  "docs": {
+    "privacy": {
+      "title": "Privacy policy",
+      "intro": "This policy explains what personal data {{brand}} collects, why, who we share it with and the rights you have under India's Digital Personal Data Protection Act, 2023. {{company}} is the data fiduciary.",
+      "sections": [
+        {
+          "heading": "What we collect",
+          "items": [
+            "Account details: your name, email address, mobile number and password (stored only as a one-way hash).",
+            "Booking details: the services you book, the addresses you save with their map location, your professional preference, ratings and messages to support.",
+            "Payment records: order and payment references, amounts and refund status. Card, UPI and bank details are handled by our payment partner, Razorpay; we never see or store them.",
+            "For professionals: identity and verification details you submit when applying, skills, service area, and your live location while you are online or on a job.",
+            "Technical data: device and browser type, IP address and error logs, kept to run the service securely."
+          ]
+        },
+        {
+          "heading": "Why we use it",
+          "items": [
+            "To create your account, take bookings and payments, and send booking emails.",
+            "To find the nearest available professional and show you their arrival time and live location during your booking.",
+            "To issue invoices and keep the accounting records the law requires.",
+            "To keep the service safe: preventing fraud, misuse and unauthorised access.",
+            "To answer your questions and complaints."
+          ],
+          "body": "We use your data only with your consent or where the law allows it, and only for these purposes. We don't sell your data, and we don't use third-party advertising or tracking cookies."
+        },
+        {
+          "heading": "Who sees what",
+          "items": [
+            "Your professional sees your first name, the booking address and your mobile number only from the moment they accept until the booking is complete.",
+            "You see your professional's name, photo, rating, phone number and live location only during your booking.",
+            "Service providers who work for us: Razorpay (payments), Amazon Web Services in Mumbai (hosting and email), MongoDB Atlas in Mumbai (database) and Google Maps (addresses and maps). Each processes data only on our instructions.",
+            "Authorities, when the law requires it."
+          ]
+        },
+        {
+          "heading": "How long we keep it",
+          "items": [
+            "Account data: while your account is active, and deleted within 30 days after you ask us to close it, except what the law requires us to keep.",
+            "Location history of a booking: 30 days, to resolve disputes.",
+            "Invoices and payment records: as long as tax law requires (currently at least 8 years).",
+            "Security logs: up to 2 years."
+          ]
+        },
+        {
+          "heading": "Cookies",
+          "body": "We use only the cookies the site needs to work: one that keeps you signed in and one that protects forms against forgery. Your language and cart are saved in your browser. There are no analytics or advertising cookies."
+        },
+        {
+          "heading": "Your rights",
+          "items": [
+            "Get a summary of the personal data we hold about you and how we use it.",
+            "Correct or update it, most of it directly in your profile.",
+            "Ask us to erase it, unless the law requires us to keep it.",
+            "Withdraw your consent at any time; this stops future processing.",
+            "Nominate someone to exercise your rights if you are unable to.",
+            "Raise a grievance with our Grievance Officer, and then with the Data Protection Board of India."
+          ],
+          "body": "To use any of these rights, email {{support}}. We reply within 30 days."
+        },
+        {
+          "heading": "Security",
+          "body": "Data is encrypted in transit and stored in India. Passwords are hashed, access is limited to staff who need it, and sensitive actions are logged."
+        },
+        {
+          "heading": "Children",
+          "body": "Accounts are for people aged 18 and over. Services for a child must be booked and attended by a parent or guardian."
+        },
+        {
+          "heading": "Grievance Officer",
+          "body": "{{grievance}}, {{company}}, {{address}}. Email: {{support}}."
+        },
+        {
+          "heading": "Changes",
+          "body": "If we change this policy in a way that affects you, we'll tell you by email or in the app before the change applies."
+        }
+      ]
+    },
+    "terms": {
+      "title": "Terms of service",
+      "intro": "These terms apply when you use {{brand}}, which is operated by {{company}}. By creating an account or booking, you agree to them.",
+      "sections": [
+        {
+          "heading": "The service",
+          "body": "{{brand}} connects you with verified beauty and grooming professionals who come to your address. When you book and pay, we offer your booking to available professionals near you, and the first to accept serves you. Arrival times are estimates."
+        },
+        {
+          "heading": "Your account",
+          "items": [
+            "Give accurate details and keep your password private. You are responsible for bookings made from your account.",
+            "You must be 18 or older to hold an account.",
+            "We may suspend accounts used for fraud, abuse or unsafe behaviour."
+          ]
+        },
+        {
+          "heading": "Prices and payment",
+          "items": [
+            "Prices include GST. The total shown before you pay is the total you pay; professionals don't charge anything extra at your door.",
+            "You pay online when you book, through Razorpay.",
+            "If no professional accepts your booking, it is cancelled and you get a full refund automatically."
+          ]
+        },
+        {
+          "heading": "At your booking",
+          "items": [
+            "Be at the address, with a clean space and a power socket where needed.",
+            "Share your 4-digit OTP with the professional only when they arrive. The service starts when they enter it.",
+            "Tell the professional about allergies, skin conditions or pregnancy before the service starts.",
+            "Treat professionals with respect. They may stop a service if they feel unsafe."
+          ]
+        },
+        {
+          "heading": "Cancellations and refunds",
+          "body": "Cancellation fees and refund times are set out in our Cancellation & refund policy, which forms part of these terms."
+        },
+        {
+          "heading": "Ratings and reviews",
+          "body": "After a booking you can rate it once. Reviews must be honest and lawful; we may hide reviews that are abusive or unrelated to the service."
+        },
+        {
+          "heading": "Liability",
+          "body": "We take care to verify professionals and to run the service well. To the extent the law allows, our liability for any booking is limited to the amount you paid for it. Nothing in these terms limits your rights as a consumer under Indian law."
+        },
+        {
+          "heading": "Complaints and disputes",
+          "body": "Write to {{support}} first; we aim to resolve complaints within 7 working days. These terms are governed by Indian law, and the courts at {{city}} have jurisdiction."
+        },
+        {
+          "heading": "Changes",
+          "body": "We may update these terms. We'll tell you about important changes before they apply."
+        }
+      ]
+    },
+    "cancellation-refund": {
+      "title": "Cancellation & refund policy",
+      "intro": "This policy explains when you can cancel a booking, what it costs and how refunds work.",
+      "sections": [
+        {
+          "heading": "Cancelling a booking",
+          "items": [
+            "While we're still finding a professional: free, with a full refund.",
+            "After a professional accepts: a fee of {{cancelFee}}, because they have already set out for you. The rest is refunded.",
+            "If your professional is more than {{lateMinutes}} minutes later than the arrival time shown: free, with a full refund.",
+            "If you can't be reached at the address after the professional has waited {{waitMinutes}} minutes and tried to call you twice: a fee of {{noShowFee}}. The rest is refunded."
+          ],
+          "body": "To cancel, open your booking and choose Cancel booking. The screen shows the fee and the refund before you confirm."
+        },
+        {
+          "heading": "When no professional is available",
+          "body": "If no professional accepts your booking within {{searchTime}}, the booking is cancelled and the full amount is refunded automatically. You don't need to do anything."
+        },
+        {
+          "heading": "If a professional cancels",
+          "body": "We immediately look for another professional near you. If no one is available, you get a full refund automatically."
+        },
+        {
+          "heading": "How refunds reach you",
+          "items": [
+            "Refunds go back to the way you paid.",
+            "UPI refunds usually arrive within minutes; cards, net banking and wallets can take 5–10 working days, depending on your bank.",
+            "You get an email when a refund starts, and its status shows on the booking."
+          ]
+        },
+        {
+          "heading": "Problems with a service",
+          "body": "If something wasn't right, contact us within 48 hours at {{support}} with your booking number. We'll look into it and, where we agree, offer a redo or a full or partial refund."
+        }
+      ]
+    }
+  },
+  "placeholders": {
+    "company": "[Company legal name]",
+    "address": "[Registered office address]",
+    "grievance": "[Grievance Officer name]",
+    "city": "[City]"
+  },
+  "otherPolicies": "Other policies"
+}

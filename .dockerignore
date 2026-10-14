@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/.data
+**/.mail
+**/.env
+**/.env.*
+**/test-results
+**/playwright-report
+src
+public
+docs
+.git

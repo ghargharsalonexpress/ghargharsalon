@@ -1,0 +1,39 @@
+# Production and staging API host (plan C16): the API behind Caddy on one Lightsail instance.
+# On the server, next to this file:
+#   .env.api   API settings and secrets (chmod 600; see apps/api/.env.example)
+#   .env       API_IMAGE=<registry>/brand-api:<tag>  and  API_DOMAIN=api.brand.in
+# Deploy: docker compose pull && docker compose up -d   (keep the previous tag for rollback)
+
+services:
+  api:
+    image: ${API_IMAGE:?set API_IMAGE in .env}
+    restart: unless-stopped
+    env_file: .env.api
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      TRUST_PROXY: "1"
+    expose:
+      - "4000"
+    logging:
+      driver: json-file
+      options: { max-size: "20m", max-file: "5" }
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on: [api]
+    environment:
+      API_DOMAIN: ${API_DOMAIN:-api.brand.in}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

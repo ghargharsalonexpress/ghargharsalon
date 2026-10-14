@@ -1,0 +1,45 @@
+{
+  "profile": {
+    "title": "Your profile",
+    "description": "Your professional uses these details to reach you during a booking.",
+    "name": "Full name",
+    "phone": "Mobile number",
+    "email": "Email",
+    "emailHint": "To change your email, contact support.",
+    "language": "Language for the website and emails",
+    "save": "Save changes",
+    "saved": "Profile saved",
+    "noChanges": "Nothing to save yet."
+  },
+  "nav": {
+    "bookings": "Bookings",
+    "addresses": "Addresses",
+    "profile": "Profile"
+  },
+  "bookings": {
+    "title": "Your bookings",
+    "current": "Current",
+    "past": "Past",
+    "emptyTitle": "No bookings yet",
+    "emptyBody": "When you book a service, it appears here with its status and receipt.",
+    "browse": "Browse services",
+    "loadMore": "Load more"
+  },
+  "addresses": {
+    "title": "Your addresses",
+    "description": "Saved addresses make checkout faster. The default one is picked first.",
+    "add": "Add address",
+    "edit": "Edit",
+    "delete": "Delete",
+    "default": "Default",
+    "saved": "Address saved",
+    "deleted": "Address deleted",
+    "deleteTitle": "Delete this address?",
+    "deleteBody": "{{address}} will be removed from your saved addresses. Past bookings keep their own copy.",
+    "deleteConfirm": "Delete address",
+    "limit_one": "You can keep up to {{count}} address. Delete one to add another.",
+    "limit_other": "You can keep up to {{count}} addresses. Delete one to add another.",
+    "emptyTitle": "No saved addresses",
+    "emptyBody": "Add your home or work address once and pick it at checkout."
+  }
+}

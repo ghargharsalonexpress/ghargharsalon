@@ -1,0 +1,304 @@
+{
+  "address": {
+    "newTitle": "Add an address",
+    "editTitle": "Edit address",
+    "cancel": "Cancel",
+    "save": "Save address",
+    "pinTitle": "Exact location",
+    "pinHelp": "Your professional navigates to this pin, so set it while you're at the address.",
+    "pinSet": "Location set (accurate to about {{accuracy}} m). Your professional navigates here.",
+    "pinUse": "Use my current location",
+    "pinAgain": "Update location",
+    "pinRequired": "Set the exact location so your professional can find you.",
+    "locationError": {
+      "unsupported": "This browser can't share your location. Try another browser, or book from your phone.",
+      "denied": "Location is blocked for this site. Allow it in your browser's site settings, then try again.",
+      "timeout": "Finding your location took too long. Move closer to a window and try again.",
+      "failed": "We couldn't get your location. Please try again."
+    },
+    "label": "Save as",
+    "labels": {
+      "home": "Home",
+      "work": "Work",
+      "other": "Other"
+    },
+    "labelDefault": "{{label}} · Default",
+    "house": "Flat or house number",
+    "building": "Building or society",
+    "street": "Street, sector or area",
+    "streetHint": "For example: Sector 15, near the main market",
+    "landmark": "Landmark",
+    "landmarkHint": "Helps your professional find the gate",
+    "near": "Near {{landmark}}",
+    "city": "City",
+    "pincode": "PIN code",
+    "makeDefault": "Use this address by default"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "paid": "Payment received. Opening your booking…",
+    "emptyTitle": "Your cart is empty",
+    "emptyBody": "Add a service to book a professional to your home.",
+    "browse": "Browse services",
+    "whereTitle": "1. Where should we come?",
+    "addressesLabel": "Saved addresses",
+    "addressesError": "Your saved addresses couldn't load.",
+    "noAddress": "Add the address where you'd like the service. We'll check who is free nearby.",
+    "addAddress": "Add address",
+    "addAnother": "Add another address",
+    "editAddress": "Edit this address",
+    "note": "Note for the professional",
+    "noteHint": "For example: use gate 2, ring the bell twice.",
+    "whoTitle": "2. Who would you prefer?",
+    "whoHint": "We send the nearest free professional who matches.",
+    "any": "Any",
+    "female": "Female",
+    "male": "Male",
+    "reviewTitle": "3. Review and pay",
+    "priceError": "We couldn't check the latest prices.",
+    "cartChanged": "Something in your cart changed. Review it before you pay.",
+    "reviewCart": "Review cart",
+    "pay": "Pay {{amount}}",
+    "payShort": "Pay",
+    "refundPromise_one": "If no professional accepts within {{count}} minute, the full amount is refunded automatically.",
+    "refundPromise_other": "If no professional accepts within {{count}} minutes, the full amount is refunded automatically.",
+    "notCompleted": "Payment not completed. Nothing was charged; you can try again.",
+    "failed": "The payment didn't go through. No money was taken. Try again, or use another payment method.",
+    "blocked": {
+      "address": "Add an address to continue.",
+      "cart": "Review the changes in your cart first.",
+      "checking": "Checking availability…",
+      "unavailable": "Booking isn't available for this address right now."
+    },
+    "quote": {
+      "checking": "Checking who is free near this address…",
+      "error": "We couldn't check availability.",
+      "availableTitle": "Professionals are available",
+      "arrives": "Arrives in about {{range}} after you pay.",
+      "outside_area": {
+        "title": "We don't serve this area yet",
+        "body": "Try another saved address, or check back soon. We're adding new areas."
+      },
+      "outside_hours": {
+        "title": "We're closed right now",
+        "body": "We open {{when}}. You can book then."
+      },
+      "none_free": {
+        "title": "Everyone nearby is busy",
+        "body": "Professionals usually free up within a few minutes. We'll check again automatically."
+      },
+      "skill_unavailable": {
+        "title": "No one nearby offers all of these services right now",
+        "body": "Try booking fewer services together, choose \"Any\" professional, or check again soon."
+      }
+    }
+  },
+  "when": {
+    "today": "today at {{time}}",
+    "tomorrow": "tomorrow at {{time}}",
+    "onDate": "on {{date}} at {{time}}"
+  },
+  "items": {
+    "andMore": "{{first}} + {{count}} more"
+  },
+  "testPay": {
+    "title": "Test payment",
+    "description": "Development mode: no real money moves.",
+    "booking": "Booking {{number}}",
+    "note": "Razorpay's payment window appears here once the payment keys are added.",
+    "fail": "Fail payment",
+    "pay": "Pay {{amount}}"
+  },
+  "title": {
+    "awaiting_payment": "Complete your payment",
+    "searching": "Finding a professional",
+    "accepted": "{{name}} is on the way",
+    "arrived": "{{name}} has arrived",
+    "in_progress": "Service in progress",
+    "completed": "Service completed",
+    "cancelled": "Booking cancelled",
+    "no_professional_found": "No professional was free",
+    "expired": "This booking expired"
+  },
+  "booking": {
+    "loadingTitle": "Your booking",
+    "meta": "{{number}} · Booked {{date}}",
+    "toBookings": "Your bookings",
+    "notFoundTitle": "We couldn't find this booking",
+    "notFoundBody": "It may belong to another account. Your bookings are listed in your account.",
+    "loadErrorTitle": "This booking couldn't load",
+    "reconnecting": "Reconnecting… Updates may be delayed for a moment.",
+    "detailsTitle": "Booking details",
+    "noteShown": "Your note: {{note}}"
+  },
+  "awaiting": {
+    "title": "Payment not received yet",
+    "body": "We're holding this booking until {{time}}. If it isn't paid by then, it closes automatically and nothing is charged.",
+    "bodyNoTime": "If it isn't paid soon, it closes automatically and nothing is charged.",
+    "expiring": "The time to pay has run out. This booking is closing; nothing was charged."
+  },
+  "searching": {
+    "contacting": "Contacting professionals near you…",
+    "elapsed": "Searching for {{time}}",
+    "promise_one": "Most bookings are accepted within a minute. If no one is free within {{count}} minute, your {{amount}} is refunded automatically.",
+    "promise_other": "Most bookings are accepted within a minute. If no one is free within {{count}} minutes, your {{amount}} is refunded automatically.",
+    "finishing": "Still looking. If no one accepts in the next few seconds, your full refund starts automatically.",
+    "paid": "Payment of {{amount}} received.",
+    "cancelFree": "Cancelling is free while we're still looking."
+  },
+  "tracking": {
+    "arrivingIn": "{{name}} arrives in about",
+    "anyMinute": "Any minute now",
+    "expectedBy": "Expected by {{time}}",
+    "noLocationYet": "{{name}}'s live location appears here once they start moving.",
+    "openLocation": "See {{name}}'s location in Google Maps",
+    "arrivedOtp": "{{name}} is at your door. Share this code to start the service.",
+    "lateTitle": "Running late",
+    "late": "Your professional is taking longer than expected. We're checking in with them.",
+    "lateFree": "Your professional is taking longer than expected. You can wait, or cancel now at no charge.",
+    "staleHelp": "{{name}}'s phone stopped sharing location, often because the app is in the background. They're still on the way; call them if you're unsure.",
+    "proTitle": "Your professional",
+    "mapLabel": "Map showing {{name}} and your address",
+    "yourAddress": "Your address"
+  },
+  "pro": {
+    "ratings_one": "{{count}} rating",
+    "ratings_other": "{{count}} ratings",
+    "ratedLabel_one": "Rated {{rating}} out of 5 from {{count}} rating",
+    "ratedLabel_other": "Rated {{rating}} out of 5 from {{count}} ratings",
+    "new": "New on {{brand}}",
+    "call": "Call"
+  },
+  "timeline": {
+    "title": "Progress",
+    "label": "Booking progress",
+    "paid": "Payment received",
+    "accepted": "Professional on the way",
+    "arrived": "Professional arrived",
+    "started": "Service started",
+    "completed": "Service completed"
+  },
+  "inProgress": {
+    "startedAt": "Started at {{time}}",
+    "timerLabel": "Time since the service started",
+    "expected": "Usually takes about {{duration}}"
+  },
+  "completed": {
+    "paid": "Paid {{amount}}",
+    "at": "Completed at {{time}}",
+    "receiptTitle": "Receipt",
+    "invoice": "View invoice",
+    "proTitle": "Your professional",
+    "bookAgain": "Book again"
+  },
+  "review": {
+    "title": "How was your service?",
+    "doneTitle": "Your rating",
+    "legend": "Rate your service with {{name}}",
+    "ratingRequired": "Choose from 1 to 5 stars.",
+    "comment": "Anything to add?",
+    "commentHint": "Your comment helps other customers and our team.",
+    "submit": "Submit rating",
+    "thanks": "Thanks for your feedback",
+    "yourRating_one": "You rated {{count}} star",
+    "yourRating_other": "You rated {{count}} stars",
+    "stars": {
+      "1": "1 star: poor",
+      "2": "2 stars: below expectations",
+      "3": "3 stars: okay",
+      "4": "4 stars: good",
+      "5": "5 stars: excellent"
+    }
+  },
+  "cancel": {
+    "open": "Cancel booking",
+    "title": "Cancel this booking?",
+    "confirm": "Cancel booking",
+    "keep": "Keep booking",
+    "close": "Close",
+    "done": "Booking cancelled",
+    "yourProfessional": "Your professional",
+    "previewError": "We couldn't check the cancellation charges. Close this and try again.",
+    "notAllowed": "This booking can't be cancelled any more.",
+    "basis": {
+      "unpaid": "Nothing has been charged. The booking will be closed.",
+      "searching": "It's free while we're still looking. {{refund}} will be refunded to your original payment method.",
+      "professional_late": "It's free because {{name}} is running late. {{refund}} will be refunded to your original payment method.",
+      "after_accept": "{{name}} is already on the way, so a {{fee}} cancellation fee applies. {{refund}} will be refunded to your original payment method.",
+      "not_allowed": "This booking can't be cancelled any more."
+    },
+    "reasonLegend": "Why are you cancelling?",
+    "reasonRequired": "Choose a reason to continue.",
+    "reasons": {
+      "changed_plans": "My plans changed",
+      "too_late": "It's taking too long",
+      "booked_by_mistake": "I booked by mistake",
+      "other": "Something else"
+    },
+    "refundTiming": "UPI refunds usually arrive within minutes. Cards and netbanking can take 5–10 working days."
+  },
+  "refund": {
+    "title": "Your money",
+    "amount": "Refund of {{amount}}",
+    "status": {
+      "pending": "In progress",
+      "processed": "Refunded",
+      "failed": "Delayed"
+    },
+    "pendingBody": "It's on its way to your original payment method. UPI refunds usually arrive within minutes; cards and netbanking can take 5–10 working days.",
+    "processed": "Sent to your original payment method on {{date}}. Your bank may take a little longer to show it.",
+    "failedBody": "The refund didn't go through on the first try. Our team has been alerted and will send it again; you don't need to do anything.",
+    "fee": "A {{fee}} cancellation fee was kept.",
+    "nothingCharged": "Nothing was charged for this booking.",
+    "none": "The {{fee}} cancellation fee covered the full amount, so there's no refund."
+  },
+  "ended": {
+    "noProTitle": "We're sorry. No professional was free near you.",
+    "noProBody": "Everyone nearby was busy. Your full payment of {{amount}} is being refunded automatically.",
+    "expiredTitle": "Payment wasn't completed in time",
+    "expiredBody": "This booking was closed, and nothing was charged. You can book again whenever you like.",
+    "cancelledBy": {
+      "customer": "You cancelled this booking at {{time}}",
+      "professional": "This booking was cancelled at {{time}}",
+      "admin": "Our team cancelled this booking at {{time}}",
+      "system": "This booking was cancelled automatically at {{time}}"
+    },
+    "reasons": {
+      "changed_plans": "Reason: your plans changed.",
+      "too_late": "Reason: it was taking too long.",
+      "booked_by_mistake": "Reason: booked by mistake.",
+      "other": "Reason: something else.",
+      "customer_unavailable": "Your professional waited at the address and called you, but couldn't reach you."
+    },
+    "adminReason": "Reason: {{reason}}",
+    "cancelledBody": "If anything was charged, the refund is shown below.",
+    "browse": "Browse services"
+  },
+  "help": {
+    "text": "Need help? Call"
+  },
+  "invoice": {
+    "title": "Tax invoice",
+    "metaTitle": "Invoice {{number}}",
+    "back": "Back to booking",
+    "print": "Print or save as PDF",
+    "errorTitle": "This invoice couldn't load",
+    "gstin": "GSTIN: {{gstin}}",
+    "number": "Invoice no. {{number}}",
+    "date": "Date: {{date}}",
+    "booking": "Booking: {{number}}",
+    "billedTo": "Billed to",
+    "linesCaption": "Services on this invoice",
+    "description": "Description",
+    "sac": "SAC",
+    "quantity": "Qty",
+    "taxable": "Taxable value",
+    "gst": "GST",
+    "amount": "Amount",
+    "taxableTotal": "Taxable value",
+    "gstLine": "GST at {{rate}}%",
+    "total": "Total",
+    "paidOnline": "Paid online. Payment reference: {{id}}",
+    "footer": "This is a computer-generated invoice and needs no signature."
+  }
+}

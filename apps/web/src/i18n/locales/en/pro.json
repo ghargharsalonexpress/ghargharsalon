@@ -1,0 +1,311 @@
+{
+  "nav": {
+    "home": "Home",
+    "jobs": "My jobs",
+    "earnings": "Earnings",
+    "profile": "Profile"
+  },
+  "layout": {
+    "noProfileTitle": "Your professional profile isn't set up",
+    "noProfileBody": "Please call support so the team can finish your profile.",
+    "loadErrorTitle": "Your panel couldn't load"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "stale": "Connection weak",
+    "busy": "On a job",
+    "reconnecting": "Reconnecting…",
+    "reconnectingBody": "Connection lost. Keep the app open; you'll stay online once it's back."
+  },
+  "home": {
+    "greeting": "Hello, {{name}}",
+    "onlineSince": "Online since {{time}}",
+    "verifyTitle": "Your profile is being verified",
+    "verifyBody": "You can finish the steps below now. We'll send an alert when you can go online.",
+    "reasonVerify": "You can go online once your profile is verified.",
+    "reasonSteps": "Finish the steps below to go online.",
+    "keepOpen": "Keep this screen open to get jobs fastest. Alerts still come when it's closed.",
+    "locationError": {
+      "unsupported": "This browser can't share your location. Use Chrome on your phone.",
+      "denied": "Location is blocked. Allow it for this app in your phone settings, then try again.",
+      "timeout": "Your location took too long. Step outside or turn on GPS, then try again.",
+      "failed": "We couldn't get your location. Turn on GPS and try again."
+    }
+  },
+  "toggle": {
+    "online": "Online",
+    "offline": "Offline",
+    "onlineBody": "You'll get job alerts near you.",
+    "offlineBody": "Go online to get job alerts."
+  },
+  "readiness": {
+    "title": "Get ready for job alerts",
+    "progress": "{{done}} of {{total}} done",
+    "lead": "Do these once on this phone so no job alert is missed.",
+    "gotIt": "Got it",
+    "install": {
+      "title": "Install the app",
+      "done": "Installed on this phone.",
+      "desktop": "On a computer you can skip this. Install the app on your phone.",
+      "iosBody": "On iPhone, job alerts only work from the app on your Home Screen.",
+      "iosHow": "How to add it to the Home Screen",
+      "ios": {
+        "one": "Tap the Share button at the bottom of Safari.",
+        "two": "Scroll down and tap “Add to Home Screen”, then “Add”.",
+        "three": "Open the app from your Home Screen and log in."
+      },
+      "iosOld": "Your iPhone needs iOS 16.4 or newer for alerts. Update it in Settings → General → Software Update.",
+      "androidBody": "Install the app so alerts and directions open straight in it.",
+      "androidMenu": "Open the browser menu (⋮) and tap “Install app” or “Add to Home screen”.",
+      "action": "Install"
+    },
+    "alerts": {
+      "title": "Allow job alerts",
+      "done": "Alerts work on this phone.",
+      "serverOff": "Alerts aren't switched on for this server yet. Please tell support.",
+      "iosInstallFirst": "Install the app on your Home Screen first, then allow alerts from there.",
+      "unsupported": "This browser can't receive alerts. Use Chrome on your phone.",
+      "denied": "Alerts are blocked. Tap the lock icon next to the address, open Permissions, set Notifications to Allow, then come back.",
+      "deniedIos": "Alerts are blocked. Open Settings → Notifications → this app and turn on Allow Notifications.",
+      "allowBody": "Allow alerts, then we'll send a test one to check it works.",
+      "testBody": "Send a test alert to check this phone receives it.",
+      "allow": "Allow alerts",
+      "test": "Send a test alert",
+      "didArrive": "Did the test alert appear on your phone?",
+      "yes": "Yes, it arrived",
+      "no": "No, it didn't",
+      "error": {
+        "unsupported": "This browser can't receive alerts. Use Chrome on your phone.",
+        "denied": "Alerts weren't allowed. Allow them when your phone asks.",
+        "timeout": "The app took too long to get ready. Reload the page and try again.",
+        "failed": "We couldn't set up alerts on this phone. Check your internet and try again."
+      }
+    },
+    "location": {
+      "title": "Allow location",
+      "done": "Location allowed.",
+      "body": "We use it only while you're online, to send you nearby jobs.",
+      "allow": "Allow location",
+      "unsupported": "This browser can't share location. Use Chrome on your phone.",
+      "denied": "Location is blocked. Open your phone settings, allow location for this app, then come back.",
+      "error": {
+        "unsupported": "This browser can't share location.",
+        "timeout": "It took too long to find you. Turn on GPS and try again.",
+        "failed": "We couldn't find your location. Turn on GPS and try again."
+      }
+    },
+    "battery": {
+      "title": "Stop the phone from closing the app",
+      "done": "Battery settings checked.",
+      "body": "Some phones close apps to save battery, and alerts stop. Two minutes in settings fixes it.",
+      "show": "Show me how",
+      "why": "Follow the steps for your phone, then come back here.",
+      "doneAction": "I've done this",
+      "phone": "Your phone",
+      "brands": {
+        "xiaomi": "Xiaomi, Redmi, POCO",
+        "samsung": "Samsung",
+        "oppo": "Oppo, Realme, OnePlus",
+        "vivo": "Vivo, iQOO",
+        "other": "Other Android",
+        "iphone": "iPhone"
+      },
+      "steps": {
+        "xiaomi": [
+          "Open Settings → Apps → Manage apps → Chrome.",
+          "Tap Battery saver and choose No restrictions.",
+          "Turn on Autostart for Chrome."
+        ],
+        "samsung": [
+          "Open Settings → Battery → Background usage limits.",
+          "Tap Never sleeping apps and add Chrome.",
+          "Make sure Chrome is not in Sleeping apps or Deep sleeping apps."
+        ],
+        "oppo": [
+          "Open Settings → Battery → More settings → Optimise battery use.",
+          "Find Chrome and choose Don't optimise.",
+          "In Settings → Apps → Chrome → Battery usage, allow background activity."
+        ],
+        "vivo": [
+          "Open Settings → Battery → Background power consumption management.",
+          "Find Chrome and allow high background power use."
+        ],
+        "other": [
+          "Open Settings → Apps → Chrome → Battery.",
+          "Choose Unrestricted (or turn off battery optimisation for Chrome)."
+        ],
+        "iphone": [
+          "Keep Low Power Mode off while you're online.",
+          "Keep the app open on screen when you're waiting for jobs."
+        ]
+      }
+    }
+  },
+  "jobs": {
+    "title": "My jobs",
+    "current": "Current",
+    "past": "Past",
+    "emptyCurrentTitle": "No job right now",
+    "emptyCurrentBody": "When you accept a job alert, it shows here with the address and directions.",
+    "goHome": "Go to Home",
+    "emptyPastTitle": "No past jobs yet",
+    "emptyPastBody": "Completed jobs and what you earned for each will show here.",
+    "earned": "Earned {{amount}}"
+  },
+  "earnings": {
+    "today": "Today",
+    "week": "This week",
+    "emptyTitle": "No earnings yet",
+    "emptyBody": "Each completed job adds to your earnings here. Payouts are made to your bank account every week.",
+    "jobsTitle": "Completed jobs",
+    "pendingTitle": "{{amount}} to be paid out",
+    "pendingBody": "Payouts go to your bank account every week.",
+    "breakdown": "Service {{gross}} · platform share {{commission}}",
+    "payout": {
+      "pending": "Payout pending",
+      "paid": "Paid out"
+    }
+  },
+  "profile": {
+    "phone": "Mobile number",
+    "email": "Email",
+    "area": "Base area",
+    "radius": "Travel distance",
+    "radiusValue_one": "Up to {{count}} km",
+    "radiusValue_other": "Up to {{count}} km",
+    "skills": "Services you do",
+    "verified": "Verified",
+    "notVerified": "Verification pending",
+    "changes": "To change these details, call support:",
+    "language": "Language",
+    "logoutOnline": "Go offline before logging out."
+  },
+  "offer": {
+    "metaTitle": "New job",
+    "title": "New job",
+    "away": "{{distance}} away · about {{range}}",
+    "direct": "Sent to you by the team",
+    "services": "Services",
+    "duration": "About {{duration}} in total",
+    "area": "Area",
+    "addressAfter": "The full address appears after you accept.",
+    "earn": "You earn",
+    "accept": "Accept job",
+    "decline": "Decline",
+    "accepted": "Job accepted. The customer has been told you're on the way.",
+    "declined": "Job declined",
+    "declineTitle": "Why are you declining?",
+    "declineBody": "Optional. It helps us send you better jobs.",
+    "declineNoReason": "Decline without a reason",
+    "reasons": {
+      "too_far": "Too far",
+      "busy": "Busy right now",
+      "skills": "I don't do this service",
+      "other": "Something else"
+    },
+    "toHome": "Back to Home",
+    "openJob": "Open the job",
+    "loadErrorTitle": "This job alert couldn't load",
+    "ended": {
+      "taken": {
+        "title": "Another professional took this job",
+        "body": "They accepted first. Stay online; the next job alert will come soon."
+      },
+      "expired": {
+        "title": "This job alert has ended",
+        "body": "The time to accept ran out. Stay online; the next job alert will come soon."
+      },
+      "revoked": {
+        "title": "This job is no longer available",
+        "body": "Another professional accepted it, or the customer cancelled."
+      },
+      "declined": {
+        "title": "You declined this job",
+        "body": "Stay online to get the next job alert."
+      },
+      "accepted": {
+        "title": "You accepted this job",
+        "body": "Open it for the address and directions."
+      }
+    }
+  },
+  "job": {
+    "metaTitle": "Job {{number}}",
+    "toJobs": "My jobs",
+    "toHome": "Back to Home",
+    "loadErrorTitle": "This job couldn't load",
+    "title": {
+      "accepted": "Go to {{name}}",
+      "arrived": "Start the service",
+      "in_progress": "Service in progress",
+      "completed": "Job completed",
+      "cancelled": "Job cancelled",
+      "other": "Job details"
+    },
+    "expected": "The customer expects you by {{time}}.",
+    "navigate": "Navigate",
+    "navigateHint": "Directions open in Google Maps. Your live location pauses while you're in another app, so come back here when you arrive.",
+    "arrived": "I've arrived",
+    "arrivedToast": "Marked as arrived. The customer has been told.",
+    "farTitle": "Are you at the address?",
+    "farBody": "Your phone shows you're about {{distance}} from the customer's pin.",
+    "farBodyUnknown": "We couldn't confirm your location.",
+    "farConfirm": "Yes, I'm at the address",
+    "farCancel": "Not yet",
+    "otpLabel": "Ask {{name}} for the 4-digit code",
+    "start": "Start service",
+    "startedToast": "Service started",
+    "otpLockedTitle": "The code is locked",
+    "otpLockedBody": "Too many wrong codes. Support has been alerted and will call you. You can also call {{phone}}.",
+    "startedAt": "Started at {{time}}",
+    "timerLabel": "Time since the service started",
+    "expectedDuration": "Expected: about {{duration}}",
+    "complete": "Complete service",
+    "completedToast": "Job completed. {{amount}} added to your earnings.",
+    "earlyTitle": "Complete this service already?",
+    "earlyBody": "It's been {{elapsed}} of an expected {{expected}}. Complete only if every service is done.",
+    "earlyConfirm": "Yes, complete it",
+    "earlyCancel": "Not yet",
+    "doneTitle": "Well done",
+    "doneBody": "{{amount}} has been added to your earnings.",
+    "endedTitle": "This job has ended",
+    "endedBody": "It was cancelled or handed to another professional.",
+    "endedByCustomer": "The customer cancelled this booking.",
+    "endedUnreachable": "You marked the customer as not reachable. The no-show fee applies to them.",
+    "customerTitle": "Customer",
+    "call": "Call",
+    "near": "Near {{landmark}}",
+    "noteTitle": "Customer's note",
+    "mapLabel": "Map showing the customer's address",
+    "unreachableTitle": "Customer not answering?",
+    "unreachableBody": "Call the customer at least twice. If they still don't come after the waiting time, mark them as not reachable.",
+    "calls_one": "Calls made: {{count}}",
+    "calls_other": "Calls made: {{count}}",
+    "unreachableIn": "Available in {{time}}",
+    "unreachable": "Customer not reachable",
+    "unreachableConfirmTitle": "Mark the customer as not reachable?",
+    "unreachableConfirmBody": "The booking will be cancelled and the customer charged the no-show fee. You'll be free for new jobs.",
+    "unreachableConfirm": "Mark not reachable",
+    "unreachableToast": "Booking closed. You're free for new jobs.",
+    "servicesTitle": "Services",
+    "youEarn": "You earn",
+    "cancel": "Cancel this job",
+    "cancelTitle": "Cancel this job?",
+    "cancelBody": "We'll find another professional for the customer.",
+    "cancelReason": "Why are you cancelling?",
+    "cancelReasonHint": "Choose a reason to continue.",
+    "cancelReasons": {
+      "emergency": "Personal emergency",
+      "vehicle": "Vehicle problem",
+      "unsafe": "I don't feel safe going",
+      "wrong_address": "The address is wrong",
+      "other": "Something else"
+    },
+    "cancelNote": "Cancelling often affects the jobs you're offered.",
+    "cancelConfirm": "Cancel job",
+    "cancelKeep": "Keep the job",
+    "cancelledToast": "Job cancelled. We're finding someone else for the customer.",
+    "help": "Need help? Call support:"
+  }
+}

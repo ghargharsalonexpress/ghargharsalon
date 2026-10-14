@@ -1,0 +1,94 @@
+{
+  "nav": {
+    "services": "Services",
+    "howItWorks": "How it works",
+    "about": "About",
+    "contact": "Contact",
+    "login": "Log in",
+    "account": "Account",
+    "bookings": "My bookings",
+    "allBookings": "Bookings",
+    "addresses": "Addresses",
+    "profile": "Profile",
+    "home": "Home",
+    "jobs": "Jobs",
+    "earnings": "Earnings",
+    "dashboard": "Dashboard",
+    "liveMap": "Live map",
+    "professionals": "Professionals",
+    "customers": "Customers",
+    "catalogue": "Services",
+    "payments": "Payments",
+    "settings": "Settings"
+  },
+  "home": {
+    "eyebrow": "Salon, spa and grooming at home",
+    "title": "A verified professional at your door in 10–15 minutes",
+    "subtitle": "Pay online, follow them on a live map, and start only when you share your OTP.",
+    "cta": "Book a service",
+    "secondary": "See all services",
+    "availability": "Available now in Faridabad · 8:00 am – 9:00 pm",
+    "photoNote": "Photo to come: a professional arriving at a customer's door",
+    "categoriesTitle": "Choose a category",
+    "trustTitle": "Why people book with us",
+    "trust": {
+      "verifiedTitle": "Verified professionals",
+      "verifiedBody": "Every professional's ID and work are checked before their first job.",
+      "otpTitle": "Starts only with your OTP",
+      "otpBody": "The service begins when you share a 4-digit code at the door.",
+      "priceTitle": "One clear price",
+      "priceBody": "Prices include taxes. The total you see before paying is final."
+    },
+    "stepsTitle": "How it works",
+    "steps": {
+      "oneTitle": "Choose a service",
+      "oneBody": "Pick what you need and see the full price.",
+      "twoTitle": "Pay online",
+      "twoBody": "We alert the nearest free professionals at once.",
+      "threeTitle": "Track and relax",
+      "threeBody": "Follow them live and share your OTP when they arrive."
+    },
+    "categories": {
+      "salon": "Salon for women",
+      "makeup": "Makeup & styling",
+      "hair": "Hair cut & style",
+      "spa": "Spa for women",
+      "menGrooming": "Men's grooming",
+      "menMassage": "Men's massage"
+    },
+    "servicesCount_one": "{{count}} service",
+    "servicesCount_other": "{{count}} services",
+    "from": "From {{price}}"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "whereTitle": "Where should we come?",
+    "change": "Change",
+    "addressLabel": "Home",
+    "addressLine": "B-12, Sector 15, Faridabad 121007",
+    "whoTitle": "Who would you like?",
+    "any": "No preference",
+    "female": "Female",
+    "male": "Male",
+    "availableTitle": "Professionals available nearby",
+    "arrives": "Arrives in about {{range}}",
+    "reviewTitle": "Review and pay",
+    "pay": "Pay {{amount}}",
+    "payNote": "If no one is free within 2 minutes, you'll get a full refund automatically.",
+    "items": {
+      "facial": "Korean glow facial",
+      "wax": "Full arms & underarms wax"
+    }
+  },
+  "jobAlert": {
+    "title": "New job",
+    "away": "{{distance}} away · about {{minutes}} min",
+    "servicesLabel": "Services",
+    "areaLabel": "Area",
+    "area": "Sector 15, Faridabad",
+    "earnLabel": "You earn",
+    "accept": "Accept job",
+    "decline": "Decline",
+    "keepOpen": "Keep this screen open to get jobs fastest"
+  }
+}
