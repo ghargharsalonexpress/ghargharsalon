@@ -5,6 +5,7 @@ import type { CategoryInput, ServiceInput } from "@brand/shared";
 import sharp from "sharp";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Service } from "../src/modules/catalog/catalog.models";
+import { imageFiles, processImage } from "../src/modules/media/images";
 import { type Client, createUser, loginAs, startTestApp, type TestContext, WEB_ORIGIN } from "./helpers";
 import request from "supertest";
 import { Client as BrowserClient } from "./helpers";
@@ -140,6 +141,29 @@ describe("admin catalogue (W13)", () => {
       .attach("file", Buffer.from("not an image"), { filename: "notes.txt", contentType: "text/plain" });
     expect(text.status).toBe(400);
     expect(text.body.error.fields.file).toBe("validation.imageUnreadable");
+  });
+
+  it("keeps one stripped master when the CDN resizes, and still records every size", async () => {
+    // A photo carrying camera metadata, as a phone would send it (alongside GPS).
+    const jpeg = await sharp({ create: { width: 1000, height: 750, channels: 3, background: { r: 194, g: 65, b: 12 } } })
+      .withExifMerge({ IFD0: { Model: "Pixel" } })
+      .jpeg()
+      .toBuffer();
+    expect((await sharp(jpeg).metadata()).exif).toBeDefined();
+
+    const { image, files } = await processImage(jpeg, "services", { transforms: true });
+
+    // One master, not eight files, and the widths the CDN will be asked for.
+    expect(files).toHaveLength(1);
+    expect(image.key).toMatch(/^services\/[0-9a-f]{12}\.webp$/);
+    expect(files[0]?.path).toBe(image.key);
+    expect(image).toMatchObject({ width: 1000, height: 750, widths: [320, 640, 960] });
+
+    // Re-encoding is what drops the location and camera, so it has to actually happen.
+    expect((await sharp(files[0]!.body).metadata()).exif).toBeUndefined();
+
+    // Deleting it removes that one file, not a list of sizes that were never written.
+    expect(imageFiles(image)).toEqual([image.key]);
   });
 });
 

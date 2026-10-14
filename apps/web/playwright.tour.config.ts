@@ -22,7 +22,9 @@ export default defineConfig({
   use: {
     ...(process.platform === "win32" ? { ...devices["Desktop Edge"], channel: "msedge" } : devices["Desktop Chrome"]),
     baseURL: `http://localhost:${WEB_PORT}`,
-    trace: "retain-on-failure",
+    // Off: writing traces on Windows races with the artifacts folder and fails the run
+    // with ENOENT on a .trace file, which looks like a real failure and is not one.
+    trace: "off",
     // A step that can't happen fails within a minute, naming the step, instead of at the test timeout.
     actionTimeout: 30_000,
     navigationTimeout: 30_000,

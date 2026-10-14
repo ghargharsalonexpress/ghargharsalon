@@ -9,8 +9,9 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const sharp = createRequire(path.join(root, "apps/api/package.json"))("sharp");
 
-const LETTER = process.env.BRAND_LETTER ?? "B";
-const ACCENT = process.env.BRAND_ACCENT ?? "#9E1F55";
+const LETTER = process.env.BRAND_LETTER ?? "G";
+// Keep in step with accentRamps.orange[600] in apps/web/src/design-system/tokens/color.ts.
+const ACCENT = process.env.BRAND_ACCENT ?? "#C2410C";
 const OUT = path.join(root, "apps/web/public/icons");
 
 /** size: canvas; inset: share of the canvas the letter square takes (maskable needs a safe zone). */

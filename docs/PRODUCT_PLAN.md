@@ -74,6 +74,11 @@ Pilot targets (supply-dependent; measured from backend events):
 | Platforms | Responsive website; Professional panel is an installable PWA; no native apps |
 | Languages | Customer and Professional: Hindi + English; Admin: English |
 | Infrastructure | AWS (S3 + CloudFront, Lightsail, SES, Route 53), MongoDB Atlas Mumbai, Google Maps Platform, Razorpay |
+
+> **Amended 2026-10-14:** catalogue photos are stored on **ImageKit**, not S3. The API uploads one
+> stripped master and ImageKit builds each size and format from the URL, so the sharp variant
+> pipeline below only runs when `MEDIA_STORAGE=local`. S3 + CloudFront still host the web app
+> itself and the database backups. See `docs/runbooks/production-setup.md` section 4.
 | Design process | Built in code from a design system with a live style guide; screenshot review |
 | Brand | We create a simple identity (wordmark, colour, type, app icon); client approves |
 

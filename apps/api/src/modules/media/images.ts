@@ -9,11 +9,14 @@ export const IMAGE_WIDTHS = [320, 640, 960, 1280] as const;
 const MAX_INPUT_PIXELS = 60_000_000;
 
 /**
- * Re-encodes an uploaded photo into AVIF and WebP at each size up to the original width,
- * stripping metadata (location, camera). File names are content hashes, so they can be
- * cached forever and the same photo uploaded twice is stored once.
+ * Prepares an uploaded photo for storage, always stripping metadata (location, camera) by
+ * re-encoding. File names are content hashes, so they can be cached forever and the same
+ * photo uploaded twice is stored once.
+ *
+ * `transforms` (a CDN that resizes on request) keeps one full-size master and lets the CDN
+ * make the sizes; otherwise every size is encoded here as AVIF and WebP.
  */
-export async function processImage(input: Buffer, folder: string): Promise<{ image: ImageRef; files: MediaFile[] }> {
+export async function processImage(input: Buffer, folder: string, { transforms = false }: { transforms?: boolean } = {}): Promise<{ image: ImageRef; files: MediaFile[] }> {
   let metadata: Metadata;
   try {
     metadata = await sharp(input, { limitInputPixels: MAX_INPUT_PIXELS }).metadata();
@@ -35,6 +38,14 @@ export async function processImage(input: Buffer, folder: string): Promise<{ ima
   if (widths.length === 0) widths.push(width as (typeof IMAGE_WIDTHS)[number]);
 
   const files: MediaFile[] = [];
+
+  if (transforms) {
+    // One master, rotated and stripped; the CDN builds every size and format from it.
+    const body = await sharp(input, { limitInputPixels: MAX_INPUT_PIXELS }).rotate().webp({ quality: 90 }).toBuffer();
+    files.push({ path: `${key}.webp`, body, contentType: "image/webp" });
+    return { image: { key: `${key}.webp`, width, height, widths: [...widths] }, files };
+  }
+
   for (const size of widths) {
     const pipeline = sharp(input, { limitInputPixels: MAX_INPUT_PIXELS }).rotate().resize({ width: size, withoutEnlargement: true });
     files.push({ path: `${key}-${size}.webp`, body: await pipeline.clone().webp({ quality: 78 }).toBuffer(), contentType: "image/webp" });
@@ -44,5 +55,9 @@ export async function processImage(input: Buffer, folder: string): Promise<{ ima
   return { image: { key, width, height, widths: [...widths] }, files };
 }
 
-/** Every stored file of an image (both formats, all sizes), for deletion. */
-export const imageFiles = (image: ImageRef): string[] => image.widths.flatMap((size) => [`${image.key}-${size}.webp`, `${image.key}-${size}.avif`]);
+/**
+ * Every stored file of an image, for deletion. A key with an extension is a single master
+ * the CDN resizes; an extensionless one has a file per size and format.
+ */
+export const imageFiles = (image: ImageRef): string[] =>
+  image.key.includes(".") ? [image.key] : image.widths.flatMap((size) => [`${image.key}-${size}.webp`, `${image.key}-${size}.avif`]);

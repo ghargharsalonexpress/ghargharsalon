@@ -14,7 +14,7 @@
 | [professional-application-form.md](professional-application-form.md) | Questions for the professional Google Form (English + draft Hindi) |
 | [runbooks/local-development.md](runbooks/local-development.md) | Run MongoDB, the API and the web app on one machine; run every test suite |
 | [runbooks/staging-deploy.md](runbooks/staging-deploy.md) | Step-by-step AWS + Atlas staging deploy (waiting for the client's accounts) |
-| [runbooks/production-setup.md](runbooks/production-setup.md) | Accounts, keys and settings for staging and launch: Razorpay, SES, S3, Maps, VAPID, GST seller details |
+| [runbooks/production-setup.md](runbooks/production-setup.md) | Accounts, keys and settings for staging and launch: Razorpay, SES, ImageKit, Maps, VAPID, GST seller details |
 | [runbooks/operations.md](runbooks/operations.md) | What the team does when a booking is stuck, a refund fails, alerts stop, or a provider is down |
 | [security-review.md](security-review.md) | OWASP ASVS Level 1 review with the evidence for each requirement |
 

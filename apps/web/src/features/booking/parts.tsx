@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { brand } from "@/brand";
 import { Avatar, Badge, Button, Link, PriceSummary, StatusTracker, type TrackerStep, VisuallyHidden } from "@/design-system";
 import { formatDate, formatMoney, formatNumber, formatTime } from "@/lib/format";
-import { MEDIA_BASE_URL } from "@/lib/media";
+import { MEDIA_BASE_URL, MEDIA_MODE } from "@/lib/media";
 import { addressLine } from "./text";
 
 /** A bordered section with its own heading (h2). */
@@ -40,7 +40,7 @@ export function Panel({ title, id, children, tone = "plain" }: { title?: ReactNo
 /** Who is coming (plan Phase 7): photo, name, rating and, inside the reveal window, Call. */
 export function ProfessionalCard({ professional, action }: { professional: BookingProfessionalDto; action?: ReactNode }) {
   const { t, i18n } = useTranslation("booking");
-  const photo = professional.photo ? mediaUrl(MEDIA_BASE_URL, professional.photo, Math.min(...professional.photo.widths), "webp") : undefined;
+  const photo = professional.photo ? mediaUrl(MEDIA_BASE_URL, professional.photo, Math.min(...professional.photo.widths), "webp", MEDIA_MODE) : undefined;
   const rated = professional.rating !== null && professional.ratingCount > 0;
 
   return (

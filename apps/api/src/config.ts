@@ -32,11 +32,13 @@ const schema = z.object({
   /** Checkout rate limits (plan C11); only load tests and stress tests switch them off. Refused off in production. */
   CHECKOUT_RATE_LIMITS: flag.default(true),
 
-  /** Images: local folder in development (served at /media), S3 + CloudFront in production. */
-  MEDIA_STORAGE: z.enum(["local", "s3"]).default("local"),
+  /** Images: local folder in development (served at /media), ImageKit in production. */
+  MEDIA_STORAGE: z.enum(["local", "imagekit"]).default("local"),
   MEDIA_DIR: z.string().min(1).default(".data/media"),
+  /** Where the browser reads images from: the API's /media locally, the ImageKit endpoint live. */
   MEDIA_BASE_URL: z.url().default("http://localhost:4000/media"),
-  S3_MEDIA_BUCKET: z.string().min(3).optional(),
+  /** The only ImageKit secret the server needs; uploads are server-side, so no public key here. */
+  IMAGEKIT_PRIVATE_KEY: z.string().min(10).optional(),
 
   /** Job alerts (plan C10): webpush with VAPID keys; log when developing without keys; memory in tests. */
   PUSH_TRANSPORT: z.enum(["webpush", "log", "memory"]).default("webpush"),
@@ -79,7 +81,7 @@ export function loadConfig(env: Record<string, string | undefined>) {
     if (!/^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(values.SELLER_GSTIN)) problems.push("SELLER_GSTIN must be a valid GSTIN");
     if (!values.COOKIE_DOMAIN) problems.push("COOKIE_DOMAIN is required (for example .brand.in)");
     if (webOrigins.some((origin) => !origin.startsWith("https://"))) problems.push("WEB_ORIGINS must all be https");
-    if (values.MEDIA_STORAGE !== "s3" || !values.S3_MEDIA_BUCKET) problems.push("MEDIA_STORAGE must be 's3' with S3_MEDIA_BUCKET set");
+    if (values.MEDIA_STORAGE !== "imagekit" || !values.IMAGEKIT_PRIVATE_KEY) problems.push("MEDIA_STORAGE must be 'imagekit' with IMAGEKIT_PRIVATE_KEY set");
     if (values.PUSH_TRANSPORT !== "webpush" || !values.VAPID_PUBLIC_KEY || !values.VAPID_PRIVATE_KEY) problems.push("PUSH_TRANSPORT must be 'webpush' with VAPID keys set");
     if (values.PAYMENT_PROVIDER !== "razorpay" || !values.RAZORPAY_KEY_ID || !values.RAZORPAY_KEY_SECRET || !values.RAZORPAY_WEBHOOK_SECRET) {
       problems.push("PAYMENT_PROVIDER must be 'razorpay' with the key id, key secret and webhook secret set");

@@ -39,9 +39,12 @@ export const localizedLongSchema = localized(2_000);
 export const optionalLocalizedSchema = localized(2_000, false);
 export type Localized = z.infer<typeof localizedShortSchema>;
 
-/** A stored image: `key` + width gives the URL of each AVIF/WebP size (see mediaUrl). */
+/**
+ * A stored image. An extensionless key (`services/x/abc`) means the sizes were encoded on
+ * upload; a key with an extension (`services/x/abc.jpg`) means one original that the CDN
+ * resizes on the fly. `mediaUrl` builds the right URL for each. */
 export const imageSchema = z.strictObject({
-  key: z.string().regex(/^[a-z0-9][a-z0-9/_-]*$/, V.invalid).max(200),
+  key: z.string().regex(/^[a-z0-9][a-z0-9/._-]*$/, V.invalid).max(200),
   width: z.number().int().min(1),
   height: z.number().int().min(1),
   widths: z.array(z.number().int().min(1)).min(1).max(6),
@@ -167,6 +170,11 @@ export function hasMissingHindi(value: unknown): boolean {
   return false;
 }
 
+/** "files": a file per size, encoded on upload. "imagekit": one original, resized by the CDN. */
+export type MediaMode = "files" | "imagekit";
+
 /** URL of one stored image size, e.g. mediaUrl(base, image, 640, "webp"). */
-export const mediaUrl = (base: string, image: ImageRef, width: number, format: "avif" | "webp"): string =>
-  `${base.replace(/\/$/, "")}/${image.key}-${width}.${format}`;
+export const mediaUrl = (base: string, image: ImageRef, width: number, format: "avif" | "webp", mode: MediaMode = "files"): string => {
+  const root = base.replace(/\/$/, "");
+  return mode === "imagekit" ? `${root}/${image.key}?tr=w-${width},f-${format}` : `${root}/${image.key}-${width}.${format}`;
+};

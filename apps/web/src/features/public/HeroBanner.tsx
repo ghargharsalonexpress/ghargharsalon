@@ -8,11 +8,11 @@ import { useTranslation } from "react-i18next";
 import { brand } from "@/brand";
 import { Button, Picture } from "@/design-system";
 import { clockText, useInfo } from "./info";
-import { HERO_IMAGE, SITE_IMAGE_BASE } from "./siteImages";
+import { HERO_IMAGE, SITE_IMAGE_BASE, SITE_IMAGE_SOURCE } from "./siteImages";
 
 /** The looping background clip, and the still shown whenever it is not played. */
 const HERO_VIDEO = "/video/hero.mp4";
-const HERO_POSTER = mediaUrl(SITE_IMAGE_BASE, HERO_IMAGE, 1280, "webp");
+const HERO_POSTER = mediaUrl(SITE_IMAGE_BASE, HERO_IMAGE, 1280, "webp", "files");
 
 /**
  * Play the clip only when it is welcome: not for someone who asked for less motion, and
@@ -89,7 +89,7 @@ export function HeroBanner({ still = false }: { still?: boolean } = {}) {
       ) : (
         <Picture
           image={HERO_IMAGE}
-          baseUrl={SITE_IMAGE_BASE}
+          {...SITE_IMAGE_SOURCE}
           alt=""
           sizes="100vw"
           ratio="auto"

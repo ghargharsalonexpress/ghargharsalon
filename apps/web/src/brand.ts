@@ -3,8 +3,8 @@
 // icons, manifests and index.html title are static files in public/ and index.html.
 export const brand = {
   name: "Ghar Ghar Salon Express",
-  supportPhone: "+91 00000 00000",
-  supportEmail: "support@brand.in",
+  supportPhone: "+91 82856 83297",
+  supportEmail: "teamhr@ghargharsalonexpress.com",
   promiseMinutes: { min: 10, max: 15 },
   /** The professionals' application form (plan A3: onboarding starts with a Google Form). */
   professionalFormUrl: import.meta.env.VITE_PRO_FORM_URL ?? "",

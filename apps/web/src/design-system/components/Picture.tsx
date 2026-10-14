@@ -1,9 +1,9 @@
-import { type ImageRef, mediaUrl } from "@brand/shared";
+import { type ImageRef, type MediaMode, mediaUrl } from "@brand/shared";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
 import type { SxProps, Theme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
-import { MEDIA_BASE_URL } from "@/lib/media";
+import { MEDIA_BASE_URL, MEDIA_MODE } from "@/lib/media";
 
 type Ratio = string | { xs: string; sm?: string; md?: string };
 
@@ -23,11 +23,13 @@ export interface PictureProps {
   position?: string;
   /** Where the files live; defaults to catalogue media. Site photos use "" (the web app's /images). */
   baseUrl?: string;
+  /** How to ask for a size. Site photos are plain files whatever the catalogue uses. */
+  mode?: MediaMode;
   sx?: SxProps<Theme>;
 }
 
 /** AVIF with WebP fallback, responsive sizes, fixed aspect ratio so nothing jumps (CLS). */
-export function Picture({ image, alt, sizes, ratio, placeholder, priority = false, radius = "md", position = "center", baseUrl = MEDIA_BASE_URL, sx }: PictureProps) {
+export function Picture({ image, alt, sizes, ratio, placeholder, priority = false, radius = "md", position = "center", baseUrl = MEDIA_BASE_URL, mode = MEDIA_MODE, sx }: PictureProps) {
   const { tokens } = useTheme();
   const shape = { aspectRatio: ratio, width: "100%", borderRadius: `${tokens.radius[radius]}px`, overflow: "hidden", bgcolor: tokens.neutral[100] } as const;
 
@@ -44,7 +46,7 @@ export function Picture({ image, alt, sizes, ratio, placeholder, priority = fals
   }
 
   const sizesAttr = typeof sizes === "number" ? `${sizes}px` : sizes;
-  const srcSet = (format: "avif" | "webp") => image.widths.map((width) => `${mediaUrl(baseUrl, image, width, format)} ${width}w`).join(", ");
+  const srcSet = (format: "avif" | "webp") => image.widths.map((width) => `${mediaUrl(baseUrl, image, width, format, mode)} ${width}w`).join(", ");
   const fallbackWidth = image.widths.find((width) => width >= 640) ?? image.widths[image.widths.length - 1] ?? image.width;
 
   return (
@@ -53,7 +55,7 @@ export function Picture({ image, alt, sizes, ratio, placeholder, priority = fals
       <source type="image/webp" srcSet={srcSet("webp")} sizes={sizesAttr} />
       <Box
         component="img"
-        src={mediaUrl(baseUrl, image, fallbackWidth, "webp")}
+        src={mediaUrl(baseUrl, image, fallbackWidth, "webp", mode)}
         alt={alt}
         width={image.width}
         height={image.height}

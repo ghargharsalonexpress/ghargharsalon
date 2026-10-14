@@ -58,4 +58,10 @@ describe("helpers", () => {
       "https://cdn.brand.in/services/x/abc-640.webp",
     );
   });
+
+  it("asks the CDN for the size and format when it transforms", () => {
+    expect(mediaUrl("https://ik.imagekit.io/brand/", { key: "services/x/abc.jpg", width: 1200, height: 900, widths: [320, 640] }, 640, "avif", "imagekit")).toBe(
+      "https://ik.imagekit.io/brand/services/x/abc.jpg?tr=w-640,f-avif",
+    );
+  });
 });

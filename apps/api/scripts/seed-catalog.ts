@@ -3,6 +3,10 @@
  * MongoDB, re-encoding every photo into AVIF/WebP sizes in media storage.
  *   npm run seed:catalog               add what's missing; existing slugs are left alone
  *   npm run seed:catalog -- --replace  overwrite existing categories and services
+ *   npm run seed:catalog -- --no-images
+ *                                      load the text only, leaving every photo empty. Use it for the
+ *                                      first load against a real database before the CDN is set up,
+ *                                      then re-run with --replace to add the photos.
  *   npm run seed:catalog -- --replace --prune
  *                                      also deletes services the seed no longer has (development only:
  *                                      it would remove services an admin created)
@@ -25,6 +29,7 @@ const seedDir = resolve(here, "../seed");
 const cacheDir = resolve(here, "../.data/seed-cache");
 const replace = process.argv.includes("--replace");
 const prune = process.argv.includes("--prune");
+const noImages = process.argv.includes("--no-images");
 
 interface SeedImage {
   source: string;
@@ -58,8 +63,9 @@ async function load(source: string): Promise<Buffer> {
 
 const failures: string[] = [];
 async function store(image: SeedImage, folder: string, owner: string): Promise<ImageRef | null> {
+  if (noImages) return null;
   try {
-    const { image: ref, files } = await processImage(await load(image.source), folder);
+    const { image: ref, files } = await processImage(await load(image.source), folder, { transforms: storage.transforms });
     await storage.put(files);
     return ref;
   } catch (error) {

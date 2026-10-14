@@ -138,7 +138,7 @@ export function adminCatalogRouter({ media }: { media: MediaStorage }): Router {
     const folder = mediaFolderSchema.safeParse(req.query.folder ?? "services");
     if (!req.file) throw new AppError("VALIDATION_FAILED", { fields: { file: V.required } });
     if (!folder.success) throw new AppError("VALIDATION_FAILED", { fields: { folder: V.invalid } });
-    const { image, files } = await processImage(req.file.buffer, folder.data);
+    const { image, files } = await processImage(req.file.buffer, folder.data, { transforms: media.transforms });
     await media.put(files);
     res.status(201).json({ image });
   });

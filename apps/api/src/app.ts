@@ -93,7 +93,7 @@ export function createApp({ config, logger, email, mongoClient, push: givenPush,
 
   app.use("/health", healthRouter());
 
-  // Development images; production serves them from S3 + CloudFront (MEDIA_BASE_URL).
+  // Development images; production serves them from ImageKit (MEDIA_BASE_URL).
   const media = createMediaStorage(config);
   if (config.MEDIA_STORAGE === "local") {
     app.use("/media", express.static(localMediaDir(config), { immutable: true, maxAge: "365d", index: false, fallthrough: false }));

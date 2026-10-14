@@ -29,7 +29,9 @@ export default defineConfig({
   },
   use: {
     baseURL: `http://localhost:${WEB_PORT}`,
-    trace: "retain-on-failure",
+    // Off: writing traces on Windows races with the artifacts folder and fails the run
+    // with ENOENT on a .trace file, which looks like a real failure and is not one.
+    trace: "off",
   },
   projects: [
     {

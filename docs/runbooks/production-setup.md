@@ -19,7 +19,7 @@ The API refuses to start in production if any required value is missing or unsaf
 | `EMAIL_TRANSPORT` | `ses` | — |
 | `EMAIL_FROM` | `Brand <no-reply@brand.in>` | A verified SES identity |
 | `AWS_REGION` | `ap-south-1` | — |
-| `MEDIA_STORAGE`, `S3_MEDIA_BUCKET`, `MEDIA_BASE_URL` | `s3`, the bucket, the CloudFront media URL | S3 + CloudFront (section 4) |
+| `MEDIA_STORAGE`, `IMAGEKIT_PRIVATE_KEY`, `MEDIA_BASE_URL` | `imagekit`, the private key, the ImageKit URL endpoint | ImageKit (section 4) |
 | `PUSH_TRANSPORT` | `webpush` | — |
 | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Generated once, kept forever | `npx web-push generate-vapid-keys`. Changing them signs every professional out of alerts. |
 | `PAYMENT_PROVIDER` | `razorpay` | — |
@@ -47,11 +47,22 @@ The API refuses to start in production if any required value is missing or unsaf
 3. Set `EMAIL_FROM` to an address on the verified domain.
 4. Optional: an SNS topic for bounces and complaints.
 
-## 4. Images (S3 + CloudFront)
+## 4. Images (ImageKit)
 
-1. A private S3 bucket for media; CloudFront with Origin Access Control in front of it.
-2. The API's IAM role may `s3:PutObject` to that bucket only.
-3. `MEDIA_BASE_URL` is the CloudFront address of the bucket (for example `https://media.brand.in`). The web build uses the same value as `VITE_MEDIA_URL`, and the CSP `img-src` must include it.
+The API uploads one full-size master per photo, stripped of its location and camera data, and
+ImageKit builds every size and format from the URL. Nothing else has to be configured for sizes.
+
+1. An ImageKit account (the free plan covers the pilot: 20 GB storage and 20 GB delivery a month).
+2. Copy the **private key** from Developer options → API keys into `IMAGEKIT_PRIVATE_KEY`. The public
+   key is not needed: uploads go through the API, never the browser.
+3. `MEDIA_BASE_URL` is the URL endpoint (for example `https://ik.imagekit.io/ghargharsalon`, or a
+   custom domain). The web build uses the same value as `VITE_MEDIA_URL`, sets
+   `VITE_MEDIA_MODE=imagekit`, and the CSP `img-src` must include it.
+4. After switching, run `npm run seed:catalog -- --replace` in `apps/api` once, so the seeded photos
+   are re-uploaded to ImageKit. Photos stored the old way keep the old URL shape and would 404.
+
+> `MEDIA_STORAGE=imagekit` and `VITE_MEDIA_MODE=imagekit` must be set together: the first decides
+> where a photo is written, the second decides how the browser asks for it.
 
 ## 5. Google Maps Platform
 
@@ -65,7 +76,8 @@ The API refuses to start in production if any required value is missing or unsaf
 | Variable | Value |
 |---|---|
 | `VITE_API_URL` | `https://api.brand.in` |
-| `VITE_MEDIA_URL` | The media CloudFront URL |
+| `VITE_MEDIA_URL` | The ImageKit URL endpoint |
+| `VITE_MEDIA_MODE` | `imagekit` |
 | `VITE_GOOGLE_MAPS_KEY` | The restricted browser key |
 | `VITE_PRO_FORM_URL` | The professional application Google Form |
 | `VITE_RELEASE` | The release tag, sent with client error reports |

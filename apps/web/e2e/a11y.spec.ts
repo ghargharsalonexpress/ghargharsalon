@@ -1,6 +1,11 @@
 import { expect, test } from "@playwright/test";
 import { AUTH_PAGES, type Brand, expectNoViolations, type Lang, logIn, openPage, PAGES, SEEDED } from "./support";
 
+// axe walks the whole DOM, and expectNoViolations first waits for toasts and dialogs to settle.
+// On a busy machine that is more than Playwright's 30 s default, and a timeout here looks like
+// a failure when nothing is wrong.
+test.describe.configure({ timeout: 90_000 });
+
 const MATRIX: Array<{ lang: Lang; brand: Brand; width: number }> = [
   { lang: "en", brand: "orange", width: 1440 },
   { lang: "en", brand: "orange", width: 360 },
