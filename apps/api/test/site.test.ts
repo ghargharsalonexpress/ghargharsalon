@@ -1,7 +1,6 @@
-import { DEFAULT_SITE_CONFIG, type PageContent, pageContentSchema, sectionSchemas, type SiteConfig, siteConfigSchema } from "@brand/shared";
+import { DEFAULT_PAGES, DEFAULT_SITE_CONFIG, type PageContent, pageContentSchema, sectionSchemas, type SiteConfig, siteConfigSchema } from "@brand/shared";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AuditLog } from "../src/modules/audit/audit.model";
-import { DEFAULT_PAGES } from "../src/modules/site/defaultPages";
 import { AreaRequest, Page, PageVersion } from "../src/modules/site/site.models";
 import { Client, createUser, loginAs, startTestApp, type TestContext } from "./helpers";
 

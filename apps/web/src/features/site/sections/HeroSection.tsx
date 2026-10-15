@@ -32,10 +32,11 @@ function subscribe(onChange: () => void): () => void {
 const useMotion = () => useSyncExternalStore(subscribe, () => window.matchMedia(MOTION_OK).matches, () => false);
 const useShowVideo = () => useSyncExternalStore(subscribe, () => window.matchMedia(MOTION_OK).matches && window.matchMedia(WIDE_ENOUGH).matches, () => false);
 
+// Phones get a shorter banner: just the promise and one button, and less of the photo cropped away.
 const HEIGHTS = {
-  full: { xs: "min(100svh, 760px)", md: "min(100vh, 860px)" },
-  large: { xs: "min(92svh, 640px)", md: "min(88vh, 720px)" },
-  medium: { xs: 480, md: 520 },
+  full: { xs: "min(80svh, 600px)", sm: "min(90vh, 720px)", md: "min(100vh, 860px)" },
+  large: { xs: "min(68svh, 520px)", sm: "min(80vh, 620px)", md: "min(88vh, 720px)" },
+  medium: { xs: 400, sm: 460, md: 520 },
 } as const;
 
 /**
@@ -217,13 +218,13 @@ function Slide({
         }}
       />
 
-      <Container maxWidth={false} sx={{ maxWidth: tokens.container.marketing, position: "relative", py: { xs: 14, md: 16 }, pb: { xs: 16, md: 16 }, alignSelf: { xs: centered ? "center" : "flex-end", md: "center" } }}>
+      <Container maxWidth={false} sx={{ maxWidth: tokens.container.marketing, position: "relative", py: { xs: 10, md: 16 }, pb: { xs: 14, md: 16 }, alignSelf: { xs: centered ? "center" : "flex-end", md: "center" } }}>
         <Box sx={{ maxWidth: centered ? 820 : 640, mx: centered ? "auto" : 0, textAlign: centered ? "center" : "left" }}>
           {text(slide.eyebrow) && (
             <Typography
               variant="label"
               component="p"
-              sx={{ m: 0, mb: 4, display: "inline-flex", alignItems: "center", gap: 1.5, px: 3, py: 1, borderRadius: 999, bgcolor: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.28)", color: tokens.neutral[0], backdropFilter: "blur(6px)" }}
+              sx={{ m: 0, mb: 4, display: { xs: "none", sm: "inline-flex" }, alignItems: "center", gap: 1.5, px: 3, py: 1, borderRadius: 999, bgcolor: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.28)", color: tokens.neutral[0], backdropFilter: "blur(6px)" }}
             >
               <Box component="span" aria-hidden sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: tokens.accent[500] }} />
               {text(slide.eyebrow)}
@@ -233,29 +234,27 @@ function Slide({
             id={index === 0 ? `section-${sectionId}-title` : undefined}
             variant="display"
             component={first ? "h1" : index === 0 ? "h2" : "p"}
-            sx={{ m: 0, color: tokens.neutral[0], fontWeight: 700, fontSize: { xs: "2.25rem", sm: "2.75rem", md: "3.5rem" }, lineHeight: 1.12, textShadow: "0 2px 18px rgba(0,0,0,0.35)" }}
+            sx={{ m: 0, color: tokens.neutral[0], fontWeight: 700, fontSize: { xs: "2rem", sm: "2.75rem", md: "3.5rem" }, lineHeight: 1.12, textShadow: "0 2px 18px rgba(0,0,0,0.35)" }}
           >
             {title}
             {accent && (
               <>
                 {" "}
-                <Box
-                  component="span"
-                  sx={{ display: "inline-block", mt: { xs: 1.5, md: 2 }, color: tokens.neutral[0], bgcolor: tokens.accent[600], px: { xs: 2, md: 3 }, py: { xs: 0.25, md: 0.5 }, borderRadius: `${tokens.radius.md}px`, textShadow: "none" }}
-                >
+                {/* The highlighted words: the bright brand orange on its own line, no box behind it. */}
+                <Box component="span" sx={{ display: "block", mt: { xs: 0.5, md: 1 }, color: tokens.accent[500] }}>
                   {accent}
                 </Box>
               </>
             )}
           </Typography>
           {text(slide.subtitle) && (
-            <Typography variant="bodyLg" component="p" sx={{ mt: 5, mx: centered ? "auto" : 0, maxWidth: "54ch", color: "rgba(255,255,255,0.92)", textShadow: "0 1px 10px rgba(0,0,0,0.35)" }}>
+            <Typography variant="bodyLg" component="p" sx={{ display: { xs: "none", sm: "block" }, mt: 5, mx: centered ? "auto" : 0, maxWidth: "54ch", color: "rgba(255,255,255,0.92)", textShadow: "0 1px 10px rgba(0,0,0,0.35)" }}>
               {text(slide.subtitle)}
             </Typography>
           )}
-          <Box sx={{ mt: 8, display: "flex", gap: 3, flexWrap: "wrap", justifyContent: centered ? "center" : "flex-start" }}>
+          <Box sx={{ mt: { xs: 6, sm: 8 }, display: "flex", gap: 3, flexWrap: "wrap", justifyContent: centered ? "center" : "flex-start" }}>
             <CtaButton cta={slide.primary} size="lg" sx={{ boxShadow: "0 10px 28px rgba(0,0,0,0.3)", minWidth: 160 }} />
-            <CtaButton cta={slide.secondary} size="lg" variant="secondary" inverse />
+            <CtaButton cta={slide.secondary} size="lg" variant="secondary" inverse sx={{ display: { xs: "none", sm: "inline-flex" } }} />
           </Box>
           {showPromise && <Promise centered={centered} />}
         </Box>
@@ -275,7 +274,7 @@ function Promise({ centered }: { centered: boolean }) {
     { icon: <WbSunnyOutlined fontSize="small" />, label: t("site.openDaily", { open: vars.open, close: vars.close }) },
   ];
   return (
-    <Box component="ul" sx={{ listStyle: "none", m: 0, p: 0, mt: 8, display: "flex", flexWrap: "wrap", gap: { xs: 2, md: 3 }, columnGap: { xs: 4, md: 6 }, justifyContent: centered ? "center" : "flex-start" }}>
+    <Box component="ul" sx={{ listStyle: "none", m: 0, p: 0, mt: 8, display: { xs: "none", sm: "flex" }, flexWrap: "wrap", gap: { xs: 2, md: 3 }, columnGap: { xs: 4, md: 6 }, justifyContent: centered ? "center" : "flex-start" }}>
       {facts.map((fact) => (
         <Box
           component="li"

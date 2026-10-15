@@ -140,7 +140,7 @@ export function StepsSection({ section }: { section: SectionOf<"steps"> }) {
           <Box component="li" key={index}>
             <Reveal delay={index * 90}>
               <Box sx={{ position: "relative", mb: 5 }}>
-                {item.image ? <Picture image={item.image} alt="" sizes="(min-width: 900px) 380px, 100vw" ratio="4 / 3" radius="lg" /> : <Box sx={{ height: 24 }} />}
+                {item.image ? <Picture image={item.image} alt="" sizes="(min-width: 900px) 380px, 100vw" ratio={{ xs: "4 / 3", sm: "1 / 1" }} radius="lg" /> : <Box sx={{ height: 24 }} />}
                 <Box
                   aria-hidden
                   sx={{
@@ -491,22 +491,26 @@ export function VideoSection({ section }: { section: SectionOf<"video"> }) {
   );
 }
 
-/** A closing call to action, over a photo or the brand colour. */
+/** A closing call to action: the message on the brand colour (or dark), with the photo whole beside it. */
 export function CtaSection({ section }: { section: SectionOf<"cta"> }) {
   const { tokens } = useTheme();
   const text = useText();
   const background = section.tone === "dark" || section.image ? tokens.neutral[900] : tokens.accent[700];
+  const image = section.image;
   return (
     <SectionShell section={{ ...section, tone: section.tone === "dark" ? "plain" : section.tone }} sx={{ py: { xs: 10, md: 14 } }}>
-      <Box sx={{ position: "relative", overflow: "hidden", borderRadius: `${tokens.radius.lg}px`, bgcolor: background, color: tokens.neutral[0], px: { xs: 6, md: 14 }, py: { xs: 10, md: 14 } }}>
-        {section.image && (
-          <>
-            <Picture image={section.image} alt="" sizes={1200} ratio="auto" radius="lg" sx={{ position: "absolute", inset: 0, height: "100%", borderRadius: 0 }} />
-            <Box aria-hidden sx={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(20,16,12,0.9) 0%, rgba(20,16,12,0.7) 55%, rgba(20,16,12,0.35) 100%)" }} />
-          </>
-        )}
-        <Box sx={{ position: "relative", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-          <Box sx={{ maxWidth: 620 }}>
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "minmax(0, 1fr)", md: image ? "minmax(0, 7fr) minmax(0, 5fr)" : "minmax(0, 1fr)" },
+          overflow: "hidden",
+          borderRadius: `${tokens.radius.lg}px`,
+          bgcolor: background,
+          color: tokens.neutral[0],
+        }}
+      >
+        <Box sx={{ order: { xs: 1, md: 0 }, px: { xs: 6, md: image ? 12 : 14 }, py: { xs: 8, md: 12 }, display: "flex", flexDirection: image ? "column" : { xs: "column", md: "row" }, flexWrap: "wrap", justifyContent: "center", alignItems: image ? "flex-start" : { xs: "flex-start", md: "center" }, gap: image ? 0 : 8, columnGap: 8 }}>
+          <Box sx={{ maxWidth: 620, flex: image ? "none" : 1 }}>
             {text(section.eyebrow) && (
               <Typography variant="label" component="p" sx={{ m: 0, mb: 2, color: tokens.accent[200], textTransform: "uppercase", letterSpacing: "0.12em" }}>
                 {text(section.eyebrow)}
@@ -521,11 +525,16 @@ export function CtaSection({ section }: { section: SectionOf<"cta"> }) {
               </Typography>
             )}
           </Box>
-          <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+          <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap", mt: image ? 8 : 0 }}>
             <CtaButton cta={section.primary} size="lg" sx={{ bgcolor: tokens.neutral[0], color: tokens.accent[800], "&:hover": { bgcolor: tokens.accent[50] } }} />
             <CtaButton cta={section.secondary} size="lg" variant="secondary" inverse />
           </Box>
         </Box>
+        {image && (
+          <Box sx={{ position: "relative", minHeight: { xs: 220, sm: 280, md: 340 } }}>
+            <Picture image={image} alt="" sizes="(min-width: 900px) 500px, 100vw" ratio="auto" radius="lg" sx={{ position: "absolute", inset: 0, height: "100%", borderRadius: 0 }} />
+          </Box>
+        )}
       </Box>
     </SectionShell>
   );

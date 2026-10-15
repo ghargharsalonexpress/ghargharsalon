@@ -1,4 +1,4 @@
-// Generated once from the web app's legal drafts (i18n legal.json); admins edit these pages now.
+// The policies as shipped (from the first legal drafts); admins edit these pages in Admin → Website.
 
 export const LEGAL_DOCS = {
   "privacy": {

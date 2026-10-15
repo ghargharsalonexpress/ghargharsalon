@@ -19,11 +19,11 @@
   },
   "hero-men": {
     "file": "src/hero-men.jpg",
-    "alt": "Smiling man getting a haircut",
-    "altHi": "मुस्कुराते हुए बाल कटवाता आदमी",
-    "position": "35% 40%",
-    "source": "https://www.pexels.com/photo/man-smiling-during-a-haircut-in-barbershop-39559309/",
-    "author": "Brian Silva",
+    "alt": "Barber trimming a man's beard",
+    "altHi": "आदमी की दाढ़ी ट्रिम करता नाई",
+    "position": "68% 40%",
+    "source": "https://www.pexels.com/photo/side-view-of-a-man-getting-his-beard-styled-7518713/",
+    "author": "Pavel Danilyuk",
     "license": "Pexels License"
   },
   "cat-salon-for-women": {
@@ -75,7 +75,7 @@
     "file": "src/cat-men-pain-relief.jpg",
     "alt": "Man receiving a back and shoulder massage",
     "altHi": "पीठ और कंधों की मालिश करवाता आदमी",
-    "position": "45% 45%",
+    "position": "62% 45%",
     "source": "https://www.pexels.com/photo/relaxing-outdoor-back-massage-therapy-session-37719631/",
     "author": "Nothing Ahead",
     "license": "Pexels License"
@@ -91,11 +91,11 @@
   },
   "cat-men-grooming": {
     "file": "src/cat-men-grooming.jpg",
-    "alt": "Barber trimming a man's beard",
-    "altHi": "आदमी की दाढ़ी ट्रिम करता नाई",
-    "position": "60% 50%",
-    "source": "https://www.pexels.com/photo/side-view-of-a-man-getting-his-beard-styled-7518713/",
-    "author": "Pavel Danilyuk",
+    "alt": "Smiling man getting a haircut",
+    "altHi": "मुस्कुराते हुए बाल कटवाता आदमी",
+    "position": "45% 40%",
+    "source": "https://www.pexels.com/photo/man-smiling-during-a-haircut-in-barbershop-39559309/",
+    "author": "Brian Silva",
     "license": "Pexels License"
   },
   "cat-men-face-grooming": {
@@ -138,7 +138,7 @@
     "file": "src/step-book.jpg",
     "alt": "Woman booking a service on her phone",
     "altHi": "फ़ोन पर सर्विस बुक करती महिला",
-    "position": "55% 60%",
+    "position": "55% 30%",
     "source": "https://unsplash.com/photos/a-woman-sitting-at-a-table-looking-at-her-cell-phone-Wkp0U_iHF5g",
     "author": "Rupinder Singh",
     "license": "Unsplash License"
@@ -147,7 +147,7 @@
     "file": "src/step-arrive.jpg",
     "alt": "Makeup artist ready with her brush kit",
     "altHi": "अपनी ब्रश किट के साथ तैयार मेकअप आर्टिस्ट",
-    "position": "45% 30%",
+    "position": "50% 18%",
     "source": "https://www.pexels.com/photo/woman-standing-with-bag-of-makeup-brushes-26616192/",
     "author": "DeyvidPinedo _Fotografia",
     "license": "Pexels License"
@@ -156,7 +156,7 @@
     "file": "src/step-relax.jpg",
     "alt": "Woman getting her hair styled at home",
     "altHi": "घर पर आराम से बाल सँवरवाती महिला",
-    "position": "40% 35%",
+    "position": "45% 35%",
     "source": "https://www.pexels.com/photo/woman-getting-her-hair-done-in-her-house-13965154/",
     "author": "Rene Terp",
     "license": "Pexels License"
@@ -165,7 +165,7 @@
     "file": "src/why-us.jpg",
     "alt": "Beautician in gloves giving a clean, gentle facial",
     "altHi": "दस्ताने पहनकर साफ़-सुथरे तरीके से फेशियल करती ब्यूटीशियन",
-    "position": "45% 40%",
+    "position": "45% 30%",
     "source": "https://www.pexels.com/photo/a-woman-having-facial-treatment-4586753/",
     "author": "Anna Shvets",
     "license": "Pexels License"
@@ -174,7 +174,7 @@
     "file": "src/join-pro.jpg",
     "alt": "Smiling professional beautician",
     "altHi": "मुस्कुराती प्रोफ़ेशनल ब्यूटीशियन",
-    "position": "50% 35%",
+    "position": "50% 25%",
     "source": "https://www.pexels.com/photo/woman-in-blue-v-neckline-dress-20046788/",
     "author": "TONI&GUY PONDICHERRY",
     "license": "Pexels License"
@@ -273,7 +273,7 @@
     "file": "src/login-side.jpg",
     "alt": "Woman with skincare cream on her face",
     "altHi": "चेहरे पर स्किनकेयर क्रीम लगाए महिला",
-    "position": "55% 40%",
+    "position": "55% 30%",
     "source": "https://unsplash.com/photos/a-woman-with-a-white-spot-on-her-face-zg30dYawyo4",
     "author": "Cherrydeck",
     "license": "Unsplash License"

@@ -17,19 +17,25 @@ export function ServicesBanner({ category, gender }: { category: CategoryDto | n
   const title = category ? pick(category.name, i18n.language) : t("services.title");
   const description = category ? pick(category.description, i18n.language) : t("meta.servicesDescription");
 
+  // Phones: the photo whole on top, the title under it. From sm: the title on dark, the photo beside it.
   return (
-    <Box sx={{ position: "relative", overflow: "hidden", borderRadius: `${tokens.radius.lg}px`, minHeight: { xs: 168, md: 220 }, display: "flex", alignItems: "flex-end", bgcolor: tokens.neutral[900] }}>
-      {photo && <Picture image={photo} fallback={category ? defaultPhotoFor([category.slug]) : null} alt="" sizes="(min-width: 1200px) 1136px, 100vw" ratio="auto" radius="lg" priority sx={{ position: "absolute", inset: 0, height: "100%", borderRadius: 0 }} />}
-      <Box aria-hidden sx={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(20,16,12,0.85) 0%, rgba(20,16,12,0.55) 55%, rgba(20,16,12,0.15) 100%)" }} />
-      <Box sx={{ position: "relative", p: { xs: 5, md: 8 }, maxWidth: 640 }}>
+    <Box
+      sx={{
+        overflow: "hidden",
+        borderRadius: `${tokens.radius.lg}px`,
+        bgcolor: tokens.neutral[900],
+        display: "grid",
+        gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "minmax(0, 1fr) minmax(0, 1fr)", md: "minmax(0, 7fr) minmax(0, 5fr)" },
+      }}
+    >
+      <Box sx={{ position: "relative", order: { xs: 0, sm: 1 }, aspectRatio: { xs: "16 / 9", sm: "auto" }, minHeight: { sm: 220, md: 240 } }}>
+        {photo && <Picture image={photo} fallback={category ? defaultPhotoFor([category.slug]) : null} alt="" sizes="(min-width: 900px) 480px, (min-width: 600px) 50vw, 100vw" ratio="auto" radius="lg" priority sx={{ position: "absolute", inset: 0, height: "100%", borderRadius: 0 }} />}
+      </Box>
+      <Box sx={{ alignSelf: "center", p: { xs: 5, md: 10 } }}>
         <Typography variant="h1" sx={{ color: tokens.neutral[0] }}>
           {title}
         </Typography>
-        {description && (
-          <Typography sx={{ mt: 2, color: "rgba(255,255,255,0.88)" }}>
-            {description}
-          </Typography>
-        )}
+        {description && <Typography sx={{ mt: 2, color: "rgba(255,255,255,0.88)" }}>{description}</Typography>}
       </Box>
     </Box>
   );

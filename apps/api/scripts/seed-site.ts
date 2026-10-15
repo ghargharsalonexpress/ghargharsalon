@@ -11,13 +11,12 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { DEFAULT_SITE_CONFIG } from "@brand/shared";
+import { DEFAULT_PAGES, DEFAULT_SITE_CONFIG } from "@brand/shared";
 import { loadConfig } from "../src/config";
 import { connectDb, disconnectDb } from "../src/db";
 import { Category } from "../src/modules/catalog/catalog.models";
 import { processImage } from "../src/modules/media/images";
 import { createMediaStorage } from "../src/modules/media/storage";
-import { DEFAULT_PAGES } from "../src/modules/site/defaultPages";
 import { AreaRequest, Page, PageVersion, SiteHistory, SiteModel } from "../src/modules/site/site.models";
 import { ensureDefaultPages } from "../src/modules/site/site.service";
 

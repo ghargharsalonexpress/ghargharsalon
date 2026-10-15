@@ -17,4 +17,5 @@ export * from "./settings";
 export * from "./site";
 export * from "./siteDefaults";
 export * from "./siteImages";
+export * from "./sitePages";
 export * from "./validation";

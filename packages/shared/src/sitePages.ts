@@ -1,5 +1,6 @@
-import { type Cta, type PageContent, type Section, type SectionOf, siteImage } from "@brand/shared";
-import { LEGAL_DOCS } from "./legalDefaults";
+import type { Cta, PageContent, Section, SectionOf } from "./site";
+import { LEGAL_DOCS } from "./siteLegal";
+import { siteImage } from "./siteImages";
 
 // The pages the website ships with. They are served as they are until an admin edits them,
 // and "Reset to default" brings an edited page back to this. Text may use {{variables}}
@@ -651,3 +652,6 @@ export const DEFAULT_PAGES: ReadonlyArray<{ path: string; locked: boolean; conte
 ];
 
 export const defaultPage = (path: string) => DEFAULT_PAGES.find((page) => page.path === path);
+
+/** When the shipped content was written, for "Last updated" on a shipped page nobody has saved yet. */
+export const SHIPPED_PAGES_DATE = "2026-10-16T00:00:00.000Z";

@@ -4,7 +4,9 @@ import {
   type AreaRequestDto,
   type AreaRequestInput,
   type CreatePageInput,
+  DEFAULT_PAGES,
   DEFAULT_SITE_CONFIG,
+  defaultPage,
   type GeoPoint,
   type LocateResponse,
   type Localized,
@@ -29,7 +31,6 @@ import { Booking } from "../bookings/booking.model";
 import { Service } from "../catalog/catalog.models";
 import { getSettings } from "../settings/settings.service";
 import { isDuplicateKeyError, User } from "../users/user.model";
-import { DEFAULT_PAGES, defaultPage } from "./defaultPages";
 import { AreaRequest, Page, type PageFields, PageVersion, SiteHistory, SiteModel } from "./site.models";
 
 type Actor = ReturnType<typeof auditActor>;

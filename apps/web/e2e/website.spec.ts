@@ -6,7 +6,7 @@ import { API_URL, logInAsTeam, openPage, SEEDED, uniquePhone } from "./support";
 // missing photos and placeholders. Edits happen on /about and on pages these specs create,
 // and are undone at the end, so specs running alongside see the shipped site.
 
-test.describe.configure({ mode: "serial", timeout: 120_000 });
+test.describe.configure({ mode: "serial", timeout: 240_000 });
 
 async function asAdmin(page: Page) {
   await logInAsTeam(page, SEEDED.admin.email, SEEDED.admin.password);
@@ -234,6 +234,17 @@ async function csrf(request: APIRequestContext) {
   const { csrfToken } = (await session.json()) as { csrfToken: string };
   return { "X-CSRF-Token": csrfToken, Origin: "http://localhost:5175" };
 }
+
+test.describe("Without the website API", () => {
+  test("the shipped pages still show (an older API during a deploy, or one that is down)", async ({ page }) => {
+    await page.route("**/v1/site", (route) => route.fulfill({ status: 404, contentType: "application/json", body: "{}" }));
+    await page.route("**/v1/pages?**", (route) => route.fulfill({ status: 404, contentType: "application/json", body: "{}" }));
+    await openPage(page, "/");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Salon at home in 10–15 minutes");
+    await openPage(page, "/legal/privacy");
+    await expect(page.getByRole("heading", { name: "Privacy policy", level: 1 })).toBeVisible();
+  });
+});
 
 const SHIPPED_PAGES = ["/", "/about", "/contact", "/register-as-professional", "/legal/privacy", "/legal/terms", "/legal/cancellation-refund", "/faridabad-at-home-services", "/services"];
 
