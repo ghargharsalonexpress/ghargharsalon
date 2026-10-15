@@ -53,7 +53,11 @@ const service: ServiceInput = {
 const flush = () => dispatchOutbox({ refund: refundHandler(ctx.gateway, createLogger(ctx.config)), email: async () => undefined, push: async () => undefined }, createLogger(ctx.config), 1000);
 
 async function freePro() {
-  await Professional.updateOne({ userId: proId }, { $set: { "presence.state": "available", "presence.activeBookingId": null, "presence.lastHeartbeatAt": new Date() } });
+  await Professional.updateOne({ userId: proId }, { $set: { "presence.state": "available", "presence.activeBookingId": null, "presence.lastHeartbeatAt": new Date(), "presence.locationAt": new Date() } });
+  // Production revokes an offer when its booking ends, and lets the rest expire in 30 s. These
+  // tests reuse one professional without the clock moving, so clear any offer still held:
+  // someone holding a live offer is deliberately not sent another booking.
+  await Offer.updateMany({ professionalId: proId, status: "pending" }, { $set: { status: "revoked", respondedAt: new Date() } });
 }
 
 /** A paid booking, searching. */

@@ -3,7 +3,8 @@ import mongoose, { type Types } from "mongoose";
 import { AppError } from "../../errors";
 import type { Logger } from "../../logger";
 import { findEligible, type EligibleProfessional } from "../availability/availability.service";
-import { etaRange } from "../availability/geo";
+import { etaRange, etaRangeFromSeconds, searchRadiusKm } from "../availability/geo";
+import { roadTravel, type RoadTravel } from "../availability/routes";
 import { Booking, type BookingDoc } from "../bookings/booking.model";
 import { announce, bookingEvents, transition } from "../bookings/lifecycle";
 import { newOtp } from "../bookings/otp";
@@ -24,14 +25,22 @@ export function earningsFor(booking: Pick<BookingDoc, "pricing">): { grossPaise:
   return { grossPaise, commissionPaise, netPaise: grossPaise - commissionPaise };
 }
 
+/** A candidate once its road distance is known (null while it is not, or cannot be). */
+export type RankedProfessional = EligibleProfessional & { road?: RoadTravel | null };
+
+/** Road metres when Google answered for this candidate, otherwise the straight-line figure. */
+export const travelMeters = (candidate: RankedProfessional): number => candidate.road?.meters ?? candidate.distance;
+
 /**
  * Ranking (plan C6): nearest first in 500 m bands, then better rated, then fewer jobs today,
- * then whoever finished a job longest ago, so work spreads fairly.
+ * then whoever finished a job longest ago, so work spreads fairly. "Nearest" is by road once
+ * the Routes API has answered, because across a river the nearest on the map is not the
+ * nearest to arrive.
  */
-export function rank(candidates: EligibleProfessional[]): EligibleProfessional[] {
+export function rank<T extends RankedProfessional>(candidates: T[]): T[] {
   return [...candidates].sort(
     (a, b) =>
-      Math.floor(a.distance / 500) - Math.floor(b.distance / 500) ||
+      Math.floor(travelMeters(a) / 500) - Math.floor(travelMeters(b) / 500) ||
       (b.rating ?? 4.5) - (a.rating ?? 4.5) ||
       a.jobsToday - b.jobsToday ||
       (a.lastCompletedAt?.getTime() ?? 0) - (b.lastCompletedAt?.getTime() ?? 0),
@@ -76,7 +85,7 @@ function offerPush(offer: OfferDoc, booking: BookingDoc, lang: Language): PushPa
 }
 
 /** The matching engine (plan C6, C7, W5/W6). */
-export function createMatching({ push, logger }: { push: PushService; logger: Logger }) {
+export function createMatching({ push, logger, mapsKey = "" }: { push: PushService; logger: Logger; mapsKey?: string }) {
   async function notifyNewOffer(offer: OfferDoc, booking: BookingDoc, settings: Settings): Promise<void> {
     realtime.toUser(offer.professionalId, RT.offerNew, toOfferDto(offer, booking));
     const pro = await User.findById(offer.professionalId, { locale: 1 }).lean();
@@ -99,8 +108,39 @@ export function createMatching({ push, logger }: { push: PushService; logger: Lo
 
     const { settings } = await getSettings();
     const [lng, lat] = booking.address.location.coordinates;
-    const eligible = await findEligible({ location: { lat, lng }, skills: booking.skills, preference: booking.preference, settings, exclude: booking.search.offeredUserIds, limit: 20 });
-    const picked = rank(eligible).slice(0, Math.min(settings.matching.offersPerRound, 5));
+
+    // Someone already holding a live offer cannot take a second booking: offering it to them
+    // only wastes an alert and a round, and they are back in the pool within the accept window.
+    const holdingAnOffer = (await Offer.distinct("professionalId", { status: "pending", expiresAt: { $gt: now } })) as Types.ObjectId[];
+
+    // The search starts at the normal radius and reaches further as the deadline nears.
+    const elapsedSeconds = (now.getTime() - booking.search.startedAt.getTime()) / 1000;
+    const radiusKm = searchRadiusKm(elapsedSeconds, settings.matching);
+
+    const eligible = await findEligible({
+      location: { lat, lng },
+      skills: booking.skills,
+      preference: booking.preference,
+      settings,
+      exclude: [...booking.search.offeredUserIds, ...holdingAnOffer],
+      limit: 20,
+      radiusKm,
+    });
+    const perRound = Math.min(settings.matching.offersPerRound, 5);
+    // The straight-line shortlist is free and indexed; road distance is asked only for the
+    // few we might actually call, and only reorders them. A couple of spares beyond the
+    // round size is enough for the order to change; more would just be billed elements.
+    const shortlist: RankedProfessional[] = rank(eligible).slice(0, perRound + 3);
+    const road =
+      settings.matching.useRoadDistance && mapsKey && shortlist.length > 0
+        ? await roadTravel(
+            shortlist.map((pro) => pro.location),
+            { lat, lng },
+            mapsKey,
+            logger,
+          )
+        : shortlist.map(() => null);
+    const picked = rank(shortlist.map((pro, index) => ({ ...pro, road: road[index] ?? null }))).slice(0, perRound);
     if (picked.length === 0) {
       // Nobody new right now: look again in 10 s, until the deadline.
       await Booking.updateOne({ _id: booking._id, status: "searching" }, { $set: { "search.nextRoundAt": new Date(now.getTime() + 10_000) } });
@@ -119,8 +159,20 @@ export function createMatching({ push, logger }: { push: PushService; logger: Lo
     const earnings = earningsFor(booking).netPaise;
     const offers = await Offer.insertMany(
       picked.map((pro) => {
-        const eta = etaRange(pro.distance);
-        return { bookingId: booking._id, professionalId: pro.userId, round: claimed.search?.round ?? 1, status: "pending", sentAt: now, expiresAt, distanceMeters: Math.round(pro.distance), etaMin: eta.min, etaMax: eta.max, earningsPaise: earnings };
+        const eta = pro.road ? etaRangeFromSeconds(pro.road.seconds) : etaRange(pro.distance);
+        return {
+          bookingId: booking._id,
+          professionalId: pro.userId,
+          round: claimed.search?.round ?? 1,
+          status: "pending",
+          sentAt: now,
+          expiresAt,
+          distanceMeters: Math.round(travelMeters(pro)),
+          etaMin: eta.min,
+          etaMax: eta.max,
+          etaFromRoutes: Boolean(pro.road),
+          earningsPaise: earnings,
+        };
       }),
     );
     await Professional.updateMany({ userId: { $in: picked.map((pro) => pro.userId) } }, { $inc: { "stats.offers": 1 } });
@@ -196,7 +248,7 @@ export function createMatching({ push, logger }: { push: PushService; logger: Lo
           "searching",
           "accepted",
           "professional",
-          { professionalId: pro._id, acceptedAt: now, otp: newOtp(String(offer.bookingId)), eta: { min: offer.etaMin, max: offer.etaMax, at: now, source: "estimate" }, "search.nextRoundAt": null },
+          { professionalId: pro._id, acceptedAt: now, otp: newOtp(String(offer.bookingId)), eta: { min: offer.etaMin, max: offer.etaMax, at: now, source: offer.etaFromRoutes ? "routes" : "estimate" }, "search.nextRoundAt": null },
           session,
         );
         if (!booking) throw new AppError("OFFER_TAKEN");

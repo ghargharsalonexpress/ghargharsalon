@@ -14,6 +14,8 @@ export interface OfferFields {
   distanceMeters: number;
   etaMin: number;
   etaMax: number;
+  /** The estimate came from the Routes API rather than the straight-line maths. */
+  etaFromRoutes: boolean;
   earningsPaise: number;
   pushSent: number;
 }
@@ -31,6 +33,7 @@ const offerSchema = new Schema<OfferFields>(
     distanceMeters: Number,
     etaMin: Number,
     etaMax: Number,
+    etaFromRoutes: { type: Boolean, default: false },
     earningsPaise: Number,
     pushSent: { type: Number, default: 0 },
   },

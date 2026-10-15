@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { type BookingDto, type CategoryInput, DEFAULT_SETTINGS, type OfferDto, type ServiceInput } from "@brand/shared";
+import { type BookingDto, type CategoryInput, DEFAULT_SETTINGS, type OfferDto, type ServiceInput, type Skill } from "@brand/shared";
 import type { Express } from "express";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createLogger } from "../src/logger";
@@ -54,35 +54,65 @@ const service: ServiceInput = {
   order: 0,
 };
 
+interface ProOverrides {
+  rating?: number;
+  gender?: "female" | "male";
+  skills?: Skill[];
+  travelRadiusKm?: number;
+  /** Seconds since the last heartbeat; the default is "just now". */
+  heardSecondsAgo?: number;
+  /** Seconds since the last position fix; defaults to the heartbeat's age. */
+  fixSecondsAgo?: number;
+  status?: "active" | "suspended";
+}
+
 /** An online, verified professional `metres` north of HOME, logged in. */
-async function pro(metres: number, overrides: { rating?: number } = {}): Promise<{ id: string; client: Client }> {
+async function pro(metres: number, overrides: ProOverrides = {}): Promise<{ id: string; client: Client }> {
   const email = `pro.${randomUUID().slice(0, 8)}@example.com`;
-  const user = await User.create({ role: "professional", name: `Pro ${metres}`, email, phone: uniquePhone(), locale: "en" });
+  const user = await User.create({ role: "professional", name: `Pro ${metres}`, email, phone: uniquePhone(), locale: "en", status: overrides.status ?? "active" });
+  const heard = new Date(Date.now() - (overrides.heardSecondsAgo ?? 0) * 1000);
+  const fixed = new Date(Date.now() - (overrides.fixSecondsAgo ?? overrides.heardSecondsAgo ?? 0) * 1000);
   await Professional.create({
     userId: user._id,
-    gender: "female",
-    skills: ["salon_women"],
+    gender: overrides.gender ?? "female",
+    skills: overrides.skills ?? ["salon_women"],
     baseArea: "Sector 15",
-    travelRadiusKm: 5,
+    travelRadiusKm: overrides.travelRadiusKm ?? 5,
     photo: null,
     verificationNote: "",
     verification: { at: new Date(), by: user._id, byName: "Admin" },
-    presence: { state: "available", since: new Date(), lastHeartbeatAt: new Date(), location: toPoint(HOME.lat + metres / 111_000, HOME.lng), locationAt: new Date(), accuracyM: 20, activeBookingId: null },
+    presence: { state: "available", since: new Date(), lastHeartbeatAt: heard, location: toPoint(HOME.lat + metres / 111_000, HOME.lng), locationAt: fixed, accuracyM: 20, activeBookingId: null },
     stats: { rating: overrides.rating ?? null, ratingCount: 0, jobsToday: 0, jobsTodayDate: null, lastCompletedAt: null, offers: 0, accepted: 0 },
   });
-  return { id: String(user._id), client: await loginAs(ctx.app as Express, email) };
+  // A suspended account cannot sign in, and these tests only need it to exist.
+  const client = overrides.status === "suspended" ? (null as unknown as Client) : await loginAs(ctx.app as Express, email);
+  return { id: String(user._id), client };
+}
+
+/** Changes matching settings for one test; pass the same keys back to restore them. */
+async function setMatching(partial: Record<string, unknown>) {
+  const current = await admin.get("/v1/admin/settings");
+  await admin.send("put", "/v1/admin/settings", {
+    version: current.body.version,
+    settings: { ...current.body.settings, matching: { ...current.body.settings.matching, ...partial } },
+  });
+}
+
+/** Pretends the search has been running for `seconds`, and makes the next round due now. */
+async function ageSearch(bookingId: string, seconds: number) {
+  await Booking.updateOne({ _id: bookingId }, { $set: { "search.startedAt": new Date(Date.now() - seconds * 1000), "search.nextRoundAt": new Date(Date.now() - 1_000) } });
 }
 
 /** A paid booking, now searching (the first round goes out on the "searching" event). */
-async function paidBooking(): Promise<BookingDto> {
-  const quote = await customer.post("/v1/availability/quote", { location: HOME, lines: LINES, preference: "any" });
+async function paidBooking(preference: "any" | "female" | "male" = "any"): Promise<BookingDto> {
+  const quote = await customer.post("/v1/availability/quote", { location: HOME, lines: LINES, preference });
   expect(quote.body.available, JSON.stringify(quote.body)).toBe(true);
   const created = await customer.agent
     .post("/v1/bookings")
     .set("Origin", WEB_ORIGIN)
     .set("X-CSRF-Token", customer.csrfToken)
     .set("Idempotency-Key", randomUUID())
-    .send({ quoteId: quote.body.quoteId, addressId, preference: "any", lines: LINES });
+    .send({ quoteId: quote.body.quoteId, addressId, preference, lines: LINES });
   const booking = created.body as BookingDto;
   const paid = ctx.gateway.pay(booking.payment?.orderId ?? "", "success", booking.payment?.amountPaise ?? 0);
   const verified = await customer.post(`/v1/bookings/${booking.id}/payments/verify`, { orderId: booking.payment?.orderId, paymentId: paid.paymentId, signature: paid.signature });
@@ -253,5 +283,90 @@ describe("matching (plan C6, W5/W6)", () => {
     expect(direct.body).toMatchObject({ direct: true, bookingNumber: booking.number });
     const accepted = await chosen.client.post(`/v1/pro/offers/${String(direct.body.id)}/accept`);
     expect(accepted.status, JSON.stringify(accepted.body)).toBe(200);
+  });
+});
+
+/**
+ * Who is eligible at all. These run with no Maps key, so road distance is never asked for and
+ * the straight-line path is what is being proved -- the same path production uses today.
+ */
+describe("who gets offered (plan C6)", () => {
+  it("reaches further as the search runs, without breaking a professional's own travel limit", async () => {
+    await clearProfessionals();
+    await setMatching({ radiusKm: 5, maxRadiusKm: 8, widenAfterSeconds: 40, searchTimeoutSeconds: 120, offersPerRound: 1 });
+
+    // Someone nearby, so the booking can be made at all; they are offered first and say no.
+    const near = await pro(500);
+    // 7 km out and willing to travel it: past the 5 km the search starts with, inside the 8 km it grows to.
+    const far = await pro(7_000, { travelRadiusKm: 10 });
+    // Also 7 km out, but will not travel past 2 km, so widening must never reach them.
+    const homebody = await pro(7_000, { travelRadiusKm: 2 });
+
+    const booking = await paidBooking();
+    const first = await offersFor(booking.id);
+    expect(first.map((offer) => String(offer.professionalId))).toEqual([near.id]);
+
+    // With the search still young, the 7 km professionals are out of reach.
+    await near.client.post(`/v1/pro/offers/${String(first[0]?._id)}/decline`, { reason: "busy" });
+    expect(await Offer.countDocuments({ bookingId: booking.id, status: "pending" })).toBe(0);
+
+    // Once it has been looking a while, the radius has grown past 7 km.
+    await ageSearch(booking.id, 100);
+    await matching.sweep();
+
+    const offered = (await Offer.find({ bookingId: booking.id }).lean()).map((offer) => String(offer.professionalId));
+    expect(offered).toContain(far.id);
+    expect(offered).not.toContain(homebody.id);
+
+    await setMatching({ ...DEFAULT_SETTINGS.matching });
+  });
+
+  it("skips anyone who already holds a live offer for another booking", async () => {
+    await clearProfessionals();
+    const only = await pro(300);
+
+    const first = await paidBooking();
+    expect((await offersFor(first.id)).map((offer) => String(offer.professionalId))).toEqual([only.id]);
+
+    // The same professional cannot take a second booking while that offer is open.
+    const second = await paidBooking();
+    expect(await offersFor(second.id)).toHaveLength(0);
+
+    // Once the offer is gone they are back in the pool.
+    await Offer.updateMany({ bookingId: first.id, status: "pending" }, { $set: { status: "revoked" } });
+    await ageSearch(second.id, 1);
+    await matching.sweep();
+    expect((await offersFor(second.id)).map((offer) => String(offer.professionalId))).toEqual([only.id]);
+  });
+
+  it("leaves out the wrong skill, a silent phone and a stale position", async () => {
+    await clearProfessionals();
+    const wanted = await pro(900);
+    await pro(150, { skills: ["makeup"] });
+    // Heard from 10 minutes ago: well past stalePresenceSeconds.
+    await pro(200, { heardSecondsAgo: 600 });
+    // Still reporting, but the last position fix is 10 minutes old, so it cannot be trusted.
+    await pro(250, { heardSecondsAgo: 0, fixSecondsAgo: 600 });
+
+    const booking = await paidBooking();
+    expect((await offersFor(booking.id)).map((offer) => String(offer.professionalId))).toEqual([wanted.id]);
+  });
+
+  it("honours a request for a female or male professional", async () => {
+    await clearProfessionals();
+    await pro(100, { gender: "male" });
+    const woman = await pro(2_000, { gender: "female" });
+
+    const booking = await paidBooking("female");
+    expect((await offersFor(booking.id)).map((offer) => String(offer.professionalId))).toEqual([woman.id]);
+  });
+
+  it("does not offer a suspended account, however near it is", async () => {
+    await clearProfessionals();
+    await pro(100, { status: "suspended" });
+    const working = await pro(2_000);
+
+    const booking = await paidBooking();
+    expect((await offersFor(booking.id)).map((offer) => String(offer.professionalId))).toEqual([working.id]);
   });
 });

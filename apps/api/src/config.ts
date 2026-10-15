@@ -56,6 +56,12 @@ const schema = z.object({
   /** The only ImageKit secret the server needs; uploads are server-side, so no public key here. */
   IMAGEKIT_PRIVATE_KEY: z.string().min(10).optional(),
 
+  /**
+   * Routes API key for road distances in matching. Server-side, so it is restricted by API
+   * rather than by referrer: it is NOT the browser key. Empty: matching uses straight-line.
+   */
+  GOOGLE_MAPS_SERVER_KEY: z.string().min(10).optional(),
+
   /** Job alerts (plan C10): webpush with VAPID keys; log when developing without keys; memory in tests. */
   PUSH_TRANSPORT: z.enum(["webpush", "log", "memory"]).default("webpush"),
   VAPID_PUBLIC_KEY: z.string().min(40).optional(),

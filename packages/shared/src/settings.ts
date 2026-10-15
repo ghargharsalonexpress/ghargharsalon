@@ -20,10 +20,16 @@ export const settingsSchema = z
     }),
     matching: z.strictObject({
       radiusKm: int(1, 25),
+      /** The search grows to this once the nearby pool is exhausted; a professional's own travel radius still applies. */
+      maxRadiusKm: int(1, 25),
+      /** Seconds of searching before the radius starts growing. */
+      widenAfterSeconds: int(0, 600),
       offersPerRound: int(1, 5),
       acceptWindowSeconds: int(10, 120),
       searchTimeoutSeconds: int(30, 600),
       stalePresenceSeconds: int(20, 600),
+      /** Rank and estimate by road with the Routes API. Off, or without a key, uses straight-line. */
+      useRoadDistance: z.boolean(),
     }),
     operations: z.strictObject({
       serviceHours: z.strictObject({ open: time, close: time }),
@@ -52,6 +58,9 @@ export const settingsSchema = z
     if (settings.matching.acceptWindowSeconds >= settings.matching.searchTimeoutSeconds) {
       ctx.addIssue({ code: "custom", path: ["matching", "acceptWindowSeconds"], message: V.acceptWindowTooLong });
     }
+    if (settings.matching.maxRadiusKm < settings.matching.radiusKm) {
+      ctx.addIssue({ code: "custom", path: ["matching", "maxRadiusKm"], message: V.maxRadiusTooSmall });
+    }
     if (settings.operations.serviceHours.open >= settings.operations.serviceHours.close) {
       ctx.addIssue({ code: "custom", path: ["operations", "serviceHours", "close"], message: V.hoursOrder });
     }
@@ -61,7 +70,7 @@ export type Settings = z.infer<typeof settingsSchema>;
 
 export const DEFAULT_SETTINGS: Settings = {
   pricing: { gstRateBps: 500, pricesIncludeGst: true, platformFeePaise: 1_100, commissionBps: 2_500, maxQuantityPerLine: 3 },
-  matching: { radiusKm: 5, offersPerRound: 3, acceptWindowSeconds: 30, searchTimeoutSeconds: 120, stalePresenceSeconds: 60 },
+  matching: { radiusKm: 5, maxRadiusKm: 8, widenAfterSeconds: 40, offersPerRound: 3, acceptWindowSeconds: 30, searchTimeoutSeconds: 120, stalePresenceSeconds: 60, useRoadDistance: true },
   operations: {
     serviceHours: { open: "08:00", close: "21:00" },
     unpaidExpiryMinutes: 15,

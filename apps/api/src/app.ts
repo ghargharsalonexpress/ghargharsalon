@@ -35,6 +35,7 @@ import { adminProfessionalsRouter, proRouter } from "./modules/professionals/pro
 import { createProfessionalService } from "./modules/professionals/professionals.service";
 import { createPushSender, createPushService, MemoryPushSender, type PushService } from "./modules/professionals/push";
 import { publicInfoRouter, settingsRouter } from "./modules/settings/settings.routes";
+import { adminSiteRouter, publicSiteRouter } from "./modules/site/site.routes";
 import { testRouter } from "./modules/testing/test.routes";
 import { meRouter } from "./modules/users/me.routes";
 
@@ -107,12 +108,14 @@ export function createApp({ config, logger, email, sms: givenSms, mongoClient, p
   // Signed by Razorpay over the raw bytes: before the JSON parser, sessions and CSRF.
   app.use("/v1/webhooks", webhooksRouter({ gateway, logger }));
 
+  // Website pages carry long texts (policies) in two languages: a larger limit for the editor only.
+  app.use("/v1/admin/site", express.json({ limit: "1mb" }));
   app.use(express.json({ limit: "100kb" }));
   const sms = givenSms ?? createSmsTransport(config, logger);
   const auth = createAuthService({ config, email, sms, logger });
   const push = givenPush ?? createPushService({ config, sender: createPushSender(config, logger), logger });
   const professionals = createProfessionalService({ push, logger });
-  const matching: Matching = createMatching({ push, logger });
+  const matching: Matching = createMatching({ push, logger, mapsKey: config.GOOGLE_MAPS_SERVER_KEY ?? "" });
   resolvePassingAlerts();
   const jobs: Jobs = createJobs({ push, logger, config });
 
@@ -136,10 +139,12 @@ export function createApp({ config, logger, email, sms: givenSms, mongoClient, p
   app.use("/v1", catalogRouter());
   app.use("/v1", contactRouter({ config, email, logger }));
   app.use("/v1", publicInfoRouter());
+  app.use("/v1", publicSiteRouter({ config }));
   app.use("/v1", clientErrorsRouter({ logger }));
   app.use("/v1", bookingsRouter({ gateway, logger, rateLimits: config.CHECKOUT_RATE_LIMITS }));
   app.use("/v1", customerJobsRouter({ jobs, gateway }));
   app.use("/v1/admin/settings", settingsRouter());
+  app.use("/v1/admin/site", adminSiteRouter());
   app.use("/v1/admin", adminCatalogRouter({ media }));
   app.use("/v1/admin/professionals", adminProfessionalsRouter({ service: professionals }));
   app.use("/v1/admin/bookings", adminOffersRouter({ matching }));

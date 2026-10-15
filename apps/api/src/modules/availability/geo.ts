@@ -1,4 +1,4 @@
-import type { GeoPoint } from "@brand/shared";
+import type { GeoPoint, Settings } from "@brand/shared";
 
 /** [lng, lat] pairs, GeoJSON order. */
 export type Ring = ReadonlyArray<readonly [number, number]>;
@@ -34,8 +34,33 @@ export function distanceMeters(a: GeoPoint, b: GeoPoint): number {
  */
 export function etaRange(distance: number): { min: number; max: number } {
   const minutes = ((distance * 1.4) / 1000 / 18) * 60 + 3;
+  return band(minutes);
+}
+
+/** The same band from a real road duration, so none of the straight-line guesswork applies. */
+export function etaRangeFromSeconds(seconds: number): { min: number; max: number } {
+  return band(seconds / 60 + 3);
+}
+
+/** Rounded down to a 3-minute step, never under 5, shown as a 6-minute range. */
+function band(minutes: number): { min: number; max: number } {
   const min = Math.max(5, Math.floor(minutes / 3) * 3);
   return { min, max: min + 6 };
+}
+
+/**
+ * How far to look right now. The search starts at the normal radius and grows to
+ * maxRadiusKm by the deadline, so a thin market reaches people a little further out
+ * instead of refunding (plan risk R3). Each professional's own travelRadiusKm still
+ * applies on top, so nobody is offered a job they would not travel to.
+ */
+export function searchRadiusKm(elapsedSeconds: number, matching: Settings["matching"]): number {
+  const { radiusKm, maxRadiusKm, widenAfterSeconds, searchTimeoutSeconds } = matching;
+  if (maxRadiusKm <= radiusKm || elapsedSeconds <= widenAfterSeconds) return radiusKm;
+  const window = searchTimeoutSeconds - widenAfterSeconds;
+  if (window <= 0) return maxRadiusKm;
+  const grown = (elapsedSeconds - widenAfterSeconds) / window;
+  return Math.min(maxRadiusKm, radiusKm + (maxRadiusKm - radiusKm) * grown);
 }
 
 // ---------- service hours (Asia/Kolkata) ----------

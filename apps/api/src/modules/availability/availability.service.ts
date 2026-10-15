@@ -3,7 +3,6 @@ import { model, Schema, Types } from "mongoose";
 import { AppError } from "../../errors";
 import { Service } from "../catalog/catalog.models";
 import { Professional } from "../professionals/professional.model";
-import { User } from "../users/user.model";
 import { etaRange, isOpen, nextOpening, pointInRing } from "./geo";
 
 type QuoteInput = z.output<typeof quoteRequestSchema>;
@@ -39,7 +38,10 @@ export const Quote = model<QuoteFields>("Quote", quoteSchema, "quotes");
 
 export interface EligibleProfessional {
   userId: Types.ObjectId;
+  /** Straight-line metres from the customer. */
   distance: number;
+  /** Where they are, for a road-distance lookup. */
+  location: GeoPoint;
   gender: "female" | "male";
   rating: number | null;
   jobsToday: number;
@@ -57,6 +59,7 @@ export async function findEligible({
   settings,
   exclude = [],
   limit = 20,
+  radiusKm,
 }: {
   location: GeoPoint;
   skills: Skill[];
@@ -64,11 +67,18 @@ export async function findEligible({
   settings: Settings;
   exclude?: ReadonlyArray<Types.ObjectId | string>;
   limit?: number;
+  /** How far to look; defaults to the settings radius. The search widens this as it runs. */
+  radiusKm?: number;
 }): Promise<EligibleProfessional[]> {
   const heardSince = new Date(Date.now() - settings.matching.stalePresenceSeconds * 1000);
+  // Positions get a longer grace than heartbeats. A phone indoors can miss a fix or two, and
+  // release() after a job refreshes the heartbeat but not the position; dropping those people
+  // would cost matches for no real gain, while a position this old is still worth ranking on.
+  const fixSince = new Date(Date.now() - settings.matching.stalePresenceSeconds * 2000);
   const rows = await Professional.aggregate<{
     userId: Types.ObjectId;
     distance: number;
+    location: { coordinates: [number, number] };
     gender: "female" | "male";
     travelRadiusKm: number;
     stats: { rating: number | null; jobsToday: number; lastCompletedAt: Date | null };
@@ -78,11 +88,14 @@ export async function findEligible({
         near: { type: "Point", coordinates: [location.lng, location.lat] },
         key: "presence.location",
         distanceField: "distance",
-        maxDistance: settings.matching.radiusKm * 1000,
+        maxDistance: (radiusKm ?? settings.matching.radiusKm) * 1000,
         spherical: true,
         query: {
           "presence.state": "available",
           "presence.lastHeartbeatAt": { $gte: heardSince },
+          // A heartbeat can arrive without a fix, so liveness alone doesn't mean the
+          // position is current: never match on a location we no longer trust.
+          "presence.locationAt": { $gte: fixSince },
           "presence.activeBookingId": null,
           verification: { $ne: null },
           // An empty $all matches nothing, so the filter only applies when skills are needed.
@@ -94,15 +107,29 @@ export async function findEligible({
     },
     // Each professional's own travel limit also applies.
     { $match: { $expr: { $lte: ["$distance", { $multiply: ["$travelRadiusKm", 1000] }] } } },
-    { $limit: limit * 2 },
-    { $project: { userId: 1, distance: 1, gender: 1, travelRadiusKm: 1, stats: 1 } },
+    // Suspended accounts are dropped before the limit, so they can't take a candidate's place.
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "account",
+        pipeline: [{ $match: { status: "active" } }, { $project: { _id: 1 } }],
+      },
+    },
+    { $match: { "account.0": { $exists: true } } },
+    { $limit: limit },
+    { $project: { userId: 1, distance: 1, gender: 1, travelRadiusKm: 1, stats: 1, location: "$presence.location" } },
   ]);
-  if (rows.length === 0) return [];
-  const active = new Set((await User.find({ _id: { $in: rows.map((row) => row.userId) }, status: "active" }, { _id: 1 }).lean()).map((user) => String(user._id)));
-  return rows
-    .filter((row) => active.has(String(row.userId)))
-    .slice(0, limit)
-    .map((row) => ({ userId: row.userId, distance: row.distance, gender: row.gender, rating: row.stats.rating, jobsToday: row.stats.jobsToday, lastCompletedAt: row.stats.lastCompletedAt }));
+  return rows.map((row) => ({
+    userId: row.userId,
+    distance: row.distance,
+    location: { lat: row.location.coordinates[1], lng: row.location.coordinates[0] },
+    gender: row.gender,
+    rating: row.stats.rating,
+    jobsToday: row.stats.jobsToday,
+    lastCompletedAt: row.stats.lastCompletedAt,
+  }));
 }
 
 /** The skills a cart needs: every category skill of every service in it. */

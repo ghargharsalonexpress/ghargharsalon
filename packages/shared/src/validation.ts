@@ -29,6 +29,7 @@ export const V = {
   otp: "validation.otp",
   areaPolygon: "validation.areaPolygon",
   acceptWindowTooLong: "validation.acceptWindowTooLong",
+  maxRadiusTooSmall: "validation.maxRadiusTooSmall",
 } as const;
 
 export type ValidationKey = (typeof V)[keyof typeof V];

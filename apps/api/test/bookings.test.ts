@@ -240,7 +240,7 @@ describe("booking and payment (W4)", () => {
       .set("Idempotency-Key", randomUUID())
       .send({ quoteId: fresh.quoteId, addressId: homeId, preference: "any", lines: LINES });
     expect(busy.body.error.code).toBe("NO_PROFESSIONALS");
-    await Professional.updateOne({ userId: proUserId }, { $set: { "presence.state": "available", "presence.lastHeartbeatAt": new Date() } });
+    await Professional.updateOne({ userId: proUserId }, { $set: { "presence.state": "available", "presence.lastHeartbeatAt": new Date(), "presence.locationAt": new Date() } });
   });
 
   it("expires unpaid bookings and refunds a payment that arrives too late", async () => {

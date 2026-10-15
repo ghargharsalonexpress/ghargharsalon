@@ -88,8 +88,13 @@ ImageKit builds every size and format from the URL. Nothing else has to be confi
 
 1. A Google Cloud project with billing in India and a budget alert (for example ₹2,000 a month at first).
 2. Enable: Maps JavaScript API, Places API (New), and Routes API (for road arrival times later).
-3. Create a browser key restricted to `https://brand.in/*` and `https://www.brand.in/*` and to those APIs. It goes in the web build as `VITE_GOOGLE_MAPS_KEY`.
-4. With the key set, the booking, live board and professional job pages show maps. Without it they show the same facts as text, and nothing breaks.
+3. Matching ranks by road distance with a **second, server-side key**: create one restricted to the
+   **Routes API** only (no referrer restriction — it is used from the server, not a browser) and set
+   it as `GOOGLE_MAPS_SERVER_KEY` on the API. One call per search round, at most 6 origins. Without
+   it, matching uses the straight-line estimate and nothing breaks; `matching.useRoadDistance` in
+   `/admin/settings` turns it off entirely.
+4. Create a browser key restricted to `https://brand.in/*` and `https://www.brand.in/*` and to those APIs. It goes in the web build as `VITE_GOOGLE_MAPS_KEY`.
+5. With the key set, the booking, live board and professional job pages show maps. Without it they show the same facts as text, and nothing breaks.
 
 ## 6. Web build (`apps/web`)
 

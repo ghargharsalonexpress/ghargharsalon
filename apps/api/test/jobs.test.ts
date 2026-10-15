@@ -44,7 +44,7 @@ const service: ServiceInput = {
 
 /** Paid and offered to our one professional, who hasn't answered yet. */
 async function offeredBooking(): Promise<{ booking: BookingDto; offerId: string }> {
-  await Professional.updateOne({ userId: proId }, { $set: { "presence.state": "available", "presence.activeBookingId": null, "presence.lastHeartbeatAt": new Date() } });
+  await Professional.updateOne({ userId: proId }, { $set: { "presence.state": "available", "presence.activeBookingId": null, "presence.lastHeartbeatAt": new Date(), "presence.locationAt": new Date() } });
   const quote = await customer.post("/v1/availability/quote", { location: HOME, lines: LINES, preference: "any" });
   const created = await customer.agent
     .post("/v1/bookings")
