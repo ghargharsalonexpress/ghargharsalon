@@ -80,6 +80,12 @@ ImageKit builds every size and format from the URL. Nothing else has to be confi
    `VITE_MEDIA_MODE=imagekit`, and the CSP `img-src` must include it.
 4. After switching, run `npm run seed:catalog -- --replace` in `apps/api` once, so the seeded photos
    are re-uploaded to ImageKit. Photos stored the old way keep the old URL shape and would 404.
+5. Run `npm run seed:site -- --dry-run`, then `npm run seed:site`, in `apps/api` (ADR-0021).
+   - It creates the website settings and the shipped pages if they are missing.
+   - It uploads a default photo for every category without one.
+   - It never changes anything that already exists.
+   - Production was seeded this way on 2026-10-16: 8 pages, and photos for the 4 categories
+     that had none.
 
 > `MEDIA_STORAGE=imagekit` and `VITE_MEDIA_MODE=imagekit` must be set together: the first decides
 > where a photo is written, the second decides how the browser asks for it.

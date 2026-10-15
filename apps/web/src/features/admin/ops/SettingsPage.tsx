@@ -91,9 +91,10 @@ function parsePolygon(text: string): Array<[number, number]> {
   return points;
 }
 
-const fromForm = (f: Form): Settings => ({
+/** The form's values over the saved settings: what the form doesn't show (the widening search, road distance) is kept as saved. */
+const fromForm = (f: Form, base: Settings): Settings => ({
   pricing: { gstRateBps: hundredths(f.gstRate), pricesIncludeGst: f.pricesIncludeGst, platformFeePaise: hundredths(f.platformFee), commissionBps: hundredths(f.commission), maxQuantityPerLine: num(f.maxQuantity) },
-  matching: { radiusKm: num(f.radiusKm), offersPerRound: num(f.offersPerRound), acceptWindowSeconds: num(f.acceptWindow), searchTimeoutSeconds: num(f.searchTimeout), stalePresenceSeconds: num(f.stalePresence) },
+  matching: { ...base.matching, radiusKm: num(f.radiusKm), offersPerRound: num(f.offersPerRound), acceptWindowSeconds: num(f.acceptWindow), searchTimeoutSeconds: num(f.searchTimeout), stalePresenceSeconds: num(f.stalePresence) },
   operations: {
     serviceHours: { open: f.open, close: f.close },
     unpaidExpiryMinutes: num(f.unpaidExpiry),
@@ -165,7 +166,7 @@ function SettingsForm({ saved, onReload }: { saved: SettingsResponse; onReload: 
     unit === "rupees" ? `₹${value}` : unit === "percent" ? `${value}%` : unit === "km" ? `${value} km` : unit === "seconds" ? t("settings.secondsValue", { value }) : unit === "minutes" ? t("settings.minutesValue", { value }) : value;
 
   const review = () => {
-    const candidate = fromForm(form);
+    const candidate = fromForm(form, saved.settings);
     const result = settingsSchema.safeParse(candidate);
     if (!result.success) {
       const next: Record<string, string> = {};
