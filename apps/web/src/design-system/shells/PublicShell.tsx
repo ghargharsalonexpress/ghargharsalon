@@ -168,7 +168,10 @@ function PublicFooter() {
           <Box>
             <Wordmark size="sm" />
             <Typography variant="body2" sx={{ mt: 3, color: "text.secondary", maxWidth: 320 }}>
-              {brand.supportEmail} · {brand.supportPhone}
+              {brand.supportEmail} ·{" "}
+              <Box component="span" sx={{ whiteSpace: "nowrap" }}>
+                {brand.supportPhone}
+              </Box>
             </Typography>
           </Box>
           {columns.map((column) => (
