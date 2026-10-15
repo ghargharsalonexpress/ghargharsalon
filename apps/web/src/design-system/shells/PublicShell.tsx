@@ -7,18 +7,16 @@ import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Drawer from "@mui/material/Drawer";
+import GlobalStyles from "@mui/material/GlobalStyles";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import { useTheme } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink, useLocation } from "react-router";
-import { brand } from "@/brand";
 import { Button } from "../components/Button";
 import { IconButton } from "../components/IconButton";
 import { LanguageSwitch } from "../components/LanguageSwitch";
-import { Link } from "../components/Link";
 import { OfflineBanner } from "../components/OfflineBanner";
 import { SkipLink } from "../components/VisuallyHidden";
 import { Wordmark } from "../components/Wordmark";
@@ -32,19 +30,36 @@ export interface PublicShellProps {
   cartTo?: string;
   accountLabel: string;
   accountTo: string;
+  /** The logo link's content; the built-in wordmark otherwise. */
+  logo?: ReactNode;
+  /** A slim bar above the header (an announcement). */
+  topBar?: ReactNode;
+  /** Beside the account button from md (the location chip). */
+  headerExtra?: ReactNode;
+  /** Under the header below md (the location chip on phones). */
+  subHeader?: ReactNode;
   /** Rendered under the app bar (offline/reconnecting banners). */
   banner?: ReactNode;
   children: ReactNode;
-  footer?: boolean;
+  footer?: ReactNode;
+  /** A tab bar fixed to the bottom on phones. */
+  bottomNav?: ReactNode;
 }
 
-/** Public website shell (plan A7): 56/64px app bar, drawer menu below md, footer. */
-export function PublicShell({ nav, showCart = true, cartCount = 0, cartTo = "/cart", accountLabel, accountTo, banner, children, footer = true }: PublicShellProps) {
+/** Height of the phones' bottom tab bar, so content and toasts stay above it. */
+export const BOTTOM_NAV_HEIGHT = 64;
+
+/** Is this nav item the current page? "/#anchor" items are never "current". */
+const isCurrent = (pathname: string, to: string) => !to.includes("#") && (to === pathname || (to !== "/" && pathname.startsWith(`${to}/`)));
+
+/** Public website shell (plan A7): 56/64px app bar, drawer menu below lg, footer, phone tab bar. */
+export function PublicShell({ nav, showCart = true, cartCount = 0, cartTo = "/cart", accountLabel, accountTo, logo, topBar, headerExtra, subHeader, banner, children, footer, bottomNav }: PublicShellProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const n = theme.tokens.neutral;
+  const mark = logo ?? <Wordmark />;
 
   const cartButton = (
     <IconButton label={t("action.openCart", { count: cartCount })} to={cartTo}>
@@ -56,45 +71,65 @@ export function PublicShell({ nav, showCart = true, cartCount = 0, cartTo = "/ca
 
   return (
     <Box sx={{ minHeight: "100dvh", display: "flex", flexDirection: "column", bgcolor: n[0] }}>
+      {bottomNav && (
+        <GlobalStyles
+          styles={{
+            [theme.breakpoints.down("md")]: {
+              ":root": { "--toast-bottom": `${BOTTOM_NAV_HEIGHT + 24}px` },
+              body: { paddingBottom: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom))` },
+            },
+          }}
+        />
+      )}
       <SkipLink label={t("action.skipToContent")} />
-      <AppBar>
+      {topBar}
+      <AppBar sx={{ boxShadow: "0 1px 0 rgba(31,28,25,0.04), 0 8px 24px rgba(31,28,25,0.04)" }}>
         <Container maxWidth={false} sx={{ maxWidth: theme.tokens.container.marketing }}>
-          <Toolbar disableGutters sx={{ gap: 4 }}>
-            <Box component={RouterLink} to="/" aria-label={brand.name} sx={{
+          <Toolbar disableGutters sx={{ gap: { xs: 2, md: 4 } }}>
+            <Box
+              component={RouterLink}
+              to="/"
+              sx={{
                 display: "inline-flex",
                 // Only from lg, where the full nav sits beside it. On a phone it must still wrap,
                 // or it pushes the menu button off the screen.
                 flexShrink: { xs: 1, lg: 0 },
+                minWidth: 0,
                 whiteSpace: { xs: "normal", lg: "nowrap" },
                 color: "inherit",
                 textDecoration: "none",
                 borderRadius: 1,
-              }}>
-              <Wordmark />
+              }}
+            >
+              {mark}
             </Box>
-            <Box component="nav" aria-label={t("landmark.main")} sx={{ display: { xs: "none", lg: "flex" }, gap: 1, ml: 6 }}>
-              {nav.map((item) => (
-                <Button
-                  key={item.id}
-                  variant={item.emphasis ? "secondary" : "tertiary"}
-                  to={item.to}
-                  aria-current={pathname === item.to ? "page" : undefined}
-                  sx={
-                    item.emphasis
-                      ? { whiteSpace: "nowrap" }
-                      : { whiteSpace: "nowrap", color: pathname === item.to ? n[900] : n[700], fontWeight: pathname === item.to ? 600 : 500 }
-                  }
-                >
-                  {item.label}
-                </Button>
-              ))}
+            <Box component="nav" aria-label={t("landmark.main")} sx={{ display: { xs: "none", lg: "flex" }, gap: 0.5, ml: 4 }}>
+              {nav.map((item) => {
+                const current = isCurrent(pathname, item.to);
+                return (
+                  <Button
+                    key={item.id}
+                    variant={item.emphasis ? "secondary" : "tertiary"}
+                    to={item.to}
+                    aria-current={current ? "page" : undefined}
+                    sx={
+                      item.emphasis
+                        ? { whiteSpace: "nowrap", borderRadius: 999, px: 4 }
+                        : { whiteSpace: "nowrap", color: current ? theme.tokens.accent[700] : n[700], fontWeight: current ? 600 : 500, borderRadius: 999 }
+                    }
+                  >
+                    {item.label}
+                  </Button>
+                );
+              })}
             </Box>
             <Box sx={{ flex: 1 }} />
+            {headerExtra && <Box sx={{ display: { xs: "none", md: "block" }, flexShrink: 1, minWidth: 0 }}>{headerExtra}</Box>}
             <Box sx={{ display: { xs: "none", lg: "block" }, flexShrink: 0 }}>
               <LanguageSwitch name="language-header" />
             </Box>
             <Box sx={{ display: { xs: "none", lg: "block" }, flexShrink: 0 }}>
-              <Button variant="secondary" to={accountTo} sx={{ whiteSpace: "nowrap" }}>
+              <Button to={accountTo} sx={{ whiteSpace: "nowrap", borderRadius: 999, px: 5 }}>
                 {accountLabel}
               </Button>
             </Box>
@@ -106,13 +141,20 @@ export function PublicShell({ nav, showCart = true, cartCount = 0, cartTo = "/ca
             </Box>
           </Toolbar>
         </Container>
+        {subHeader && (
+          <Box sx={{ display: { xs: "block", md: "none" }, borderTop: `1px solid ${n[100]}` }}>
+            <Container maxWidth={false} sx={{ py: 1.5 }}>
+              {subHeader}
+            </Container>
+          </Box>
+        )}
       </AppBar>
       <OfflineBanner />
       {banner}
 
-      <Drawer anchor="right" open={menuOpen} onClose={() => setMenuOpen(false)} slotProps={{ paper: { sx: { width: "min(320px, 88vw)" } } }}>
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 4, minHeight: 56 }}>
-          <Wordmark size="sm" />
+      <Drawer anchor="right" open={menuOpen} onClose={() => setMenuOpen(false)} slotProps={{ paper: { sx: { width: "min(340px, 88vw)" } } }}>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, px: 4, minHeight: 64 }}>
+          <Box sx={{ minWidth: 0 }}>{logo ?? <Wordmark size="sm" />}</Box>
           <IconButton label={t("action.close")} onClick={() => setMenuOpen(false)} tooltip={false}>
             <CloseOutlined />
           </IconButton>
@@ -123,9 +165,9 @@ export function PublicShell({ nav, showCart = true, cartCount = 0, cartTo = "/ca
               key={item.id}
               component={RouterLink}
               to={item.to}
-              selected={pathname === item.to}
+              selected={isCurrent(pathname, item.to)}
               onClick={() => setMenuOpen(false)}
-              sx={{ typography: "body1" }}
+              sx={{ typography: "body1", fontWeight: 500, borderRadius: 2, minHeight: 48 }}
             >
               {item.label}
             </ListItemButton>
@@ -133,7 +175,7 @@ export function PublicShell({ nav, showCart = true, cartCount = 0, cartTo = "/ca
         </List>
         <Box sx={{ px: 4, pt: 4, mt: "auto", pb: "calc(24px + env(safe-area-inset-bottom))", display: "grid", gap: 4 }}>
           <LanguageSwitch name="language-drawer" />
-          <Button variant="secondary" to={accountTo} fullWidth size="lg">
+          <Button to={accountTo} fullWidth size="lg" onClick={() => setMenuOpen(false)} sx={{ borderRadius: 999 }}>
             {accountLabel}
           </Button>
         </Box>
@@ -143,67 +185,8 @@ export function PublicShell({ nav, showCart = true, cartCount = 0, cartTo = "/ca
         {children}
       </Box>
 
-      {footer && <PublicFooter />}
-    </Box>
-  );
-}
-
-function PublicFooter() {
-  const { t } = useTranslation();
-  const theme = useTheme();
-  const n = theme.tokens.neutral;
-  const year = new Date().getFullYear();
-
-  // "/register-as-professional" redirects to the Google Form (plan A7, legacy redirects).
-  const columns = [
-    { id: "company", links: [["about", "/about"], ["careers", "/about"], ["contact", "/contact"]] },
-    { id: "help", links: [["howItWorks", "/#how-it-works"], ["cancellation", "/legal/cancellation-refund"], ["becomePro", "/register-as-professional"]] },
-    { id: "legal", links: [["privacy", "/legal/privacy"], ["terms", "/legal/terms"]] },
-  ] as const;
-
-  return (
-    <Box component="footer" sx={{ borderTop: `1px solid ${n[200]}`, bgcolor: n[25], mt: { xs: 12, md: 20 } }}>
-      <Container maxWidth={false} sx={{ maxWidth: theme.tokens.container.marketing, py: { xs: 10, md: 14 } }}>
-        <Box sx={{ display: "grid", gap: 8, gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "2fr 1fr 1fr 1fr" } }}>
-          <Box>
-            <Wordmark size="sm" />
-            <Typography variant="body2" sx={{ mt: 3, color: "text.secondary", maxWidth: 320 }}>
-              {brand.supportEmail} ·{" "}
-              <Box component="span" sx={{ whiteSpace: "nowrap" }}>
-                {brand.supportPhone}
-              </Box>
-            </Typography>
-          </Box>
-          {columns.map((column) => (
-            <Box key={column.id} component="nav" aria-label={t(`footer.${column.id}`)}>
-              <Typography variant="label" component="h2" sx={{ m: 0, mb: 3, color: "text.primary" }}>
-                {t(`footer.${column.id}`)}
-              </Typography>
-              {/* Touch screens get 44px rows (plan B9); mouse users keep the compact list. */}
-              <Box component="ul" sx={{ listStyle: "none", m: 0, p: 0, display: "grid", gap: 2, "@media (pointer: coarse)": { gap: 0 } }}>
-                {column.links.map(([key, to]) => (
-                  <li key={key}>
-                    <Link
-                      to={to}
-                      standalone
-                      sx={{
-                        color: n[700],
-                        typography: "body2",
-                        "@media (pointer: coarse)": { display: "inline-flex", alignItems: "center", minHeight: theme.tokens.touchTarget.default },
-                      }}
-                    >
-                      {t(`footer.${key}`)}
-                    </Link>
-                  </li>
-                ))}
-              </Box>
-            </Box>
-          ))}
-        </Box>
-        <Typography variant="body2" sx={{ mt: 10, pt: 6, borderTop: `1px solid ${n[200]}`, color: "text.secondary" }}>
-          © {year} {brand.name}
-        </Typography>
-      </Container>
+      {footer}
+      {bottomNav}
     </Box>
   );
 }

@@ -56,7 +56,8 @@ export const accentRamps = {
 } as const;
 
 export type BrandDirection = keyof typeof accentRamps;
-export type AccentRamp = (typeof accentRamps)[BrandDirection];
+/** One brand colour in its seven shades; admins pick 500 and the rest is derived (foundations/accent.ts). */
+export type AccentRamp = Readonly<Record<50 | 100 | 200 | 500 | 600 | 700 | 800, string>>;
 
 /** Semantic tones: `fg` is text/icon on `bg` or white, `border` frames tinted surfaces. */
 export const semantic = {

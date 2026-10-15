@@ -3,10 +3,13 @@ import { cartLineKey, pick, type ServiceSummaryDto } from "@brand/shared";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router";
 import { Button, Picture, QuantityStepper, VisuallyHidden } from "@/design-system";
 import { useCart } from "@/features/cart/cartStore";
+import { catalogQuery } from "@/features/catalog/api";
+import { defaultPhotoFor, servicePhoto } from "@/features/catalog/photos";
 import { durationText } from "@/lib/duration";
 import { formatMoney } from "@/lib/format";
 import { SHEET_STATE } from "./sheet";
@@ -45,6 +48,8 @@ export function ServiceCard({ service, detailsTo, headingLevel = "h3" }: Service
   const add = useCart((state) => state.add);
   const setQuantity = useCart((state) => state.setQuantity);
   const remove = useCart((state) => state.remove);
+  // No empty tiles: a service without its own photo shows its category's.
+  const categories = useQuery(catalogQuery).data?.categories;
 
   // The Add button and the stepper replace each other; keep keyboard focus on whichever appears.
   const focusNext = useRef(false);
@@ -125,7 +130,7 @@ export function ServiceCard({ service, detailsTo, headingLevel = "h3" }: Service
         "@media (prefers-reduced-motion: reduce)": { transition: "none", "&:hover": { transform: "none" } },
       }}
     >
-      <Picture image={service.image} alt="" sizes="(min-width: 900px) 360px, (min-width: 600px) 50vw, 100vw" ratio="4 / 3" placeholder={t("services.photoSoon")} sx={{ borderRadius: 0 }} />
+      <Picture image={servicePhoto(service, categories)} fallback={defaultPhotoFor(service.categorySlugs)} alt="" sizes="(min-width: 900px) 360px, (min-width: 600px) 50vw, 100vw" ratio="4 / 3" sx={{ borderRadius: 0 }} />
 
       <Box sx={{ p: 4, display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
         <Typography variant="h3" component={Heading} sx={{ m: 0 }}>

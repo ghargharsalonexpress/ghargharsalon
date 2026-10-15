@@ -33,7 +33,8 @@ export async function customerWithCart(browser: Browser, request: Parameters<typ
 export async function addAddress(page: Page) {
   await page.getByRole("button", { name: "Add address" }).click();
   const dialog = page.getByRole("dialog", { name: "Add an address" });
-  await dialog.getByRole("button", { name: "Use my current location" }).click();
+  // The pin may already be set from the location shared on arrival (ADR-0021); either way, take it now.
+  await dialog.getByRole("button", { name: /^(Use my current location|Update location)$/ }).click();
   await expect(dialog.getByText(/Location set/)).toBeVisible();
   await dialog.getByLabel("Flat or house number").fill("Flat 12");
   await dialog.getByLabel("Street, sector or area").fill("Sector 62");

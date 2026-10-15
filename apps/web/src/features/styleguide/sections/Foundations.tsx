@@ -80,7 +80,7 @@ const MUI_VARIANT: Record<TypeToken, "display" | "h1" | "h2" | "h3" | "bodyLg" |
 
 export function Foundations() {
   const { tokens } = useTheme();
-  const { direction } = useBrandDirection();
+  const direction = useBrandDirection().direction ?? "orange";
   const n = tokens.neutral;
 
   return (

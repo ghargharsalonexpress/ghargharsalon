@@ -34,6 +34,7 @@ import {
 } from "@/features/cart/cartStore";
 import { useCatalog } from "@/features/catalog/api";
 import { formatMoney } from "@/lib/format";
+import { ServicesBanner } from "./ServicesBanner";
 import { CategoryFilterSidebar } from "./CategoryFilterSidebar";
 import { ServiceCard } from "./ServiceCard";
 import { usePageMeta } from "./usePageMeta";
@@ -178,7 +179,7 @@ export function ServicesPage() {
           pb: { xs: 8, md: 12 },
         }}
       >
-        <Typography variant="h1">{t("services.title")}</Typography>
+        <ServicesBanner category={category} gender={gender} />
 
         <Box
           sx={{

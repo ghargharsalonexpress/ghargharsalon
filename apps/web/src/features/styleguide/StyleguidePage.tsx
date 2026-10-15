@@ -115,7 +115,7 @@ export function StyleguidePage() {
         <SegmentedControl
           label="Brand direction"
           name="direction"
-          value={direction}
+          value={direction ?? "orange"}
           onChange={setDirection}
           options={[
             { value: "orange", label: "Orange" },

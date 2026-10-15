@@ -14,6 +14,12 @@ export const fontFamily = [
   "sans-serif",
 ].join(", ");
 
+/** Hindi falls back to Noto Sans Devanagari whatever Latin font is chosen. */
+const FALLBACKS = ['"Noto Sans Devanagari Variable"', '"Noto Sans Devanagari"', "system-ui", "-apple-system", '"Segoe UI"', "Roboto", "Arial"];
+
+/** A full CSS font stack for a chosen family ('"Poppins"'). */
+export const fontStack = (family: string, serif = false): string => [family, ...FALLBACKS, serif ? "Georgia, serif" : "sans-serif"].join(", ");
+
 export type TypeToken =
   | "display"
   | "h1"

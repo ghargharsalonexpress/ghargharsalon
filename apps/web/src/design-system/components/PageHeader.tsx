@@ -36,8 +36,9 @@ export function PageHeader({ title, description, actions, breadcrumb }: PageHead
  */
 export function ActionBar({ children, always = false }: { children: ReactNode; always?: boolean }) {
   const { tokens, breakpoints } = useTheme();
-  // Toasts sit above the bar while it shows, so they never cover its button.
-  const lift = { ":root": { "--toast-bottom": "88px" } };
+  // Toasts sit above the bar while it shows, so they never cover its button; the website's
+  // phone tab bar steps aside, so the page's one action is never hidden behind it.
+  const lift = { ":root": { "--toast-bottom": "88px" }, "[data-bottom-nav]": { display: "none" }, body: { paddingBottom: 0 } };
   return (
     <>
       <GlobalStyles styles={always ? lift : { [breakpoints.down("md")]: lift }} />

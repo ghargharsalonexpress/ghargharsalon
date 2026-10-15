@@ -8,7 +8,6 @@ const loaders = {
   styleguide: (): Pair => Promise.all([import("./locales/en/styleguide.json"), import("./locales/hi/styleguide.json")]),
   auth: (): Pair => Promise.all([import("./locales/en/auth.json"), import("./locales/hi/auth.json")]),
   public: (): Pair => Promise.all([import("./locales/en/public.json"), import("./locales/hi/public.json")]),
-  legal: (): Pair => Promise.all([import("./locales/en/legal.json"), import("./locales/hi/legal.json")]),
   account: (): Pair => Promise.all([import("./locales/en/account.json"), import("./locales/hi/account.json")]),
   booking: (): Pair => Promise.all([import("./locales/en/booking.json"), import("./locales/hi/booking.json")]),
   pro: (): Pair => Promise.all([import("./locales/en/pro.json"), import("./locales/hi/pro.json")]),

@@ -1,0 +1,290 @@
+{
+  "hero-facial": {
+    "file": "src/hero-facial.jpg",
+    "alt": "Woman relaxing with a face mask during a facial treatment",
+    "altHi": "फेशियल के दौरान चेहरे पर मास्क लगाकर आराम करती महिला",
+    "position": "50% 45%",
+    "source": "https://www.pexels.com/photo/woman-lying-with-mask-on-face-3764552/",
+    "author": "Andrea Piacquadio",
+    "license": "Pexels License"
+  },
+  "hero-bridal": {
+    "file": "src/hero-bridal.jpg",
+    "alt": "Indian bride getting her makeup done before the wedding",
+    "altHi": "शादी से पहले मेकअप करवाती भारतीय दुल्हन",
+    "position": "55% 35%",
+    "source": "https://www.pexels.com/photo/bride-getting-her-makeup-done-for-the-wedding-17499712/",
+    "author": "Bonaventure Fernandez",
+    "license": "Pexels License"
+  },
+  "hero-men": {
+    "file": "src/hero-men.jpg",
+    "alt": "Smiling man getting a haircut",
+    "altHi": "मुस्कुराते हुए बाल कटवाता आदमी",
+    "position": "35% 40%",
+    "source": "https://www.pexels.com/photo/man-smiling-during-a-haircut-in-barbershop-39559309/",
+    "author": "Brian Silva",
+    "license": "Pexels License"
+  },
+  "cat-salon-for-women": {
+    "file": "src/cat-salon-for-women.jpg",
+    "alt": "Smiling woman enjoying a facial from a beautician",
+    "altHi": "ब्यूटीशियन से फेशियल करवाते हुए मुस्कुराती महिला",
+    "position": "30% 50%",
+    "source": "https://www.pexels.com/photo/woman-on-a-beauty-procedure-7581075/",
+    "author": "cottonbro studio",
+    "license": "Pexels License"
+  },
+  "cat-makeup-and-styling": {
+    "file": "src/cat-makeup-and-styling.jpg",
+    "alt": "Makeup artist applying makeup to a woman in a saree",
+    "altHi": "साड़ी पहनी महिला का मेकअप करती मेकअप आर्टिस्ट",
+    "position": "55% 40%",
+    "source": "https://www.pexels.com/photo/applying-makeup-to-bride-in-traditional-clothing-19679199/",
+    "author": "Guru Bagul",
+    "license": "Pexels License"
+  },
+  "cat-hair-styling": {
+    "file": "src/cat-hair-styling.jpg",
+    "alt": "Hairstylist styling a woman's hair for a function",
+    "altHi": "किसी समारोह के लिए महिला के बाल सँवारती हेयरस्टाइलिस्ट",
+    "position": "40% 45%",
+    "source": "https://www.pexels.com/photo/a-person-holding-a-woman-s-hair-6435273/",
+    "author": "Vanshika Chawla",
+    "license": "Pexels License"
+  },
+  "cat-spa-for-women": {
+    "file": "src/cat-spa-for-women.jpg",
+    "alt": "Woman relaxing during a shoulder massage",
+    "altHi": "कंधों की मालिश के दौरान आराम करती महिला",
+    "position": "35% 55%",
+    "source": "https://unsplash.com/photos/a-woman-getting-a-back-massage-at-a-spa-Y1JKxNFwZx4",
+    "author": "yury kirillov",
+    "license": "Unsplash License"
+  },
+  "cat-men-stress-relief": {
+    "file": "src/cat-men-stress-relief.jpg",
+    "alt": "Man relaxing during a head and face massage",
+    "altHi": "सिर और चेहरे की मालिश के दौरान आराम करता आदमी",
+    "position": "55% 45%",
+    "source": "https://www.pexels.com/photo/a-person-massaging-a-man-s-face-4599432/",
+    "author": "Antoni Shkraba",
+    "license": "Pexels License"
+  },
+  "cat-men-pain-relief": {
+    "file": "src/cat-men-pain-relief.jpg",
+    "alt": "Man receiving a back and shoulder massage",
+    "altHi": "पीठ और कंधों की मालिश करवाता आदमी",
+    "position": "45% 45%",
+    "source": "https://www.pexels.com/photo/relaxing-outdoor-back-massage-therapy-session-37719631/",
+    "author": "Nothing Ahead",
+    "license": "Pexels License"
+  },
+  "cat-men-skincare-scrubs": {
+    "file": "src/cat-men-skincare-scrubs.jpg",
+    "alt": "Man with a face pack during a facial",
+    "altHi": "फेशियल के दौरान चेहरे पर फेस पैक लगाए आदमी",
+    "position": "45% 50%",
+    "source": "https://unsplash.com/photos/a-man-getting-a-facial-mask-on-his-face-hX9V80PDxrQ",
+    "author": "Victor Meza",
+    "license": "Unsplash License"
+  },
+  "cat-men-grooming": {
+    "file": "src/cat-men-grooming.jpg",
+    "alt": "Barber trimming a man's beard",
+    "altHi": "आदमी की दाढ़ी ट्रिम करता नाई",
+    "position": "60% 50%",
+    "source": "https://www.pexels.com/photo/side-view-of-a-man-getting-his-beard-styled-7518713/",
+    "author": "Pavel Danilyuk",
+    "license": "Pexels License"
+  },
+  "cat-men-face-grooming": {
+    "file": "src/cat-men-face-grooming.jpg",
+    "alt": "Smiling man applying face cream",
+    "altHi": "चेहरे पर क्रीम लगाता मुस्कुराता आदमी",
+    "position": "35% 40%",
+    "source": "https://www.pexels.com/photo/man-putting-on-cream-on-his-face-7433339/",
+    "author": "August de Richelieu",
+    "license": "Pexels License"
+  },
+  "offer-first": {
+    "file": "src/offer-first.jpg",
+    "alt": "Happy woman with a clay face mask",
+    "altHi": "चेहरे पर क्ले मास्क लगाए खुश महिला",
+    "position": "40% 35%",
+    "source": "https://www.pexels.com/photo/woman-with-clay-mask-on-face-3762638/",
+    "author": "Shiny Diamond",
+    "license": "Pexels License"
+  },
+  "offer-bridal": {
+    "file": "src/offer-bridal.jpg",
+    "alt": "Bride's hands with mehndi and bangles",
+    "altHi": "मेहंदी और चूड़ियों से सजे दुल्हन के हाथ",
+    "position": "50% 45%",
+    "source": "https://unsplash.com/photos/woman-in-brown-and-red-long-sleeve-shirt-iohwhGTQfxU",
+    "author": "AMISH THAKKAR",
+    "license": "Unsplash License"
+  },
+  "offer-men": {
+    "file": "src/offer-men.jpg",
+    "alt": "Well-groomed man in a sherwani, smiling",
+    "altHi": "शेरवानी पहने, सजा-सँवरा मुस्कुराता आदमी",
+    "position": "45% 35%",
+    "source": "https://www.pexels.com/photo/close-up-photo-of-man-6498090/",
+    "author": "UniQue Click By Sonam Singh",
+    "license": "Pexels License"
+  },
+  "step-book": {
+    "file": "src/step-book.jpg",
+    "alt": "Woman booking a service on her phone",
+    "altHi": "फ़ोन पर सर्विस बुक करती महिला",
+    "position": "55% 60%",
+    "source": "https://unsplash.com/photos/a-woman-sitting-at-a-table-looking-at-her-cell-phone-Wkp0U_iHF5g",
+    "author": "Rupinder Singh",
+    "license": "Unsplash License"
+  },
+  "step-arrive": {
+    "file": "src/step-arrive.jpg",
+    "alt": "Makeup artist ready with her brush kit",
+    "altHi": "अपनी ब्रश किट के साथ तैयार मेकअप आर्टिस्ट",
+    "position": "45% 30%",
+    "source": "https://www.pexels.com/photo/woman-standing-with-bag-of-makeup-brushes-26616192/",
+    "author": "DeyvidPinedo _Fotografia",
+    "license": "Pexels License"
+  },
+  "step-relax": {
+    "file": "src/step-relax.jpg",
+    "alt": "Woman getting her hair styled at home",
+    "altHi": "घर पर आराम से बाल सँवरवाती महिला",
+    "position": "40% 35%",
+    "source": "https://www.pexels.com/photo/woman-getting-her-hair-done-in-her-house-13965154/",
+    "author": "Rene Terp",
+    "license": "Pexels License"
+  },
+  "why-us": {
+    "file": "src/why-us.jpg",
+    "alt": "Beautician in gloves giving a clean, gentle facial",
+    "altHi": "दस्ताने पहनकर साफ़-सुथरे तरीके से फेशियल करती ब्यूटीशियन",
+    "position": "45% 40%",
+    "source": "https://www.pexels.com/photo/a-woman-having-facial-treatment-4586753/",
+    "author": "Anna Shvets",
+    "license": "Pexels License"
+  },
+  "join-pro": {
+    "file": "src/join-pro.jpg",
+    "alt": "Smiling professional beautician",
+    "altHi": "मुस्कुराती प्रोफ़ेशनल ब्यूटीशियन",
+    "position": "50% 35%",
+    "source": "https://www.pexels.com/photo/woman-in-blue-v-neckline-dress-20046788/",
+    "author": "TONI&GUY PONDICHERRY",
+    "license": "Pexels License"
+  },
+  "about-main": {
+    "file": "src/about-main.jpg",
+    "alt": "Stylist helping an Indian bride get ready",
+    "altHi": "भारतीय दुल्हन को तैयार करती स्टाइलिस्ट",
+    "position": "55% 35%",
+    "source": "https://www.pexels.com/photo/elegant-bridal-preparation-with-traditional-jewelry-29516470/",
+    "author": "apertur 2.8",
+    "license": "Pexels License"
+  },
+  "about-team": {
+    "file": "src/about-team.jpg",
+    "alt": "Three cheerful hairstylists with their tools",
+    "altHi": "अपने औज़ारों के साथ तीन खुशमिज़ाज हेयरस्टाइलिस्ट",
+    "position": "50% 40%",
+    "source": "https://unsplash.com/photos/three-women-holding-scissors-and-brush-fI-TKWjKYls",
+    "author": "Adam Winger",
+    "license": "Unsplash License"
+  },
+  "contact-main": {
+    "file": "src/contact-main.jpg",
+    "alt": "Smiling woman talking on the phone",
+    "altHi": "फ़ोन पर बात करती मुस्कुराती महिला",
+    "position": "45% 45%",
+    "source": "https://unsplash.com/photos/a-woman-sitting-on-a-bench-talking-on-a-cell-phone-h2OuCuRXEOI",
+    "author": "Sanket Mishra",
+    "license": "Unsplash License"
+  },
+  "city-main": {
+    "file": "src/city-main.jpg",
+    "alt": "Bright, modern living room in an Indian home",
+    "altHi": "एक भारतीय घर का रोशन, आधुनिक लिविंग रूम",
+    "position": "55% 55%",
+    "source": "https://www.pexels.com/photo/modern-cozy-living-room-with-stylish-decor-33452539/",
+    "author": "Liva Kitchens And Interiors",
+    "license": "Pexels License"
+  },
+  "gallery-manicure": {
+    "file": "src/gallery-manicure.jpg",
+    "alt": "Nail technician giving a manicure",
+    "altHi": "मैनीक्योर करती नेल टेक्नीशियन",
+    "position": "55% 50%",
+    "source": "https://unsplash.com/photos/a-woman-getting-her-nails-done-at-a-nail-salon-gb6gtiTZKB8",
+    "author": "Giorgio Trovato",
+    "license": "Unsplash License"
+  },
+  "gallery-pedicure": {
+    "file": "src/gallery-pedicure.jpg",
+    "alt": "Feet soaking in a flower foot bath before a pedicure",
+    "altHi": "पेडीक्योर से पहले फूलों वाले पानी में भीगे पैर",
+    "position": "35% 50%",
+    "source": "https://unsplash.com/photos/persons-feet-with-flowers-qeuJczNo54w",
+    "author": "Rune Enstad",
+    "license": "Unsplash License"
+  },
+  "gallery-threading": {
+    "file": "src/gallery-threading.jpg",
+    "alt": "Woman getting her eyebrows threaded",
+    "altHi": "आईब्रो थ्रेडिंग करवाती महिला",
+    "position": "55% 55%",
+    "source": "https://unsplash.com/photos/closeup-photography-of-womans-face-cowLgyb63c4",
+    "author": "Rune Enstad",
+    "license": "Unsplash License"
+  },
+  "gallery-mehndi": {
+    "file": "src/gallery-mehndi.jpg",
+    "alt": "Hands decorated with mehndi",
+    "altHi": "मेहंदी से सजे हाथ",
+    "position": "45% 45%",
+    "source": "https://unsplash.com/photos/person-showing-arm-tattoo-1_j_36G6DbY",
+    "author": "Photos by Lanty",
+    "license": "Unsplash License"
+  },
+  "gallery-hair-spa": {
+    "file": "src/gallery-hair-spa.jpg",
+    "alt": "Woman enjoying a hair wash and hair spa",
+    "altHi": "हेयर वॉश और हेयर स्पा का आनंद लेती महिला",
+    "position": "65% 40%",
+    "source": "https://www.pexels.com/photo/a-person-washing-a-woman-s-hair-in-the-salon-7755663/",
+    "author": "RDNE Stock project",
+    "license": "Pexels License"
+  },
+  "gallery-waxing": {
+    "file": "src/gallery-waxing.jpg",
+    "alt": "Beautician in gloves doing leg waxing",
+    "altHi": "दस्ताने पहनकर पैरों की वैक्सिंग करती ब्यूटीशियन",
+    "position": "50% 55%",
+    "source": "https://www.pexels.com/photo/woman-during-spa-treatment-14438364/",
+    "author": "ANVA Marketing",
+    "license": "Pexels License"
+  },
+  "login-side": {
+    "file": "src/login-side.jpg",
+    "alt": "Woman with skincare cream on her face",
+    "altHi": "चेहरे पर स्किनकेयर क्रीम लगाए महिला",
+    "position": "55% 40%",
+    "source": "https://unsplash.com/photos/a-woman-with-a-white-spot-on-her-face-zg30dYawyo4",
+    "author": "Cherrydeck",
+    "license": "Unsplash License"
+  },
+  "not-found": {
+    "file": "src/not-found.jpg",
+    "alt": "Makeup brushes laid out on a peach background",
+    "altHi": "आड़ू रंग की पृष्ठभूमि पर रखे मेकअप ब्रश",
+    "position": "60% 50%",
+    "source": "https://unsplash.com/photos/a-collection-of-makeup-brushes-sitting-on-top-of-a-table-TwMFnifOyI8",
+    "author": "William Shu",
+    "license": "Unsplash License"
+  }
+}

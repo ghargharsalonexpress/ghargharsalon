@@ -1,6 +1,6 @@
 import { createTheme, type Shadows, type Theme } from "@mui/material/styles";
-import { type BrandDirection, buildTokens } from "../tokens";
-import { breakpoints, elevation, radius, SPACING_UNIT } from "../tokens/layout";
+import { accentRamps, type BrandDirection, buildTokens, type TokenOptions } from "../tokens";
+import { breakpoints, elevation, SPACING_UNIT } from "../tokens/layout";
 import { buildComponents } from "./components";
 import { buildTypography } from "./typography";
 
@@ -16,15 +16,19 @@ function buildShadows(): Shadows {
   }) as Shadows;
 }
 
-export function createAppTheme(direction: BrandDirection = "berry"): Theme {
-  const tokens = buildTokens(direction);
+/**
+ * The MUI theme. The website passes the admin's colour, corners and fonts (ADR-0021); a
+ * brand direction name picks one of the hand-made ramps (the style guide compares them).
+ */
+export function createAppTheme(options: TokenOptions | BrandDirection = {}): Theme {
+  const tokens = buildTokens(typeof options === "string" ? { accent: accentRamps[options] } : options);
   const { neutral: n, accent: a, semantic: s, motion } = tokens;
 
   return createTheme({
     tokens,
     breakpoints: { values: { ...breakpoints } },
     spacing: SPACING_UNIT,
-    shape: { borderRadius: radius.sm },
+    shape: { borderRadius: tokens.radius.sm },
     palette: {
       mode: "light",
       primary: { main: a[600], dark: a[700], light: a[100], contrastText: n[0] },
@@ -45,7 +49,7 @@ export function createAppTheme(direction: BrandDirection = "berry"): Theme {
         focus: n[100],
       },
     },
-    typography: buildTypography(),
+    typography: buildTypography({ headingFamily: tokens.headingFamily, bodyFamily: tokens.fontFamily }),
     shadows: buildShadows(),
     transitions: {
       duration: {

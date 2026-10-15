@@ -64,7 +64,7 @@ export function useReorderCategories() {
   });
 }
 
-export type MediaFolder = "services" | "categories" | "professionals";
+export type MediaFolder = "services" | "categories" | "professionals" | "site";
 
 /** One photo → AVIF/WebP sizes on the server; returns the reference to store. */
 export function useUploadImage(folder: MediaFolder) {

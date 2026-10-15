@@ -16,6 +16,7 @@
 | [runbooks/staging-deploy.md](runbooks/staging-deploy.md) | Step-by-step AWS + Atlas staging deploy (waiting for the client's accounts) |
 | [runbooks/production-setup.md](runbooks/production-setup.md) | Accounts, keys and settings for staging and launch: Razorpay, SES, 2Factor SMS, ImageKit, Maps, VAPID, GST seller details |
 | [runbooks/otp-login-go-live.md](runbooks/otp-login-go-live.md) | Mobile OTP login (ADR-0020): what the client and the team still do before it works live |
+| [runbooks/website-admin.md](runbooks/website-admin.md) | Changing the website in Admin → Website (ADR-0021): pages and sections, photos, live values, brand and theme, menus, SEO, location |
 | [runbooks/operations.md](runbooks/operations.md) | What the team does when a booking is stuck, a refund fails, alerts stop, or a provider is down |
 | [security-review.md](security-review.md) | OWASP ASVS Level 1 review with the evidence for each requirement |
 

@@ -2,8 +2,9 @@ import { createContext, useContext } from "react";
 import type { BrandDirection } from "@/design-system";
 
 export interface BrandDirectionValue {
-  direction: BrandDirection;
-  setDirection: (direction: BrandDirection) => void;
+  /** A hand-made ramp chosen for this visit, or null for the site's own colour. */
+  direction: BrandDirection | null;
+  setDirection: (direction: BrandDirection | null) => void;
 }
 
 export const BrandDirectionContext = createContext<BrandDirectionValue | null>(null);

@@ -9,6 +9,7 @@ import { useLocation, useNavigate, useParams } from "react-router";
 import { Button, FaqList, InlineAlert, Picture, QuantityStepper, RadioCards, ResponsiveDialog, VisuallyHidden } from "@/design-system";
 import { useCart } from "@/features/cart/cartStore";
 import { serviceQuery, useCatalog } from "@/features/catalog/api";
+import { defaultPhotoFor, servicePhoto } from "@/features/catalog/photos";
 import { isApiError } from "@/lib/api";
 import { durationText } from "@/lib/duration";
 import { formatMoney } from "@/lib/format";
@@ -44,7 +45,8 @@ export function ServiceSheet() {
   const description = service ? pick(service.summary, lang) : summary ? pick(summary.summary, lang) : "";
   const tiers = service?.tiers ?? summary?.tiers ?? [];
   const tier = tiers.find((item) => item.id === chosenTier) ?? tiers[0];
-  const image = service?.images[0] ?? summary?.image ?? null;
+  // A service without its own photo shows its category's (never an empty tile).
+  const image = service?.images[0] ?? (summary ? servicePhoto(summary, catalog.data?.categories) : null);
 
   usePageMeta(notFound ? t("detail.notFoundTitle") : name, description || undefined, { overlay: true });
 
@@ -71,7 +73,7 @@ export function ServiceSheet() {
       actions={tier ? <SheetActions slug={slug} name={service?.name ?? summary?.name} tier={tier} tierCount={tiers.length} /> : undefined}
     >
       <Box sx={{ display: "grid", gap: 6 }}>
-        {image && <Picture image={image} alt={name} sizes="(min-width: 600px) 552px, 100vw" ratio="3 / 2" priority />}
+        {image && <Picture image={image} fallback={summary ? defaultPhotoFor(summary.categorySlugs) : null} alt={name} sizes="(min-width: 600px) 552px, 100vw" ratio="3 / 2" priority />}
 
         {tier && tiers.length === 1 && (
           <Typography sx={{ color: "text.secondary" }}>

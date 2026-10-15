@@ -6,10 +6,11 @@ import { API_URL, openPage } from "./support";
 test.describe("Discover and add to cart (W1)", () => {
   test("home lists categories with real counts and prices", async ({ page }) => {
     await openPage(page, "/");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Experience Luxury Salon Care, Right at Your Home");
-    const salon = page.getByRole("link", { name: /Salon for women/ });
+    // The home page is built in Admin → Website (ADR-0021); this is the shipped banner.
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Salon at home in 10–15 minutes");
+    const salon = page.locator("#categories").getByRole("link", { name: /Salon for women/ });
     // The hidden service is not counted; the cheapest visible one sets "From".
-    await expect(salon).toContainText("3 services · From ₹349");
+    await expect(salon).toContainText("From ₹349 · 3 services");
     await salon.click();
     await expect(page).toHaveURL(/\/services\?category=salon-for-women$/);
     await expect(page.getByRole("heading", { name: "Salon for women", level: 2 })).toBeVisible();

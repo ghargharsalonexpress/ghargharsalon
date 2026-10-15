@@ -48,7 +48,7 @@ export { TextField } from "./components/fields/TextField";
 
 export { AccountShell } from "./shells/AccountShell";
 export { AdminShell } from "./shells/AdminShell";
-export { AuthShell } from "./shells/AuthShell";
+export { AuthShell, type AuthShellProps } from "./shells/AuthShell";
 export { ProShell } from "./shells/ProShell";
-export { PublicShell } from "./shells/PublicShell";
+export { BOTTOM_NAV_HEIGHT, PublicShell } from "./shells/PublicShell";
 export type { NavItem } from "./shells/types";

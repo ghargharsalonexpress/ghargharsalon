@@ -15,10 +15,12 @@ if (!site) {
   process.exit(0);
 }
 
-const PRIVATE = ["/account", "/admin", "/pro", "/checkout", "/bookings", "/login", "/signup", "/forgot-password", "/reset-password", "/styleguide", "/samples"];
-writeFileSync(join(dist, "robots.txt"), ["User-agent: *", ...PRIVATE.map((path) => `Disallow: ${path}`), "", `Sitemap: ${site}/sitemap.xml`, ""].join("\n"));
+const PRIVATE = ["/account", "/admin", "/pro", "/checkout", "/bookings", "/login", "/signup", "/forgot-password", "/reset-password", "/styleguide", "/samples", "/cart"];
+// The API's sitemap (ADR-0021) is always current: pages admins publish appear without a rebuild.
+const sitemaps = [`Sitemap: ${site}/sitemap.xml`, ...(api ? [`Sitemap: ${api}/v1/sitemap.xml`] : [])];
+writeFileSync(join(dist, "robots.txt"), ["User-agent: *", ...PRIVATE.map((path) => `Disallow: ${path}`), "", ...sitemaps, ""].join("\n"));
 
-const pages = ["/", "/services", "/about", "/contact", "/register-as-professional", "/legal/privacy", "/legal/terms", "/legal/cancellation-refund"];
+const pages = ["/", "/services", "/about", "/contact", "/register-as-professional", "/legal/privacy", "/legal/terms", "/legal/cancellation-refund", "/faridabad-at-home-services"];
 let catalogue = { categories: [], services: [] };
 if (api) {
   const response = await fetch(`${api}/v1/catalog`, { signal: AbortSignal.timeout(30_000) });

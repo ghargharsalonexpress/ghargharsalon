@@ -8,7 +8,8 @@ import Typography from "@mui/material/Typography";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Button, Checkbox, InlineAlert, ResponsiveDialog, SegmentedControl, TextField } from "@/design-system";
-import { currentFix, DeviceError } from "@/lib/device";
+import { stored as visitorLocation } from "@/features/site/locationContext";
+import { currentFix, DeviceError, recentFix } from "@/lib/device";
 import { errorText, fieldText } from "@/lib/errors";
 import { fieldProps } from "@/lib/fieldProps";
 import { applyServerErrors } from "@/lib/forms";
@@ -28,6 +29,14 @@ const blank = (isDefault: boolean): AddressInput => ({
   isDefault,
 });
 
+/** The location shared when the site was opened (ADR-0021), so a new address starts with its pin set. */
+function arrivalFix(): { lat: number; lng: number; accuracy: number | null } | null {
+  const fix = recentFix(20 * 60_000);
+  if (fix) return fix;
+  const visit = visitorLocation();
+  return visit?.point && !visit.picked ? { ...visit.point, accuracy: null } : null;
+}
+
 /**
  * Add or edit an address (plan W3). The pin comes from the phone's location, so the
  * professional navigates to the right door; the typed lines tell them which flat.
@@ -39,12 +48,13 @@ export function AddressDialog({ address, first, onClose, onSaved }: { address: A
   const [formError, setFormError] = useState<unknown>(null);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
-  const [accuracy, setAccuracy] = useState<number | null>(null);
+  const [start] = useState(() => (address ? null : arrivalFix()));
+  const [accuracy, setAccuracy] = useState<number | null>(start?.accuracy ?? null);
 
   const { register, control, handleSubmit, setValue, setError, formState } = useForm<AddressInput, unknown, AddressData>({
     resolver: standardSchemaResolver(addressInputSchema),
     mode: "onTouched",
-    defaultValues: address ? { ...address } : blank(first),
+    defaultValues: address ? { ...address } : { ...blank(first), ...(start ? { location: { lat: start.lat, lng: start.lng } } : {}) },
   });
   const location = useWatch({ control, name: "location" });
   const errors = formState.errors;

@@ -45,17 +45,15 @@ export const router = createBrowserRouter([
       {
         lazy: page(() => import("@/features/public/PublicLayout"), "PublicLayout", "public"),
         children: [
-          { index: true, lazy: page(() => import("@/features/public/HomePage"), "HomePage", "public") },
+          // Website pages built in Admin → Website (ADR-0021).
+          { index: true, lazy: page(() => import("@/features/site/CmsPage"), "CmsPage", "public") },
           {
             path: "services",
             lazy: page(() => import("@/features/public/ServicesPage"), "ServicesPage", "public"),
             children: [{ path: ":slug", lazy: page(() => import("@/features/public/ServiceSheet"), "ServiceSheet", "public") }],
           },
           { path: "cart", lazy: page(() => import("@/features/public/CartPage"), "CartPage", "public") },
-          { path: "about", lazy: page(() => import("@/features/public/AboutPage"), "AboutPage", "public") },
-          { path: "contact", loader: prefetchSession, lazy: page(() => import("@/features/public/ContactPage"), "ContactPage", "public") },
-          { path: "legal/:doc", lazy: page(() => import("@/features/public/LegalPage"), "LegalPage", "public", "legal") },
-          { path: "register-as-professional", lazy: page(() => import("@/features/public/JoinPage"), "JoinPage", "public") },
+          { path: "contact", loader: prefetchSession, lazy: page(() => import("@/features/site/CmsPage"), "CmsPage", "public") },
 
           // Customer: checkout, booking status, account (server-side authorisation is the real guard; this only routes people)
           { path: "checkout", loader: requireRole("customer"), lazy: page(() => import("@/features/booking/CheckoutPage"), "CheckoutPage", "public", "booking") },
@@ -72,7 +70,8 @@ export const router = createBrowserRouter([
             ],
           },
 
-          { path: "*", element: <NotFoundContent /> },
+          // Every other address is a website page, or the 404 when there is none.
+          { path: "*", lazy: page(() => import("@/features/site/CmsPage"), "CmsPage", "public") },
         ],
       },
 
@@ -122,6 +121,13 @@ export const router = createBrowserRouter([
           { path: "services/:id/edit", lazy: page(() => import("@/features/admin/catalog/ServiceEditorPage"), "ServiceEditorPage", "admin") },
           { path: "categories", lazy: page(() => import("@/features/admin/catalog/AdminCategoriesPage"), "AdminCategoriesPage", "admin") },
           { path: "messages", lazy: page(() => import("@/features/admin/messages/AdminMessagesPage"), "AdminMessagesPage", "admin") },
+          // Website: pages, brand & theme, menus, SEO (ADR-0021)
+          { path: "website", lazy: page(() => import("@/features/admin/site/WebsitePagesPage"), "WebsitePagesPage", "admin") },
+          { path: "website/pages/:id", lazy: page(() => import("@/features/admin/site/PageEditorPage"), "PageEditorPage", "admin") },
+          { path: "website/brand", lazy: page(() => import("@/features/admin/site/SiteSettingsPage"), "BrandSettingsPage", "admin") },
+          { path: "website/menus", lazy: page(() => import("@/features/admin/site/SiteSettingsPage"), "MenusSettingsPage", "admin") },
+          { path: "website/seo", lazy: page(() => import("@/features/admin/site/SiteSettingsPage"), "SeoSettingsPage", "admin") },
+          { path: "website/requests", lazy: page(() => import("@/features/admin/site/AreaRequestsPage"), "AreaRequestsPage", "admin") },
           // Operations (Phase 8, W14–W16)
           { path: "live", lazy: page(() => import("@/features/admin/ops/LivePage"), "LivePage", "admin") },
           { path: "bookings", lazy: page(() => import("@/features/admin/ops/BookingsPage"), "BookingsPage", "admin") },

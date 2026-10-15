@@ -10,9 +10,9 @@ export function buildComponents(t: AppTokens): ThemeOptions["components"] {
   const { neutral: n, accent: a, semantic: s, radius: r, elevation: e, motion: m } = t;
   const focusRing = { outline: `2px solid ${a[600]}`, outlineOffset: 2 };
   const colourTransition = `background-color ${m.duration.fast}ms ${m.easing.enter}, border-color ${m.duration.fast}ms ${m.easing.enter}, color ${m.duration.fast}ms ${m.easing.enter}`;
-  const label = typeStyle("label");
-  const body = typeStyle("body");
-  const bodySm = typeStyle("bodySm");
+  const label = typeStyle("label", t.fontFamily);
+  const body = typeStyle("body", t.fontFamily);
+  const bodySm = typeStyle("bodySm", t.fontFamily);
   const mdUp = `@media (min-width:${t.breakpoints.md}px)`;
   const phone = `@media (max-width:${t.breakpoints.sm - 0.05}px)`;
 
@@ -247,7 +247,7 @@ export function buildComponents(t: AppTokens): ThemeOptions["components"] {
         paper: { borderRadius: r.md, boxShadow: e.e3, margin: 16, width: "calc(100% - 32px)" },
       },
     },
-    MuiDialogTitle: { styleOverrides: { root: { ...typeStyle("h3"), padding: "20px 24px 4px" } } },
+    MuiDialogTitle: { styleOverrides: { root: { ...typeStyle("h3", t.headingFamily), padding: "20px 24px 4px" } } },
     MuiDialogContent: { styleOverrides: { root: { padding: "8px 24px" } } },
     MuiDialogActions: {
       styleOverrides: {

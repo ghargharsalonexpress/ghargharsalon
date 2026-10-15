@@ -11,10 +11,10 @@ const lineHeight = (px: number) => `calc(${rem(px)} + var(--hi-extra-lh, 0rem))`
 export const HINDI_EXTRA_LH = rem(HINDI_EXTRA_LINE_HEIGHT_PX);
 
 /** CSS for one type token, responsive at the md breakpoint. */
-export function typeStyle(token: TypeToken): CSSProperties {
+export function typeStyle(token: TypeToken, family: string = fontFamily): CSSProperties {
   const spec = typeScale[token];
   const style: Record<string, unknown> = {
-    fontFamily,
+    fontFamily: family,
     fontSize: rem(spec.mobile[0]),
     lineHeight: lineHeight(spec.mobile[1]),
     fontWeight: spec.weight,
@@ -33,33 +33,34 @@ export function typeStyle(token: TypeToken): CSSProperties {
 }
 
 /** Headings balance their lines so short last lines ("minutes") don't dangle. Ignored where unsupported. */
-const heading = (token: TypeToken): CSSProperties => ({ ...typeStyle(token), textWrap: "balance" });
+const heading = (token: TypeToken, family: string): CSSProperties => ({ ...typeStyle(token, family), textWrap: "balance" });
 
-export function buildTypography(): TypographyVariantsOptions {
+export function buildTypography({ headingFamily = fontFamily, bodyFamily = fontFamily }: { headingFamily?: string; bodyFamily?: string } = {}): TypographyVariantsOptions {
+  const body = (token: TypeToken) => typeStyle(token, bodyFamily);
   return {
-    fontFamily,
+    fontFamily: bodyFamily,
     htmlFontSize: 16,
     fontWeightLight: 400,
     fontWeightRegular: 400,
     fontWeightMedium: 500,
     fontWeightBold: 600,
-    display: heading("display"),
-    h1: heading("h1"),
-    h2: heading("h2"),
-    h3: heading("h3"),
+    display: heading("display", headingFamily),
+    h1: heading("h1", headingFamily),
+    h2: heading("h2", headingFamily),
+    h3: heading("h3", headingFamily),
     // Not part of the scale; mapped so MUI internals that use them stay on-brand.
-    h4: typeStyle("h3"),
-    h5: typeStyle("h3"),
-    h6: typeStyle("h3"),
-    subtitle1: { ...typeStyle("body"), fontWeight: 500 },
-    subtitle2: typeStyle("label"),
-    overline: typeStyle("caption"),
-    bodyLg: typeStyle("bodyLg"),
-    body1: typeStyle("body"),
-    body2: typeStyle("bodySm"),
-    label: typeStyle("label"),
-    caption: typeStyle("caption"),
-    numericXl: typeStyle("numericXl"),
-    button: { ...typeStyle("label"), textTransform: "none" },
+    h4: typeStyle("h3", headingFamily),
+    h5: typeStyle("h3", headingFamily),
+    h6: typeStyle("h3", headingFamily),
+    subtitle1: { ...body("body"), fontWeight: 500 },
+    subtitle2: body("label"),
+    overline: body("caption"),
+    bodyLg: body("bodyLg"),
+    body1: body("body"),
+    body2: body("bodySm"),
+    label: body("label"),
+    caption: body("caption"),
+    numericXl: typeStyle("numericXl", headingFamily),
+    button: { ...body("label"), textTransform: "none" },
   } as TypographyVariantsOptions;
 }

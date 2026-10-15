@@ -31,6 +31,16 @@ export const radius = {
   full: 9999,
 } as const;
 
+/** Corner styles an admin can choose for the website (ADR-0021); "standard" is the scale above. */
+export type CornerStyle = "standard" | "rounded" | "sharp";
+export type RadiusScale = Readonly<Record<keyof typeof radius, number>>;
+
+export function radiusFor(corners: CornerStyle): RadiusScale {
+  if (corners === "rounded") return { sm: 10, md: 14, lg: 20, full: 9999 };
+  if (corners === "sharp") return { sm: 2, md: 3, lg: 4, full: 9999 };
+  return radius;
+}
+
 export const elevation = {
   e0: "none",
   e2: "0 6px 20px rgba(31, 28, 25, 0.12)",

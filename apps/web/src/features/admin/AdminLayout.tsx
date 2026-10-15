@@ -11,6 +11,7 @@ import PaymentsOutlined from "@mui/icons-material/PaymentsOutlined";
 import PeopleOutlineOutlined from "@mui/icons-material/PeopleOutlineOutlined";
 import SettingsOutlined from "@mui/icons-material/SettingsOutlined";
 import StarOutlineRounded from "@mui/icons-material/StarOutlineRounded";
+import WebOutlined from "@mui/icons-material/WebOutlined";
 import { useQuery } from "@tanstack/react-query";
 import { I18nextProvider, useTranslation } from "react-i18next";
 import { Outlet, useLocation } from "react-router";
@@ -59,6 +60,7 @@ function AdminFrame() {
       { id: "reviews", label: t("nav.reviews"), to: "/admin/reviews", icon: <StarOutlineRounded /> },
       { id: "services", label: t("nav.services"), to: "/admin/services", icon: <ContentCutOutlined /> },
       { id: "categories", label: t("nav.categories"), to: "/admin/categories", icon: <FolderOutlined /> },
+      { id: "website", label: t("nav.website"), to: "/admin/website", icon: <WebOutlined /> },
       { id: "messages", label: t("nav.messages"), to: "/admin/messages", icon: <ChatBubbleOutlineOutlined /> },
       { id: "settings", label: t("nav.settings"), to: "/admin/settings", icon: <SettingsOutlined /> },
       { id: "audit", label: t("nav.audit"), to: "/admin/audit", icon: <HistoryOutlined /> },

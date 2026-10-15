@@ -24,16 +24,17 @@ export const SEEDED = {
 export async function openPage(page: Page, path: string, { lang = "en", brand = "orange" }: { lang?: Lang; brand?: Brand } = {}) {
   await page.clock.setFixedTime(FIXED_NOW);
   await page.addInitScript(
-    ([l, b]) => {
+    ([l]) => {
       if (!window.sessionStorage.getItem("e2e-init")) {
         window.localStorage.setItem("lang", l);
-        window.localStorage.setItem("brandDirection", b);
         window.sessionStorage.setItem("e2e-init", "1");
       }
     },
-    [lang, brand] as const,
+    [lang] as const,
   );
-  await page.goto(path);
+  // ?brand= pins a hand-made colour ramp for the visit, so a spec that changes the site's colour
+  // (Admin → Website, website.spec) never changes what the others see.
+  await page.goto(`${path}${path.includes("?") ? "&" : "?"}brand=${brand}`);
   await page.locator("main").first().waitFor();
   await page.evaluate(() => document.fonts.ready);
 }
