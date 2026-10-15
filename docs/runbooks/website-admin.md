@@ -23,6 +23,7 @@ Everything on the public website is changed in **Admin → Website** (ADR-0021).
 
 ## Photos
 - Every photo has **Upload** / **Replace photo**. JPEG, PNG, WebP or HEIC up to 5 MB; the site makes the web sizes itself.
+- **Videos:** the banner slider and the Video section have **Upload a video** (MP4 or WebM, up to 25 MB). A silent 10–20 second clip loads fastest. Banner videos play on computers; phones show the slide's photo.
 - The site ships with free-licence photos (credits in `scripts/images/site/LICENSES.md`). Replace them with your own whenever you like.
 - **Service and category photos:**
   - Service photos are set in **Services**, and category photos in **Categories**.

@@ -40,6 +40,7 @@
   - There are 32 free-licence photos (Unsplash and Pexels licences). Credits are in `scripts/images/site/LICENSES.md`.
   - They ship with the web app as WebP sizes (`public/images/site`, built by `scripts/images/site.mjs`) and are referenced by keys starting with `images/`. They work without seeding or a CDN.
   - Every one of them can be replaced by an upload (`/v1/admin/media?folder=site`).
+  - Videos for the banner and Video sections are uploaded as they are (`/v1/admin/media/video`). MP4 or WebM is checked by the file's first bytes, the limit is 25 MB, and the file is named by a content hash under `site/videos/`.
   - A service without a photo shows its category's, and a category without one shows its default photo.
 - **The theme is built at runtime:**
   - The admin's colour becomes a full ramp. The hand-made ramps are used as they are; any other colour is darkened until white text on 600/700/800 passes AA, 700 passes on 50, and 500 passes 3:1. `accent.test.ts` holds those rules.

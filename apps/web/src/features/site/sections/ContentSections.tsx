@@ -13,7 +13,7 @@ import Typography from "@mui/material/Typography";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Button, FaqList, Link, Picture } from "@/design-system";
-import { imageSrc } from "@/lib/media";
+import { imageSrc, videoSrc } from "@/lib/media";
 import { reviewsQuery, useSite } from "../api";
 import { FeatureIconView } from "../icons";
 import { Markdown } from "../Markdown";
@@ -484,7 +484,7 @@ export function VideoSection({ section }: { section: SectionOf<"video"> }) {
         </Box>
       ) : (
         <Box sx={frame}>
-          <Box component="video" src={section.file} controls preload="metadata" poster={section.poster ? imageSrc(section.poster, 960) : undefined} title={title} sx={{ width: "100%", height: "100%", display: "block", objectFit: "cover" }} />
+          <Box component="video" src={videoSrc(section.file)} controls preload="metadata" poster={section.poster ? imageSrc(section.poster, 960) : undefined} title={title} sx={{ width: "100%", height: "100%", display: "block", objectFit: "cover" }} />
         </Box>
       )}
     </SectionShell>

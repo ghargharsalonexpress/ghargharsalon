@@ -33,12 +33,19 @@ export const hexColorSchema = z.string(V.invalid).trim().regex(/^#[0-9a-fA-F]{6}
 export const ctaSchema = z.strictObject({ label: text(40), href: linkSchema });
 export type Cta = z.infer<typeof ctaSchema>;
 
-/** A video file: one shipped with the site (/video/…) or an https .mp4. */
+/** An uploaded video's storage key (POST /v1/admin/media/video): a content hash, so it never changes. */
+export const VIDEO_KEY = /^site\/videos\/[a-f0-9]{12}\.(?:mp4|webm)$/;
+export const isUploadedVideo = (value: string): boolean => VIDEO_KEY.test(value);
+
+/** A video: one the admin uploaded, one shipped with the site (/video/…), or an https .mp4/.webm. */
 const videoFileSchema = z
   .string(V.invalid)
   .trim()
   .max(300, V.invalid)
-  .refine((value) => value === "" || /^(?:\/video\/[\w.-]+\.mp4|https:\/\/[^\s<>"]+\.mp4)$/.test(value), V.invalid);
+  .refine((value) => value === "" || VIDEO_KEY.test(value) || /^(?:\/video\/[\w.-]+\.(?:mp4|webm)|https:\/\/[^\s<>"]+\.(?:mp4|webm))$/.test(value), V.invalid);
+
+/** Largest video an admin can upload: a short, silent background clip is all a banner needs. */
+export const VIDEO_MAX_BYTES = 25 * 1024 * 1024;
 
 /** A YouTube link or video id; the site embeds it from youtube-nocookie.com. */
 const youtubeSchema = z

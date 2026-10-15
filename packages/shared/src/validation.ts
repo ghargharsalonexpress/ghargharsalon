@@ -22,6 +22,8 @@ export const V = {
   imageUnreadable: "validation.imageUnreadable",
   imageType: "validation.imageType",
   imageTooLarge: "validation.imageTooLarge",
+  videoType: "validation.videoType",
+  videoTooLarge: "validation.videoTooLarge",
   unknownCategory: "validation.unknownCategory",
   unknownFilter: "validation.unknownFilter",
   hoursOrder: "validation.hoursOrder",

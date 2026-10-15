@@ -244,11 +244,13 @@ export function buildComponents(t: AppTokens): ThemeOptions["components"] {
     },
     MuiDialog: {
       styleOverrides: {
-        paper: { borderRadius: r.md, boxShadow: e.e3, margin: 16, width: "calc(100% - 32px)" },
+        // Only the content scrolls: at some browser zoom levels the paper used to scroll too,
+        // showing two scrollbars and pushing the action buttons out of view.
+        paper: { borderRadius: r.md, boxShadow: e.e3, margin: 16, width: "calc(100% - 32px)", overflowY: "hidden" },
       },
     },
     MuiDialogTitle: { styleOverrides: { root: { ...typeStyle("h3", t.headingFamily), padding: "20px 24px 4px" } } },
-    MuiDialogContent: { styleOverrides: { root: { padding: "8px 24px" } } },
+    MuiDialogContent: { styleOverrides: { root: { padding: "8px 24px", minHeight: 0 } } },
     MuiDialogActions: {
       styleOverrides: {
         root: { padding: "16px 24px 20px", gap: 8, "& > :not(style) ~ :not(style)": { marginLeft: 0 } },

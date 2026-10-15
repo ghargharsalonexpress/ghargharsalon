@@ -11,6 +11,7 @@ export type FieldSpec =
   | { kind: "link"; name: string; label: string; hint?: string }
   | { kind: "cta"; name: string; label: string; hint?: string }
   | { kind: "image"; name: string; label: string; hint?: string }
+  | { kind: "video"; name: string; label: string; hint?: string }
   | { kind: "select"; name: string; label: string; hint?: string; numeric?: boolean; options: ReadonlyArray<{ value: string; label: string }> }
   | { kind: "number"; name: string; label: string; hint?: string; suffix?: string }
   | { kind: "switch"; name: string; label: string; hint?: string }
@@ -74,7 +75,7 @@ export const SECTION_INFO: Record<SectionType, SectionInfo> = {
         fields: [
           { kind: "image", name: "image", label: "Photo", hint: "Wide photo, at least 1600 px across." },
           { kind: "image", name: "mobileImage", label: "Photo for phones (optional)", hint: "A taller photo for small screens. The main photo is used when empty." },
-          { kind: "plain", name: "video", label: "Video file", hint: "An .mp4 address. Plays on computers only, over the photo." },
+          { kind: "video", name: "video", label: "Video (optional)", hint: "Plays over the photo on computers; phones show the photo." },
           { kind: "text", name: "eyebrow", label: "Small label above the title" },
           { kind: "text", name: "title", label: "Title" },
           { kind: "text", name: "accent", label: "Highlighted words", hint: "Shown in a coloured box on the next line, e.g. “in {{min}}–{{max}} minutes”." },
@@ -345,7 +346,7 @@ export const SECTION_INFO: Record<SectionType, SectionInfo> = {
   video: {
     label: "Video",
     description: "A YouTube video (it loads only when played) or a video file.",
-    fields: [...heading, { kind: "plain", name: "youtube", label: "YouTube link", hint: "Paste the video's link." }, { kind: "plain", name: "file", label: "Or a video file (.mp4 address)" }, { kind: "image", name: "poster", label: "Cover photo (optional)" }],
+    fields: [...heading, { kind: "plain", name: "youtube", label: "YouTube link", hint: "Paste the video's link." }, { kind: "video", name: "file", label: "Or your own video", hint: "Used when there is no YouTube link." }, { kind: "image", name: "poster", label: "Cover photo (optional)" }],
     summary: titleOf,
     create: () => ({ ...base(), type: "video", eyebrow: loc(), title: loc("Watch how it works"), subtitle: loc(), youtube: "", file: "/video/hero.mp4", poster: null }),
   },

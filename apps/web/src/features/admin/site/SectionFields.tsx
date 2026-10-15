@@ -1,9 +1,10 @@
-import { useState, type MouseEvent } from "react";
-import { type ImageRef, pick } from "@brand/shared";
+import { type ChangeEvent, type MouseEvent, useRef, useState } from "react";
+import { type ImageRef, isUploadedVideo, pick } from "@brand/shared";
 import AddOutlined from "@mui/icons-material/AddOutlined";
 import ArrowDownwardOutlined from "@mui/icons-material/ArrowDownwardOutlined";
 import ArrowUpwardOutlined from "@mui/icons-material/ArrowUpwardOutlined";
 import DeleteOutlineOutlined from "@mui/icons-material/DeleteOutlineOutlined";
+import FileUploadOutlined from "@mui/icons-material/FileUploadOutlined";
 import LinkOutlined from "@mui/icons-material/LinkOutlined";
 import Box from "@mui/material/Box";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -12,14 +13,16 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Controller, get, useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Button, IconButton, SelectField, Switch, TextField } from "@/design-system";
+import { Button, IconButton, InlineAlert, SelectField, Switch, TextField } from "@/design-system";
 import { catalogQuery } from "@/features/catalog/api";
 import { FeatureIconView } from "@/features/site/icons";
-import { fieldText } from "@/lib/errors";
+import { api, isApiError } from "@/lib/api";
+import { errorText, fieldText } from "@/lib/errors";
 import { fieldProps } from "@/lib/fieldProps";
+import { videoSrc } from "@/lib/media";
 import { type EditLang, LocalizedField, SingleImageEditor } from "../catalog/editorFields";
 import { adminPagesQuery } from "./api";
 import type { FieldSpec } from "./sectionSpecs";
@@ -55,6 +58,8 @@ function Field({ spec, path, lang }: { spec: FieldSpec; path: string; lang: Edit
       return <LinkField label={spec.label} hint={spec.hint} path={path} />;
     case "image":
       return <ImageField label={spec.label} hint={spec.hint} path={path} />;
+    case "video":
+      return <VideoField label={spec.label} hint={spec.hint} path={path} />;
     case "select":
       return <SelectSpecField spec={spec} path={path} />;
     case "number":
@@ -136,6 +141,84 @@ export function ImageField({ label, hint, path }: { label: string; hint?: string
         </Typography>
       )}
     </Box>
+  );
+}
+
+/** A video: upload a clip (MP4 or WebM, up to 25 MB) or paste a link, with a small preview. */
+function VideoField({ label, hint, path }: { label: string; hint?: string; path: string }) {
+  const { t } = useTranslation("admin");
+  const { tokens } = useTheme();
+  const { control } = useFormContext();
+  const error = useError(path);
+  const input = useRef<HTMLInputElement>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const upload = useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData();
+      form.append("file", file);
+      return api.upload<{ video: string }>("/v1/admin/media/video", form);
+    },
+  });
+
+  return (
+    <Controller
+      control={control}
+      name={path}
+      render={({ field }) => {
+        const value = typeof field.value === "string" ? field.value : "";
+        const onFile = async (file: File | undefined) => {
+          setUploadError(null);
+          if (!file) return;
+          try {
+            field.onChange((await upload.mutateAsync(file)).video);
+          } catch (failure) {
+            const key = isApiError(failure) ? failure.fields.file : undefined;
+            setUploadError(key ? (fieldText(t, key) ?? errorText(t, failure)) : errorText(t, failure));
+          }
+          if (input.current) input.current.value = "";
+        };
+        return (
+          <Box sx={{ display: "grid", gap: 3 }}>
+            <Box>
+              <Typography variant="label" component="p" sx={{ m: 0 }}>
+                {label}
+              </Typography>
+              {hint && (
+                <Typography variant="body2" sx={{ m: 0, mt: 1, color: "text.secondary" }}>
+                  {hint}
+                </Typography>
+              )}
+            </Box>
+            {value && <Box component="video" src={videoSrc(value)} muted controls preload="metadata" sx={{ display: "block", width: "100%", maxWidth: 360, aspectRatio: "16 / 9", objectFit: "cover", borderRadius: `${tokens.radius.md}px`, bgcolor: tokens.neutral[900] }} />}
+            {uploadError && <InlineAlert tone="danger">{uploadError}</InlineAlert>}
+            <Box component="input" ref={input} type="file" accept="video/mp4,video/webm" hidden onChange={(event: ChangeEvent<HTMLInputElement>) => void onFile(event.target.files?.[0])} />
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <Button variant="secondary" startIcon={<FileUploadOutlined />} loading={upload.isPending} onClick={() => input.current?.click()}>
+                {value ? "Replace video" : "Upload a video"}
+              </Button>
+              {value && (
+                <Button variant="tertiary" onClick={() => field.onChange("")}>
+                  Remove video
+                </Button>
+              )}
+            </Box>
+            <Typography variant="caption" component="p" sx={{ m: 0, color: tokens.neutral[600] }}>
+              MP4 or WebM, up to 25 MB. A silent 10–20 second clip loads fastest.
+            </Typography>
+            <TextField
+              label="Or paste a video link"
+              hint="An https address ending in .mp4 or .webm."
+              optional
+              name={field.name}
+              value={isUploadedVideo(value) ? "" : value}
+              onChange={(event) => field.onChange(event.target.value.trim())}
+              onBlur={field.onBlur}
+              error={error}
+            />
+          </Box>
+        );
+      }}
+    />
   );
 }
 

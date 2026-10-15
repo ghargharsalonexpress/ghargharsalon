@@ -61,3 +61,24 @@ export async function processImage(input: Buffer, folder: string, { transforms =
  */
 export const imageFiles = (image: ImageRef): string[] =>
   image.key.includes(".") ? [image.key] : image.widths.flatMap((size) => [`${image.key}-${size}.webp`, `${image.key}-${size}.avif`]);
+
+/** What a video upload really is, from its first bytes (never the browser's say-so). */
+export function videoKind(body: Buffer): { ext: "mp4" | "webm"; contentType: string } | null {
+  // MP4 / QuickTime-family: a box size, then "ftyp".
+  if (body.length >= 12 && body.toString("latin1", 4, 8) === "ftyp") return { ext: "mp4", contentType: "video/mp4" };
+  // WebM / Matroska: the EBML header.
+  if (body.length >= 4 && body[0] === 0x1a && body[1] === 0x45 && body[2] === 0xdf && body[3] === 0xa3) return { ext: "webm", contentType: "video/webm" };
+  return null;
+}
+
+/**
+ * A video for the website (ADR-0021), stored as uploaded: the admin's clip is already
+ * encoded, and the file name is a content hash, so the same clip is stored once.
+ */
+export function prepareVideo(input: Buffer): { key: string; file: MediaFile } {
+  const kind = videoKind(input);
+  if (!kind) throw new AppError("VALIDATION_FAILED", { fields: { file: "validation.videoType" } });
+  const hash = createHash("sha256").update(input).digest("hex").slice(0, 12);
+  const key = `site/videos/${hash}.${kind.ext}`;
+  return { key, file: { path: key, body: input, contentType: kind.contentType } };
+}

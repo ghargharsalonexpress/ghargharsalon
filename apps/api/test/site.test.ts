@@ -1,4 +1,4 @@
-import { DEFAULT_SITE_CONFIG, type PageContent, pageContentSchema, type SiteConfig, siteConfigSchema } from "@brand/shared";
+import { DEFAULT_SITE_CONFIG, type PageContent, pageContentSchema, sectionSchemas, type SiteConfig, siteConfigSchema } from "@brand/shared";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AuditLog } from "../src/modules/audit/audit.model";
 import { DEFAULT_PAGES } from "../src/modules/site/defaultPages";
@@ -260,5 +260,33 @@ describe("uploads", () => {
     const res = await admin.agent.post("/v1/admin/media?folder=site").set("Origin", "http://localhost:5174").set("X-CSRF-Token", admin.csrfToken).attach("file", png, "dot.png");
     expect(res.status).toBe(201);
     expect(res.body.image.key).toMatch(/^site\//);
+  });
+
+  it("stores an MP4 or WebM video under a content hash and refuses anything else", async () => {
+    if (!admin.csrfToken) await admin.session();
+    const send = (body: Buffer, name: string) =>
+      admin.agent.post("/v1/admin/media/video").set("Origin", "http://localhost:5174").set("X-CSRF-Token", admin.csrfToken).attach("file", body, name);
+    // The first bytes of an MP4 ("ftyp" box) and of a WebM (EBML header) are what count, not the name.
+    const mp4 = Buffer.concat([Buffer.from([0, 0, 0, 0x18]), Buffer.from("ftypisom"), Buffer.alloc(64, 1)]);
+    const saved = await send(mp4, "clip.mov");
+    expect(saved.status).toBe(201);
+    expect(saved.body.video).toMatch(/^site\/videos\/[a-f0-9]{12}\.mp4$/);
+    const webm = Buffer.concat([Buffer.from([0x1a, 0x45, 0xdf, 0xa3]), Buffer.alloc(64, 2)]);
+    expect((await send(webm, "clip.webm")).body.video).toMatch(/\.webm$/);
+
+    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
+    const refused = await send(png, "not-a-video.mp4");
+    expect(refused.status).toBe(400);
+    expect(refused.body.error.fields.file).toBe("validation.videoType");
+
+    // The uploaded key is a valid hero video.
+    const slide = { image: null, mobileImage: null, video: saved.body.video, eyebrow: { en: "", hi: "" }, title: { en: "Hi", hi: "" }, accent: { en: "", hi: "" }, subtitle: { en: "", hi: "" }, primary: { label: { en: "", hi: "" }, href: "" }, secondary: { label: { en: "", hi: "" }, href: "" }, align: "left" };
+    expect(sectionSchemas.hero.safeParse({ id: "videohero", visible: true, anchor: "", tone: "dark", type: "hero", slides: [slide], autoplaySeconds: 0, showPromise: false, height: "large" }).success).toBe(true);
+    expect(sectionSchemas.hero.safeParse({ id: "videohero", visible: true, anchor: "", tone: "dark", type: "hero", slides: [{ ...slide, video: "site/videos/../../etc.mp4" }], autoplaySeconds: 0, showPromise: false, height: "large" }).success).toBe(false);
+  });
+
+  it("is admin-only", async () => {
+    const visitor = new Client(ctx.app);
+    expect((await visitor.post("/v1/admin/media/video")).status).toBe(401);
   });
 });

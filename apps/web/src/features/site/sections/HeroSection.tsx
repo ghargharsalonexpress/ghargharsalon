@@ -13,6 +13,7 @@ import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import { IconButton, Picture } from "@/design-system";
+import { videoSrc } from "@/lib/media";
 import { useText, useTextVariables } from "../text";
 import { CtaButton } from "./parts";
 import { titleId } from "./tone";
@@ -205,7 +206,7 @@ function Slide({
           {slide.mobileImage && <Picture image={slide.mobileImage} alt="" sizes="100vw" ratio="auto" radius="sm" priority={first} sx={{ ...fill, ...shade, borderRadius: 0, display: { xs: "block", sm: "none" } }} />}
         </>
       )}
-      {showVideo && <Box component="video" src={slide.video} autoPlay muted loop playsInline preload="metadata" aria-hidden tabIndex={-1} sx={{ ...fill, ...shade, objectFit: "cover" }} />}
+      {showVideo && <Box component="video" src={videoSrc(slide.video)} autoPlay muted loop playsInline preload="metadata" aria-hidden tabIndex={-1} sx={{ ...fill, ...shade, objectFit: "cover" }} />}
       <Box
         aria-hidden
         sx={{

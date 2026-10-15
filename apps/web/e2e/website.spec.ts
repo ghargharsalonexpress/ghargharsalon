@@ -124,11 +124,22 @@ test.describe("Page builder", () => {
     await page.getByRole("dialog", { name: "Add a section" }).getByRole("button", { name: /^Text/ }).click();
     const text = page.locator('[id^="section-body-"]').last();
     await text.getByLabel("Text", { exact: true }).fill("## Book your bridal look\n\n- HD makeup\n- Hair styling\n\nCall **{{phone}}**.");
+
+    // A video section with a clip uploaded from the computer (its first bytes make it an MP4).
+    await page.getByRole("button", { name: "Add a section" }).first().click();
+    await page.getByRole("dialog", { name: "Add a section" }).getByRole("button", { name: /^Video/ }).click();
+    const clip = Buffer.concat([Buffer.from([0, 0, 0, 0x18]), Buffer.from("ftypisom"), Buffer.alloc(256, 7)]);
+    await page.locator('input[type="file"][accept="video/mp4,video/webm"]').last().setInputFiles({ name: "salon.mp4", mimeType: "video/mp4", buffer: clip });
+    await expect(page.getByRole("button", { name: "Replace video" })).toBeVisible();
     await publish(page);
     await openPage(visitor, path);
     await expect(visitor.getByRole("heading", { name, level: 1 })).toBeVisible();
     await expect(visitor.getByRole("heading", { name: "Book your bridal look", level: 2 })).toBeVisible();
     await expect(visitor.locator("main strong", { hasText: "+91 70650 94179" })).toBeVisible();
+    // The uploaded clip plays from media storage.
+    const src = (await visitor.locator("main video").getAttribute("src")) ?? "";
+    expect(src).toMatch(/\/site\/videos\/[a-f0-9]{12}\.mp4$/);
+    expect((await visitor.request.get(`${API_URL}/media/${src.slice(src.indexOf("site/videos/"))}`)).ok()).toBe(true);
 
     // Into the header menu.
     await page.goto("/admin/website/menus");

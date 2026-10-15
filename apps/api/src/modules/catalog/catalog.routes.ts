@@ -5,6 +5,7 @@ import {
   serviceInputSchema,
   slugSchema,
   V,
+  VIDEO_MAX_BYTES,
   z,
 } from "@brand/shared";
 import { Router } from "express";
@@ -13,7 +14,7 @@ import { AppError } from "../../errors";
 import { requireRole } from "../../http/auth";
 import { bodyOf, validateBody } from "../../http/validate";
 import { auditActor } from "../audit/audit.model";
-import { processImage } from "../media/images";
+import { prepareVideo, processImage } from "../media/images";
 import type { MediaStorage } from "../media/storage";
 import { getSettings } from "../settings/settings.service";
 import {
@@ -75,6 +76,7 @@ const booleanQuery = (value: unknown) => (value === "true" ? true : value === "f
 const stringQuery = (value: unknown) => (typeof value === "string" && value.trim() ? value.trim().slice(0, 80) : undefined);
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024, files: 1 } });
+const videoUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: VIDEO_MAX_BYTES, files: 1 } });
 const mediaFolderSchema = z.enum(["services", "categories", "professionals", "site"]);
 
 /** /v1/admin/services, /v1/admin/categories, /v1/admin/media (plan W13). */
@@ -141,6 +143,21 @@ export function adminCatalogRouter({ media }: { media: MediaStorage }): Router {
     const { image, files } = await processImage(req.file.buffer, folder.data, { transforms: media.transforms });
     await media.put(files);
     res.status(201).json({ image });
+  });
+
+  /** One website video (MP4 or WebM, at most 25 MB), stored as it is (ADR-0021). */
+  router.post("/media/video", (req, res, next) => {
+    videoUpload.single("file")(req, res, (error: unknown) => {
+      if (error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE") return next(new AppError("VALIDATION_FAILED", { fields: { file: V.videoTooLarge } }));
+      if (error) return next(error);
+      next();
+    });
+  });
+  router.post("/media/video", async (req, res) => {
+    if (!req.file) throw new AppError("VALIDATION_FAILED", { fields: { file: V.required } });
+    const { key, file } = prepareVideo(req.file.buffer);
+    await media.put([file]);
+    res.status(201).json({ video: key });
   });
 
   return router;

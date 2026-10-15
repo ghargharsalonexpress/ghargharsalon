@@ -113,7 +113,9 @@
     "otp": "Enter the 4-digit code.",
     "tooManyAddresses": "You can keep up to 10 addresses. Delete one to add another.",
     "otpWrong": "Wrong code. Check it with the customer.",
-    "refundTooMuch": "That's more than is left to refund."
+    "refundTooMuch": "That's more than is left to refund.",
+    "videoType": "Upload an MP4 or WebM video.",
+    "videoTooLarge": "Videos must be 25 MB or smaller. A short 10–20 second clip is best."
   },
   "time": {
     "seconds_one": "{{count}} second",
