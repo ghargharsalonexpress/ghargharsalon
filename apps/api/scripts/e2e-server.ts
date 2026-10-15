@@ -3,7 +3,7 @@
  * readable through /__test__, plus seeded admin and professional accounts.
  */
 import { randomBytes } from "node:crypto";
-import { DEFAULT_SETTINGS } from "@brand/shared";
+import { DEFAULT_SETTINGS, DEFAULT_SITE_CONFIG } from "@brand/shared";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -27,6 +27,7 @@ import { attachRealtime } from "../src/modules/realtime/realtime";
 import { createPushService, MemoryPushSender } from "../src/modules/professionals/push";
 import { Professional } from "../src/modules/professionals/professional.model";
 import { SettingsModel } from "../src/modules/settings/settings.service";
+import { SiteModel } from "../src/modules/site/site.models";
 import { User } from "../src/modules/users/user.model";
 import { E2E_CATALOG } from "./e2e-catalog";
 
@@ -87,6 +88,10 @@ await SettingsModel.create({
   },
   updatedBy: null,
 });
+
+// The website as shipped, but with no outside form: the Join page offers email instead, so no
+// spec depends on Google Forms being reachable.
+await SiteModel.create({ _id: "site", version: 1, values: { ...DEFAULT_SITE_CONFIG, proFormUrl: "" }, seededPages: [], updatedBy: null });
 
 // A small fixed catalogue for the public and admin specs.
 await Category.create(E2E_CATALOG.categories);

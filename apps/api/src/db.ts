@@ -14,6 +14,7 @@ import { Payment, Refund, WebhookEvent } from "./modules/payments/payment.model"
 import { Professional } from "./modules/professionals/professional.model";
 import { PushSubscription } from "./modules/professionals/push";
 import { SettingsHistory, SettingsModel } from "./modules/settings/settings.service";
+import { AreaRequest, Page, PageVersion, SiteHistory, SiteModel } from "./modules/site/site.models";
 import { Counter } from "./modules/system/counters";
 import { IdempotencyKey } from "./modules/system/idempotency";
 import { Outbox } from "./modules/system/outbox";
@@ -46,6 +47,11 @@ const MODELS = [
   Offer,
   Alert,
   LocationPing,
+  SiteModel,
+  SiteHistory,
+  Page,
+  PageVersion,
+  AreaRequest,
 ];
 
 export async function connectDb(uri: string): Promise<void> {

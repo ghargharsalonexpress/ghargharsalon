@@ -75,7 +75,7 @@ const booleanQuery = (value: unknown) => (value === "true" ? true : value === "f
 const stringQuery = (value: unknown) => (typeof value === "string" && value.trim() ? value.trim().slice(0, 80) : undefined);
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024, files: 1 } });
-const mediaFolderSchema = z.enum(["services", "categories", "professionals"]);
+const mediaFolderSchema = z.enum(["services", "categories", "professionals", "site"]);
 
 /** /v1/admin/services, /v1/admin/categories, /v1/admin/media (plan W13). */
 export function adminCatalogRouter({ media }: { media: MediaStorage }): Router {
