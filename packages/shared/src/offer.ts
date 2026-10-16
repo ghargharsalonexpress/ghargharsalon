@@ -52,6 +52,8 @@ export const RT = {
   bookingLocation: "booking:location",
   /** To admins: something on the live board changed. */
   adminOps: "admin:ops",
+  /** To one person, or to admins: a new row for the bell. */
+  notificationNew: "notification:new",
 } as const;
 
 export interface BookingUpdatedEvent {

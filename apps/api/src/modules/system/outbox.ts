@@ -7,7 +7,7 @@ import type { Logger } from "../../logger";
  * emails, pushes) are written in the same transaction as the state change, then delivered by
  * the dispatcher with retries. A crash between the two can't drop a refund.
  */
-export type OutboxType = "refund" | "email" | "push";
+export type OutboxType = "refund" | "email" | "push" | "whatsapp";
 
 interface OutboxFields {
   type: OutboxType;

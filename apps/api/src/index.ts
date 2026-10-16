@@ -7,8 +7,12 @@ import { connectDb, disconnectDb, ensureIndexes } from "./db";
 import { createLogger } from "./logger";
 import { createEmailTransport } from "./modules/email/transport";
 import { startJobs } from "./jobs";
+import { whatsappHandler } from "./modules/whatsapp/send";
+import { createWhatsappTransport } from "./modules/whatsapp/transport";
 import type { Jobs } from "./modules/jobs/jobs.service";
 import type { Matching } from "./modules/matching/matching.service";
+import type { Wallet } from "./modules/wallet/wallet.service";
+import type { Levels } from "./modules/levels/levels";
 import { emailHandler } from "./modules/notifications/notifications";
 import { createGateway } from "./modules/payments/gateway";
 import { attachRealtime } from "./modules/realtime/realtime";
@@ -23,22 +27,29 @@ await ensureIndexes((message) => logger.warn(message));
 const push = createPushService({ config, sender: createPushSender(config, logger), logger });
 const gateway = createGateway(config);
 const email = createEmailTransport(config, logger);
+const whatsapp = createWhatsappTransport(config, logger);
 const app = createApp({ config, logger, email, mongoClient: mongoose.connection.getClient(), push, gateway });
 const server = createServer(app);
 attachRealtime(server, { config, logger, sessionMiddleware: app.locals.sessionMiddleware as RequestHandler });
 server.listen(config.PORT, () => logger.info({ port: config.PORT, env: config.NODE_ENV, push: config.pushTransport, payments: gateway.provider }, "API listening"));
 const matching = app.locals.matching as Matching;
 const jobs = app.locals.jobs as Jobs;
+const wallet = app.locals.wallet as Wallet;
+const levels = app.locals.levels as Levels;
 
 // Background work (plan C7): one instance runs it; every step is idempotent, so restarts are safe.
 const stopJobs = startJobs({
   logger,
   push,
   gateway,
-  handlers: { email: emailHandler({ config, email }) },
+  handlers: { email: emailHandler({ config, email }), whatsapp: whatsappHandler({ whatsapp }) },
   loops: [
     { name: "matching", everyMs: 2_000, run: () => matching.sweep() },
     { name: "jobs", everyMs: 30_000, run: () => jobs.sweep() },
+    // Withdrawals: send what's queued, ask about payouts gone quiet, finish bank/UPI checks.
+    { name: "payouts", everyMs: 15_000, run: () => wallet.sweep() },
+    // Levels: everyone once a week after Monday 00:00 IST, new professionals at once.
+    { name: "levels", everyMs: 30 * 60_000, run: () => levels.sweep() },
   ],
 });
 

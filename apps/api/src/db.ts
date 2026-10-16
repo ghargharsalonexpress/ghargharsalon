@@ -7,6 +7,7 @@ import { Quote } from "./modules/availability/availability.service";
 import { Booking } from "./modules/bookings/booking.model";
 import { LocationPing } from "./modules/jobs/jobs.service";
 import { Offer } from "./modules/matching/offer.model";
+import { Notification } from "./modules/notifications/feed.model";
 import { Alert } from "./modules/notifications/notifications";
 import { Category, Service } from "./modules/catalog/catalog.models";
 import { ContactMessage } from "./modules/contact/contact.module";
@@ -19,11 +20,16 @@ import { Counter } from "./modules/system/counters";
 import { IdempotencyKey } from "./modules/system/idempotency";
 import { Outbox } from "./modules/system/outbox";
 import { duplicatePhones, User } from "./modules/users/user.model";
+import { LedgerEntry, Payout } from "./modules/wallet/wallet.models";
+import { ProCancellation } from "./modules/levels/levels";
 
 // Unknown filter keys are dropped instead of matching everything (plan C11).
 mongoose.set("strictQuery", true);
 
 const MODELS = [
+  ProCancellation,
+  LedgerEntry,
+  Payout,
   User,
   AuthToken,
   LoginCode,
@@ -46,6 +52,7 @@ const MODELS = [
   Outbox,
   Offer,
   Alert,
+  Notification,
   LocationPing,
   SiteModel,
   SiteHistory,

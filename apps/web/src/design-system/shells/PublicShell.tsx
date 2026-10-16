@@ -26,6 +26,8 @@ export interface PublicShellProps {
   nav: ReadonlyArray<NavItem>;
   /** Hidden until the cart exists (Phase 3) on pages that don't sell. */
   showCart?: boolean;
+  /** The notification bell, passed in so the shell stays free of queries. */
+  bell?: ReactNode;
   cartCount?: number;
   cartTo?: string;
   accountLabel: string;
@@ -53,7 +55,7 @@ export const BOTTOM_NAV_HEIGHT = 64;
 const isCurrent = (pathname: string, to: string) => !to.includes("#") && (to === pathname || (to !== "/" && pathname.startsWith(`${to}/`)));
 
 /** Public website shell (plan A7): 56/64px app bar, drawer menu below lg, footer, phone tab bar. */
-export function PublicShell({ nav, showCart = true, cartCount = 0, cartTo = "/cart", accountLabel, accountTo, logo, topBar, headerExtra, subHeader, banner, children, footer, bottomNav }: PublicShellProps) {
+export function PublicShell({ nav, showCart = true, cartCount = 0, cartTo = "/cart", accountLabel, accountTo, logo, topBar, headerExtra, subHeader, banner, bell, children, footer, bottomNav }: PublicShellProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const { pathname } = useLocation();
@@ -133,6 +135,7 @@ export function PublicShell({ nav, showCart = true, cartCount = 0, cartTo = "/ca
                 {accountLabel}
               </Button>
             </Box>
+            {bell}
             {showCart && cartButton}
             <Box sx={{ display: { xs: "block", lg: "none" } }}>
               <IconButton label={t("action.menu")} onClick={() => setMenuOpen(true)} aria-expanded={menuOpen}>

@@ -16,6 +16,7 @@ import { refreshAlertSubscription, useProMe } from "./api";
 import { useJobLocation, useProRealtime } from "./live";
 import { PresenceProvider } from "./PresenceProvider";
 import { usePresence } from "./presenceContext";
+import { NotificationBellConnected } from "@/features/notifications/NotificationBellConnected";
 
 /** The professional panel (plan A7): its own installable app, bottom tabs, presence always visible. */
 export function ProLayout() {
@@ -42,7 +43,7 @@ export function ProLayout() {
   if (!me.data) {
     const missing = isApiError(me.error) && me.error.code === "NOT_FOUND";
     return (
-      <ProShell title={title} nav={nav}>
+      <ProShell bell={<NotificationBellConnected />} title={title} nav={nav}>
         {me.isError ? (
           <EmptyState
             headingLevel="h2"

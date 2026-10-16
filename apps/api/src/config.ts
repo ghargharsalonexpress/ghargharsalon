@@ -32,6 +32,14 @@ const schema = z.object({
    * log while developing; memory in tests.
    */
   SMS_TRANSPORT: z.enum(["log", "memory", "2factor"]).default("log"),
+
+  /**
+   * Booking updates on WhatsApp (plan C10). Utility templates only: cheaper than SMS, better
+   * read, and no opt-in beyond the booking itself. "log" prints them instead of calling Meta.
+   */
+  WHATSAPP_TRANSPORT: z.enum(["log", "memory", "cloud"]).default("log"),
+  WHATSAPP_PHONE_NUMBER_ID: z.string().min(5).optional(),
+  WHATSAPP_TOKEN: z.string().min(20).optional(),
   TWOFACTOR_API_KEY: z.string().min(10).optional(),
   /** The DLT-approved OTP template's name in the 2Factor account. */
   TWOFACTOR_OTP_TEMPLATE: z.string().min(1).optional(),
@@ -78,6 +86,19 @@ const schema = z.object({
   RAZORPAY_KEY_ID: z.string().min(8).optional(),
   RAZORPAY_KEY_SECRET: z.string().min(8).optional(),
   RAZORPAY_WEBHOOK_SECRET: z.string().min(8).optional(),
+
+  /**
+   * Professionals' withdrawals (ADR-0022): razorpayx sends them through RazorpayX Payouts;
+   * manual puts them in the team's queue to pay by hand (until RazorpayX is set up); fake
+   * pays at once (development and tests). Unset: manual in production, fake elsewhere.
+   */
+  PAYOUT_PROVIDER: z.enum(["razorpayx", "manual", "fake"]).optional(),
+  /** The RazorpayX account the money leaves from (the "account_number" in RazorpayX). */
+  RAZORPAYX_ACCOUNT_NUMBER: z.string().min(6).optional(),
+  /** Usually the same API keys as payments; set these only if RazorpayX has its own. */
+  RAZORPAYX_KEY_ID: z.string().min(8).optional(),
+  RAZORPAYX_KEY_SECRET: z.string().min(8).optional(),
+  RAZORPAYX_WEBHOOK_SECRET: z.string().min(8).optional(),
 });
 
 export type Config = ReturnType<typeof loadConfig>;
@@ -111,10 +132,20 @@ export function loadConfig(env: Record<string, string | undefined>) {
     if (values.SMS_TRANSPORT !== "2factor" || !values.TWOFACTOR_API_KEY) problems.push("SMS_TRANSPORT must be '2factor' with TWOFACTOR_API_KEY set");
     if (values.SMS_DEV_CODE) problems.push("SMS_DEV_CODE must be off");
     if (!values.LOGIN_RATE_LIMITS) problems.push("LOGIN_RATE_LIMITS must be on");
+    if (values.PAYOUT_PROVIDER === "fake") problems.push("PAYOUT_PROVIDER must be 'razorpayx' or 'manual'");
     if (problems.length > 0) throw new Error(`Unsafe production configuration: ${problems.join("; ")}`);
   }
   if (values.SMS_TRANSPORT === "2factor" && !values.TWOFACTOR_API_KEY) {
     throw new Error("Invalid environment configuration: SMS_TRANSPORT=2factor needs TWOFACTOR_API_KEY");
+  }
+
+  const payoutProvider = values.PAYOUT_PROVIDER ?? (isProd ? "manual" : "fake");
+  if (payoutProvider === "razorpayx") {
+    const keyId = values.RAZORPAYX_KEY_ID ?? values.RAZORPAY_KEY_ID;
+    const keySecret = values.RAZORPAYX_KEY_SECRET ?? values.RAZORPAY_KEY_SECRET;
+    if (!values.RAZORPAYX_ACCOUNT_NUMBER || !keyId || !keySecret || !values.RAZORPAYX_WEBHOOK_SECRET) {
+      throw new Error("Invalid environment configuration: PAYOUT_PROVIDER=razorpayx needs RAZORPAYX_ACCOUNT_NUMBER, RAZORPAYX_WEBHOOK_SECRET and API keys (RAZORPAYX_KEY_ID/SECRET or RAZORPAY_KEY_ID/SECRET)");
+    }
   }
 
   // Without keys a development server still runs: alerts are logged instead of sent.
@@ -125,5 +156,5 @@ export function loadConfig(env: Record<string, string | undefined>) {
   const localWeb = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(values.WEB_URL.replace(/\/$/, ""));
   const smsDevCode = values.SMS_DEV_CODE && values.SMS_TRANSPORT === "log" && localWeb && !isProd;
 
-  return { ...values, isProd, webOrigins, pushTransport, smsDevCode };
+  return { ...values, isProd, webOrigins, pushTransport, smsDevCode, payoutProvider };
 }

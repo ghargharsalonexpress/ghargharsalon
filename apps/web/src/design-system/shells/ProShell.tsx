@@ -18,11 +18,13 @@ export interface ProShellProps {
   status?: ReactNode;
   nav: ReadonlyArray<NavItem>;
   banner?: ReactNode;
+  /** The notification bell, passed in so the shell stays free of queries. */
+  bell?: ReactNode;
   children: ReactNode;
 }
 
 /** Professional panel: phone-first single column (600px max), bottom tabs with 48px+ targets. */
-export function ProShell({ title, status, nav, banner, children }: ProShellProps) {
+export function ProShell({ title, status, nav, banner, bell, children }: ProShellProps) {
   const { t } = useTranslation();
   const { tokens } = useTheme();
   const { pathname } = useLocation();
@@ -53,7 +55,10 @@ export function ProShell({ title, status, nav, banner, children }: ProShellProps
           <Typography variant="h3" component="h1">
             {title}
           </Typography>
-          {status}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            {status}
+            {bell}
+          </Box>
         </Box>
         <OfflineBanner />
         {banner}

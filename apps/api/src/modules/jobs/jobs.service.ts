@@ -19,6 +19,8 @@ import { otpMatches } from "../bookings/otp";
 import { notifyOffersClosed } from "../matching/closed";
 import { earningsFor } from "../matching/matching.service";
 import { Offer, type OfferDoc } from "../matching/offer.model";
+import { notify } from "../notifications/feed";
+import { queueWhatsapp } from "../whatsapp/send";
 import { queueBookingEmail, raiseAlert } from "../notifications/notifications";
 import { Payment } from "../payments/payment.model";
 import { requestRefund } from "../payments/payments.service";
@@ -28,6 +30,9 @@ import { realtime } from "../realtime/realtime";
 import { getSettings } from "../settings/settings.service";
 import { nextSequence } from "../system/counters";
 import { User, type UserDoc } from "../users/user.model";
+import { recordProCancellation } from "../levels/levels";
+import { postFeeShare, postJobEarning } from "../wallet/wallet.service";
+import { LedgerEntry } from "../wallet/wallet.models";
 
 // ---------- location trail (plan C5: one sample a minute, kept 30 days for disputes) ----------
 
@@ -133,6 +138,7 @@ export function createJobs({ push, logger, config }: { push: PushService; logger
       if (away > GEOFENCE_METERS) throw new AppError("CONFIRM_REQUIRED", { detail: `far:${Math.round(away)}` });
     }
     const updated = await transition(booking._id, "accepted", "arrived", "professional", { arrivedAt: new Date() });
+    await notify({ userId: booking.customerId }, { kind: "professional_arrived", title: "Your professional has arrived", body: `${booking.number}: share your start code to begin.`, url: `/bookings/${String(booking._id)}`, bookingId: booking._id });
     if (!updated) throw new AppError("BOOKING_STATE");
     return toJobDto(updated, (await getSettings()).settings);
   }
@@ -156,6 +162,7 @@ export function createJobs({ push, logger, config }: { push: PushService; logger
       throw new AppError("OTP_INVALID", { fields: { otp: "validation.otpWrong" }, detail: `attempts ${attempts}` });
     }
     const updated = await transition(booking._id, "arrived", "in_progress", "professional", { startedAt: new Date() });
+    await notify({ userId: booking.customerId }, { kind: "service_started", title: "Your service has started", body: `${booking.number} is under way.`, url: `/bookings/${String(booking._id)}`, bookingId: booking._id });
     if (!updated) throw new AppError("BOOKING_STATE");
     return toJobDto(updated, settings);
   }
@@ -176,8 +183,10 @@ export function createJobs({ push, logger, config }: { push: PushService; logger
     try {
       await session.withTransaction(async () => {
         const invoiceNumber = `INV/${fy}/${String(await nextSequence(`invoice:${fy}`, session)).padStart(6, "0")}`;
-        done = await transition(booking._id, "in_progress", "completed", "professional", { completedAt: now, invoiceNumber, earnings: { ...earnings, payoutStatus: "pending", paidAt: null } }, session);
+        done = await transition(booking._id, "in_progress", "completed", "professional", { completedAt: now, invoiceNumber, earnings: { ...earnings, payoutStatus: "wallet", paidAt: null } }, session);
         if (!done) throw new AppError("BOOKING_STATE");
+        // The earning goes to their wallet in the same transaction (ADR-0022): never lost, never twice.
+        await postJobEarning({ _id: booking._id, number: booking.number, professionalId: pro._id }, earnings.netPaise, now, session);
         const today = new Date(now.getTime() + 330 * 60_000).toISOString().slice(0, 10);
         const profile = await Professional.findOne({ userId: pro._id }, { stats: 1 }).session(session).lean();
         const jobsToday = profile?.stats.jobsTodayDate === today ? profile.stats.jobsToday + 1 : 1;
@@ -197,6 +206,8 @@ export function createJobs({ push, logger, config }: { push: PushService; logger
           { session },
         );
         await queueBookingEmail("booking_completed", booking._id, session);
+        await queueWhatsapp("completed", booking._id, session);
+        await notify({ userId: booking.customerId }, { kind: "booking_completed", title: "Service complete", body: `${booking.number} is done. Your invoice is ready.`, url: `/bookings/${String(booking._id)}/invoice`, bookingId: booking._id }, session);
       });
     } finally {
       await session.endSession();
@@ -235,6 +246,7 @@ export function createJobs({ push, logger, config }: { push: PushService; logger
     const booking = await jobOf(pro, bookingId);
     await reopen(booking, pro._id, "professional", `${booking.number}: ${pro.name} cancelled (${reason}). Searching again.`);
     await Professional.updateOne({ userId: pro._id }, { $inc: { "stats.cancellations": 1 } });
+    await recordProCancellation(pro._id, booking._id, reason);
     logger.warn({ bookingId: String(booking._id), professionalId: String(pro._id), reason }, "professional cancelled a job");
   }
 
@@ -385,9 +397,13 @@ export function createJobs({ push, logger, config }: { push: PushService; logger
         if (!ended) throw new AppError("BOOKING_STATE");
         if (paid) await requestRefund({ bookingId: booking._id, amountPaise: booking.pricing.totalPaise - feePaise, reason: `cancel_${by}`, initiatedBy: by === "admin" ? "admin" : by === "customer" ? "customer" : "system" }, session);
         if (booking.professionalId) await release(booking.professionalId, session);
+        // They came (or were on their way) for nothing: a share of the customer's fee is theirs.
+        if (booking.professionalId && paid && feePaise > 0 && (by === "customer" || reason === "customer_unavailable")) await postFeeShare(booking, booking.professionalId, feePaise, new Date(), session);
         withdrawn = await Offer.find({ bookingId: booking._id, status: "pending" }, { professionalId: 1, bookingId: 1 }).session(session).lean();
         await Offer.updateMany({ bookingId: booking._id, status: "pending" }, { $set: { status: "revoked", respondedAt: new Date() } }, { session });
         if (paid) await queueBookingEmail("booking_cancelled", booking._id, session);
+        // The bell reaches them whether or not money moved, and whoever cancelled.
+        await notify({ userId: booking.customerId }, { kind: "booking_cancelled", title: "Booking cancelled", body: `${booking.number} has been cancelled.`, url: `/bookings/${String(booking._id)}`, bookingId: booking._id }, session);
       });
     } finally {
       await session.endSession();
@@ -483,19 +499,24 @@ export function createJobs({ push, logger, config }: { push: PushService; logger
     const startOfWeek = new Date(startOfDay.getTime() - weekday * 24 * 60 * 60_000);
     const done = await Booking.find({ professionalId: pro._id, status: "completed" }).sort({ completedAt: -1 }).limit(100).lean();
     const sum = (since: Date) => done.filter((booking) => (booking.completedAt?.getTime() ?? 0) >= since.getTime()).reduce((total, booking) => total + (booking.earnings?.netPaise ?? 0), 0);
+    const entries = await LedgerEntry.find({ professionalId: pro._id, type: "job_earning", bookingId: { $in: done.map((booking) => booking._id) } }, { bookingId: 1, availableAt: 1 }).lean();
+    const availableAt = new Map(entries.map((entry) => [String(entry.bookingId), entry.availableAt]));
     return {
       todayPaise: sum(startOfDay),
       weekPaise: sum(startOfWeek),
-      pendingPayoutPaise: done.filter((booking) => booking.earnings?.payoutStatus === "pending").reduce((total, booking) => total + (booking.earnings?.netPaise ?? 0), 0),
-      jobs: done.map((booking) => ({
-        id: String(booking._id),
-        number: booking.number,
-        completedAt: booking.completedAt?.toISOString() ?? "",
-        grossPaise: booking.earnings?.grossPaise ?? 0,
-        commissionPaise: booking.earnings?.commissionPaise ?? 0,
-        netPaise: booking.earnings?.netPaise ?? 0,
-        payoutStatus: booking.earnings?.payoutStatus ?? "pending",
-      })),
+      jobs: done.map((booking) => {
+        const at = availableAt.get(String(booking._id)) ?? null;
+        return {
+          id: String(booking._id),
+          number: booking.number,
+          completedAt: booking.completedAt?.toISOString() ?? "",
+          grossPaise: booking.earnings?.grossPaise ?? 0,
+          commissionPaise: booking.earnings?.commissionPaise ?? 0,
+          netPaise: booking.earnings?.netPaise ?? 0,
+          wallet: at ? (at > now ? "on_hold" : "in_wallet") : "paid_before",
+          availableAt: at?.toISOString() ?? null,
+        };
+      }),
     };
   }
 

@@ -29,6 +29,8 @@ export interface AdminShellProps {
   alertsTo?: string;
   adminName: string;
   topBarExtra?: ReactNode;
+  /** The notification bell, passed in so the shell stays free of queries. */
+  bell?: ReactNode;
   children: ReactNode;
 }
 
@@ -36,7 +38,7 @@ const SIDEBAR = 248;
 const RAIL = 72;
 
 /** Admin: 248px sidebar from lg, 72px icon rail at md, drawer below md (plan A7). */
-export function AdminShell({ nav, title, alerts = 0, alertsTo, adminName, topBarExtra, children }: AdminShellProps) {
+export function AdminShell({ nav, title, alerts = 0, alertsTo, adminName, topBarExtra, bell, children }: AdminShellProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const { pathname } = useLocation();
@@ -138,6 +140,7 @@ export function AdminShell({ nav, title, alerts = 0, alertsTo, adminName, topBar
             {title}
           </Typography>
           {topBarExtra}
+          {bell}
           <IconButton label={`Alerts, ${alerts}`} to={alertsTo}>
             <Badge badgeContent={alerts} color="primary" invisible={alerts === 0}>
               <NotificationsNoneOutlined />

@@ -10,6 +10,7 @@ import { realtime } from "../realtime/realtime";
 import { enqueue } from "../system/outbox";
 import { User } from "../users/user.model";
 import { adminAlertEmail, bookingCancelledEmail, bookingCompletedEmail, bookingConfirmedEmail, noProfessionalEmail } from "./bookingEmails";
+import { notify } from "./feed";
 
 // ---------- admin alerts (plan C10: "in-app alert centre plus email") ----------
 
@@ -22,6 +23,11 @@ interface AlertFields {
   createdAt: Date;
   resolvedAt: Date | null;
   resolvedBy: Types.ObjectId | null;
+  /** SOS: the professional who asked for help, and where their phone was. */
+  professionalId: Types.ObjectId | null;
+  location: { lat: number; lng: number } | null;
+  /** What the team wrote when resolving it. */
+  note: string | null;
 }
 
 const alertSchema = new Schema<AlertFields>(
@@ -32,17 +38,27 @@ const alertSchema = new Schema<AlertFields>(
     createdAt: { type: Date, required: true },
     resolvedAt: { type: Date, default: null },
     resolvedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
+    professionalId: { type: Schema.Types.ObjectId, ref: "User", default: null },
+    location: { type: new Schema({ lat: Number, lng: Number }, { _id: false }), default: null },
+    note: { type: String, default: null },
   },
   { versionKey: false },
 );
 alertSchema.index({ resolvedAt: 1, createdAt: -1 });
+alertSchema.index({ kind: 1, professionalId: 1, resolvedAt: 1 });
 // One open alert per booking and kind.
 alertSchema.index({ bookingId: 1, kind: 1 }, { unique: true, partialFilterExpression: { resolvedAt: null, bookingId: { $type: "objectId" } } });
 export const Alert = model<AlertFields>("Alert", alertSchema, "alerts");
 
-export async function raiseAlert(kind: AlertKind, bookingId: Types.ObjectId | null, message: string, session?: ClientSession): Promise<void> {
+export async function raiseAlert(
+  kind: AlertKind,
+  bookingId: Types.ObjectId | null,
+  message: string,
+  session?: ClientSession,
+  about: { professionalId?: Types.ObjectId; location?: { lat: number; lng: number } | null } = {},
+): Promise<void> {
   try {
-    await Alert.create([{ kind, bookingId, message, createdAt: new Date(), resolvedAt: null, resolvedBy: null }], { session });
+    await Alert.create([{ kind, bookingId, message, createdAt: new Date(), resolvedAt: null, resolvedBy: null, professionalId: about.professionalId ?? null, location: about.location ?? null, note: null }], { session });
   } catch (error) {
     // Already open for this booking: one alert is enough.
     if (typeof error === "object" && error !== null && "code" in error && (error as { code: unknown }).code === 11000) return;
@@ -50,7 +66,23 @@ export async function raiseAlert(kind: AlertKind, bookingId: Types.ObjectId | nu
   }
   await enqueue("email", { kind: "admin_alert", alert: kind, bookingId: bookingId ? String(bookingId) : null, message }, session);
   realtime.toAdmins(RT.adminOps, { type: "alert", kind });
+  // The same alert, as a row in the team's bell, so it is seen without opening the dashboard.
+  await notify({ role: "admin" }, { kind: "admin_alert", title: ALERT_TITLES[kind], body: message, url: bookingId ? `/admin/bookings/${String(bookingId)}` : "/admin", bookingId }, session);
 }
+
+/** Short titles for the bell; the alert's own message is the body. */
+const ALERT_TITLES: Record<AlertKind, string> = {
+  no_match: "No professional found",
+  refund_failed: "Refund failed",
+  late: "Professional running late",
+  otp_locked: "Start code locked",
+  pro_cancelled: "Professional cancelled a job",
+  slow_search: "Search running long",
+  sos: "SOS from a professional",
+  payout_details: "Payout details need checking",
+  payout_failed: "Payout failed",
+  message_failed: "A message could not be delivered",
+};
 
 // ---------- customer emails ----------
 
@@ -91,7 +123,7 @@ export function emailHandler({ config, email }: { config: Config; email: EmailTr
     const kind = payload.kind as BookingEmailKind | "admin_alert";
     if (kind === "admin_alert") {
       const bookingId = typeof payload.bookingId === "string" ? payload.bookingId : null;
-      const title = { no_match: "No professional found", refund_failed: "Refund failed", late: "Professional running late", otp_locked: "Start code locked", pro_cancelled: "Professional cancelled a job", slow_search: "Search running long" }[payload.alert as AlertKind] ?? "Alert";
+      const title = { no_match: "No professional found", refund_failed: "Refund failed", late: "Professional running late", otp_locked: "Start code locked", pro_cancelled: "Professional cancelled a job", slow_search: "Search running long", sos: "SOS: a professional needs help", payout_details: "A professional changed their bank or UPI", payout_failed: "A payout failed", message_failed: "A message could not be delivered" }[payload.alert as AlertKind] ?? "Alert";
       await email.send(adminAlertEmail({ to: config.SUPPORT_EMAIL, title, detail: String(payload.message ?? ""), url: bookingId ? `${web}/admin/bookings/${bookingId}` : `${web}/admin` }, context));
       return;
     }

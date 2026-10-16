@@ -8,20 +8,27 @@ import { roadTravel, type RoadTravel } from "../availability/routes";
 import { Booking, type BookingDoc } from "../bookings/booking.model";
 import { announce, bookingEvents, transition } from "../bookings/lifecycle";
 import { newOtp } from "../bookings/otp";
+import { notify } from "../notifications/feed";
+import { queueWhatsapp } from "../whatsapp/send";
 import { queueBookingEmail, raiseAlert } from "../notifications/notifications";
 import { requestRefund } from "../payments/payments.service";
 import { Professional } from "../professionals/professional.model";
 import type { PushService } from "../professionals/push";
 import { realtime } from "../realtime/realtime";
+import { commissionOf } from "../levels/levels";
 import { getSettings } from "../settings/settings.service";
 import { User, type UserDoc } from "../users/user.model";
 import { notifyOffersClosed } from "./closed";
 import { Offer, type OfferDoc } from "./offer.model";
 
-/** What the professional earns on a booking: services after commission; the platform fee stays with us (plan A4, D5). */
-export function earningsFor(booking: Pick<BookingDoc, "pricing">): { grossPaise: number; commissionPaise: number; netPaise: number } {
+/**
+ * What the professional earns on a booking: services after commission; the platform fee stays
+ * with us (plan A4, D5). `commissionBps` is a professional's level share before they accept
+ * (ADR-0023); after, the booking holds it.
+ */
+export function earningsFor(booking: Pick<BookingDoc, "pricing">, commissionBps = booking.pricing.commissionBps): { grossPaise: number; commissionPaise: number; netPaise: number } {
   const grossPaise = booking.pricing.itemsPaise;
-  const commissionPaise = Math.round((grossPaise * booking.pricing.commissionBps) / 10_000);
+  const commissionPaise = Math.round((grossPaise * commissionBps) / 10_000);
   return { grossPaise, commissionPaise, netPaise: grossPaise - commissionPaise };
 }
 
@@ -156,10 +163,12 @@ export function createMatching({ push, logger, mapsKey = "" }: { push: PushServi
     );
     if (!claimed?.search) return;
 
-    const earnings = earningsFor(booking).netPaise;
+    // Each professional is offered at their own level's share (ADR-0023).
+    const shares = await commissionOf(picked.map((pro) => pro.userId), settings);
     const offers = await Offer.insertMany(
       picked.map((pro) => {
         const eta = pro.road ? etaRangeFromSeconds(pro.road.seconds) : etaRange(pro.distance);
+        const commissionBps = shares.get(String(pro.userId)) ?? booking.pricing.commissionBps;
         return {
           bookingId: booking._id,
           professionalId: pro.userId,
@@ -171,7 +180,8 @@ export function createMatching({ push, logger, mapsKey = "" }: { push: PushServi
           etaMin: eta.min,
           etaMax: eta.max,
           etaFromRoutes: Boolean(pro.road),
-          earningsPaise: earnings,
+          earningsPaise: earningsFor(booking, commissionBps).netPaise,
+          commissionBps,
         };
       }),
     );
@@ -191,6 +201,13 @@ export function createMatching({ push, logger, mapsKey = "" }: { push: PushServi
         if (!ended) return;
         await requestRefund({ bookingId, amountPaise: ended.pricing.totalPaise, reason: "no_match", initiatedBy: "system" }, session);
         await queueBookingEmail("no_professional", bookingId, session);
+        await queueWhatsapp("no_professional", bookingId, session);
+        // Say what happens to the money, not just that nobody came: the refund's speed depends on how they paid.
+        await notify(
+          { userId: ended.customerId },
+          { kind: "refund_started", title: "No professional was free", body: "Your full refund has started. UPI usually arrives within minutes; cards can take 5–7 working days.", url: `/bookings/${String(bookingId)}`, bookingId },
+          session,
+        );
         await raiseAlert("no_match", bookingId, `${ended.number}: no professional accepted within ${settings.matching.searchTimeoutSeconds} seconds. Full refund started.`, session);
       });
     } finally {
@@ -248,7 +265,15 @@ export function createMatching({ push, logger, mapsKey = "" }: { push: PushServi
           "searching",
           "accepted",
           "professional",
-          { professionalId: pro._id, acceptedAt: now, otp: newOtp(String(offer.bookingId)), eta: { min: offer.etaMin, max: offer.etaMax, at: now, source: offer.etaFromRoutes ? "routes" : "estimate" }, "search.nextRoundAt": null },
+          {
+            professionalId: pro._id,
+            acceptedAt: now,
+            otp: newOtp(String(offer.bookingId)),
+            eta: { min: offer.etaMin, max: offer.etaMax, at: now, source: offer.etaFromRoutes ? "routes" : "estimate" },
+            "search.nextRoundAt": null,
+            // Their level's share is fixed now: a later level change never touches this job.
+            ...(offer.commissionBps !== null && offer.commissionBps !== undefined ? { "pricing.commissionBps": offer.commissionBps } : {}),
+          },
           session,
         );
         if (!booking) throw new AppError("OFFER_TAKEN");
@@ -257,6 +282,12 @@ export function createMatching({ push, logger, mapsKey = "" }: { push: PushServi
         await offer.save({ session });
         await Offer.updateMany({ bookingId: offer.bookingId, status: "pending", _id: { $ne: offer._id } }, { $set: { status: "revoked", respondedAt: now } }, { session });
         await queueBookingEmail("booking_confirmed", offer.bookingId, session);
+        await queueWhatsapp("on_the_way", offer.bookingId, session);
+        await notify(
+          { userId: booking.customerId },
+          { kind: "professional_on_the_way", title: `${pro.name.split(" ")[0] ?? "Your professional"} is on the way`, body: `Arriving in about ${offer.etaMin}–${offer.etaMax} minutes.`, url: `/bookings/${String(offer.bookingId)}`, bookingId: offer.bookingId },
+          session,
+        );
       });
     } finally {
       await session.endSession();
@@ -302,10 +333,23 @@ export function createMatching({ push, logger, mapsKey = "" }: { push: PushServi
     if (!pro) throw new AppError("NO_PROFESSIONALS", { detail: "not eligible for this booking" });
     const now = new Date();
     const eta = etaRange(pro.distance);
+    const commissionBps = (await commissionOf([pro.userId], settings)).get(String(pro.userId)) ?? booking.pricing.commissionBps;
     const offer = await Offer.findOneAndUpdate(
       { bookingId: booking._id, professionalId: pro.userId },
       {
-        $set: { round: 0, status: "pending", sentAt: now, expiresAt: new Date(now.getTime() + settings.matching.acceptWindowSeconds * 1000), respondedAt: null, declineReason: null, distanceMeters: Math.round(pro.distance), etaMin: eta.min, etaMax: eta.max, earningsPaise: earningsFor(booking).netPaise },
+        $set: {
+          round: 0,
+          status: "pending",
+          sentAt: now,
+          expiresAt: new Date(now.getTime() + settings.matching.acceptWindowSeconds * 1000),
+          respondedAt: null,
+          declineReason: null,
+          distanceMeters: Math.round(pro.distance),
+          etaMin: eta.min,
+          etaMax: eta.max,
+          earningsPaise: earningsFor(booking, commissionBps).netPaise,
+          commissionBps,
+        },
       },
       { upsert: true, returnDocument: "after" },
     );

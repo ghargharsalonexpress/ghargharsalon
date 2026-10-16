@@ -267,7 +267,7 @@ describe("matching (plan C6, W5/W6)", () => {
     expect(await Offer.countDocuments({ bookingId: booking.id, status: "pending" })).toBe(0);
 
     // Earlier tests left confirmation emails in the queue; deliver everything.
-    await dispatchOutbox({ refund: refundHandler(ctx.gateway, createLogger(ctx.config)), email: async () => undefined, push: async () => undefined }, createLogger(ctx.config), 1_000);
+    await dispatchOutbox({ refund: refundHandler(ctx.gateway, createLogger(ctx.config)), email: async () => undefined, push: async () => undefined, whatsapp: async () => undefined }, createLogger(ctx.config), 1_000);
     expect((await Refund.findOne({ bookingId: booking.id }).lean())?.status).toBe("processed");
   });
 

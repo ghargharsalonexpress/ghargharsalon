@@ -252,7 +252,7 @@ describe("booking and payment (W4)", () => {
     await payAndVerify(booking);
     const refund = await Refund.findOne({ bookingId: booking.id }).lean();
     expect(refund).toMatchObject({ amountPaise: 66_000, reason: "late_capture", status: "queued" });
-    await dispatchOutbox({ refund: refundHandler(ctx.gateway, createLogger(ctx.config)), email: async () => undefined, push: async () => undefined }, createLogger(ctx.config));
+    await dispatchOutbox({ refund: refundHandler(ctx.gateway, createLogger(ctx.config)), email: async () => undefined, push: async () => undefined, whatsapp: async () => undefined }, createLogger(ctx.config));
     expect((await Refund.findById(refund?._id).lean())?.status).toBe("processed");
     expect((await customer.get(`/v1/bookings/${booking.id}`)).body.refund).toMatchObject({ amountPaise: 66_000, status: "processed" });
   });

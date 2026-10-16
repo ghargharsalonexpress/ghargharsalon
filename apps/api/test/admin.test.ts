@@ -50,7 +50,7 @@ const service: ServiceInput = {
   order: 0,
 };
 
-const flush = () => dispatchOutbox({ refund: refundHandler(ctx.gateway, createLogger(ctx.config)), email: async () => undefined, push: async () => undefined }, createLogger(ctx.config), 1000);
+const flush = () => dispatchOutbox({ refund: refundHandler(ctx.gateway, createLogger(ctx.config)), email: async () => undefined, push: async () => undefined, whatsapp: async () => undefined }, createLogger(ctx.config), 1000);
 
 async function freePro() {
   await Professional.updateOne({ userId: proId }, { $set: { "presence.state": "available", "presence.activeBookingId": null, "presence.lastHeartbeatAt": new Date(), "presence.locationAt": new Date() } });
@@ -324,8 +324,8 @@ describe("money", () => {
   });
 });
 
-describe("reviews and payouts", () => {
-  it("hides a review (the rating follows) and marks earnings as paid out", async () => {
+describe("reviews and earnings", () => {
+  it("hides a review (the rating follows); the earning waits in the professional's wallet", async () => {
     const booking = await completedBooking();
     expect((await customer.post(`/v1/bookings/${booking.id}/review`, { rating: 1, comment: "Rude" })).status).toBe(204);
     const before = await Professional.findOne({ userId: proId }).lean();
@@ -339,14 +339,14 @@ describe("reviews and payouts", () => {
     // Hidden from the customer's view too.
     expect((await customer.get(`/v1/bookings/${booking.id}`)).body.review).toBeNull();
 
-    const performance = (await admin.get(`/v1/admin/professionals/${proId}/performance`)).body as { completed: number; pendingPayoutPaise: number; acceptRate: number | null };
+    const performance = (await admin.get(`/v1/admin/professionals/${proId}/performance`)).body as { completed: number; acceptRate: number | null };
     expect(performance.completed).toBeGreaterThan(0);
-    expect(performance.pendingPayoutPaise).toBeGreaterThan(0);
     expect(performance.acceptRate).toBeGreaterThan(0);
-    const payout = (await admin.post(`/v1/admin/professionals/${proId}/payouts`)).body as { jobs: number; paidPaise: number };
-    expect(payout.jobs).toBeGreaterThan(0);
-    expect(payout.paidPaise).toBe(performance.pendingPayoutPaise);
-    expect(((await admin.get(`/v1/admin/professionals/${proId}/performance`)).body as { pendingPayoutPaise: number }).pendingPayoutPaise).toBe(0);
-    expect((await pro.get("/v1/pro/jobs/earnings")).body.pendingPayoutPaise).toBe(0);
+    // The old "mark everything paid" is gone: money leaves through the wallet (ADR-0022).
+    expect((await admin.post(`/v1/admin/professionals/${proId}/payouts`)).status).toBe(404);
+    const wallet = (await admin.get(`/v1/admin/professionals/${proId}/wallet`)).body as { onHoldPaise: number; ledger: Array<{ type: string; bookingNumber: string }> };
+    expect(wallet.onHoldPaise).toBeGreaterThan(0);
+    expect(wallet.ledger).toEqual(expect.arrayContaining([expect.objectContaining({ type: "job_earning", bookingNumber: booking.number })]));
+    expect((await pro.get("/v1/pro/jobs/earnings")).body.jobs[0]).toMatchObject({ wallet: "on_hold" });
   });
 });

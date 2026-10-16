@@ -7,6 +7,7 @@ import { useSite } from "@/features/site/api";
 import { LocationChip, LocationProvider, NotServedBanner } from "@/features/site/location";
 import { BottomNav, SiteFooter, SiteLogo, TopBar } from "@/features/site/SiteChrome";
 import { useText } from "@/features/site/text";
+import { NotificationBellConnected } from "@/features/notifications/NotificationBellConnected";
 
 /** Header, drawer, footer and the phones' tab bar around every public page (plan A7, ADR-0021). */
 export function PublicLayout() {
@@ -29,7 +30,7 @@ export function PublicLayout() {
   return (
     <LocationProvider>
       {/* Professionals don't book (plan A7 permissions), so they get no cart. */}
-      <PublicShell
+      <PublicShell bell={<NotificationBellConnected />}
         nav={nav}
         showCart={user?.role !== "professional"}
         cartCount={count}

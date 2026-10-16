@@ -78,7 +78,11 @@
     "outsideArea": "We don't serve this address yet. Try a nearby landmark, or check back soon.",
     "outsideHours": "We're closed right now. Please book during our opening hours.",
     "otpLocked": "Too many wrong codes. The support team has been alerted and will call you.",
-    "confirmRequired": "Please confirm to continue."
+    "confirmRequired": "Please confirm to continue.",
+    "walletLow": "There isn't that much free to withdraw right now.",
+    "withdrawLimit": "Today's withdrawals are used up. Try again tomorrow.",
+    "payoutDetailsNeeded": "Add (or fix) your bank or UPI details first.",
+    "payoutDetailsHold": "Your payout details changed recently, so withdrawals wait 24 hours."
   },
   "validation": {
     "required": "This is required.",
@@ -115,7 +119,15 @@
     "otpWrong": "Wrong code. Check it with the customer.",
     "refundTooMuch": "That's more than is left to refund.",
     "videoType": "Upload an MP4 or WebM video.",
-    "videoTooLarge": "Videos must be 25 MB or smaller. A short 10–20 second clip is best."
+    "videoTooLarge": "Videos must be 25 MB or smaller. A short 10–20 second clip is best.",
+    "phoneTakenCustomer": "This number already has customer bookings. Use another number for the professional.",
+    "upi": "Enter a UPI ID like name@okaxis.",
+    "accountNumber": "Enter the account number: 9 to 18 digits.",
+    "accountNumberMismatch": "The two account numbers don't match.",
+    "ifsc": "Enter the 11-character IFSC, like HDFC0001234.",
+    "utr": "Enter the bank reference (UTR): letters and numbers only.",
+    "withdrawMin": "This is less than the smallest withdrawal.",
+    "levelOrder": "A higher level needs at least as many jobs as the one before it."
   },
   "time": {
     "seconds_one": "{{count}} second",
@@ -214,5 +226,13 @@
     "goToPage": "Go to page {{page}}",
     "currentPage": "Page {{page}}, current page",
     "pageOf": "Page {{page}} of {{pages}}"
+  },
+  "notifications": {
+    "label_one": "Notifications, {{count}} unread",
+    "label_other": "Notifications, {{count}} unread",
+    "title": "Notifications",
+    "markAll": "Mark all read",
+    "empty": "Nothing yet. Updates about your bookings appear here.",
+    "loading": "Loading…"
   }
 }

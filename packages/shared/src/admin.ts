@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { BookingDto, BookingStatus, BookingSummaryDto } from "./booking";
+import type { ProLevelDto } from "./level";
 import type { OfferStatus } from "./offer";
 import type { PresenceState } from "./professional";
 import { V } from "./validation";
@@ -21,7 +22,7 @@ export const ADMIN_PAGE_SIZE = 25;
 
 // ---------- dashboard and alerts ----------
 
-export const ALERT_KINDS = ["no_match", "refund_failed", "late", "otp_locked", "pro_cancelled", "slow_search"] as const;
+export const ALERT_KINDS = ["no_match", "refund_failed", "late", "otp_locked", "pro_cancelled", "slow_search", "sos", "payout_details", "payout_failed", "message_failed"] as const;
 export type AlertKind = (typeof ALERT_KINDS)[number];
 
 export interface AdminAlertDto {
@@ -32,7 +33,15 @@ export interface AdminAlertDto {
   message: string;
   createdAt: string;
   resolvedAt: string | null;
+  /** SOS: who asked for help and where they were (their phone's last fix). */
+  professional: { id: string; name: string; phone: string } | null;
+  location: { lat: number; lng: number } | null;
+  /** What the team wrote when resolving it. */
+  note: string | null;
 }
+
+/** Resolving an alert; an SOS asks the team what happened. */
+export const resolveAlertSchema = z.strictObject({ note: z.string(V.invalid).trim().max(300, V.invalid).optional() });
 
 export interface AdminDashboardDto {
   /** Since midnight IST. */
@@ -222,7 +231,7 @@ export interface AdminReviewRow {
 
 export const reviewVisibilitySchema = z.strictObject({ hidden: z.boolean() });
 
-// ---------- payouts (plan A4: paid outside the platform, marked here) ----------
+// ---------- a professional's performance (their wallet: wallet.ts) ----------
 
 export interface AdminProPerformanceDto {
   completed: number;
@@ -233,9 +242,8 @@ export interface AdminProPerformanceDto {
   acceptRate: number | null;
   rating: number | null;
   ratingCount: number;
-  pendingPayoutPaise: number;
-  paidOutPaise: number;
-  recentJobs: Array<{ id: string; number: string; status: BookingStatus; completedAt: string | null; netPaise: number; payoutStatus: "pending" | "paid" | null }>;
+  level: ProLevelDto;
+  recentJobs: Array<{ id: string; number: string; status: BookingStatus; completedAt: string | null; netPaise: number }>;
 }
 
 // ---------- audit ----------

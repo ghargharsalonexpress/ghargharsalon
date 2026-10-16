@@ -18,6 +18,7 @@ export { DataTable, type Column } from "./components/DataTable";
 export { EmptyState } from "./components/EmptyState";
 export { FilterBar, type FilterChip } from "./components/FilterBar";
 export { IconButton } from "./components/IconButton";
+export { NotificationBell, type NotificationBellProps } from "./components/NotificationBell";
 export { InlineAlert } from "./components/InlineAlert";
 export { LanguageSwitch } from "./components/LanguageSwitch";
 export { Link } from "./components/Link";

@@ -20,6 +20,7 @@ import { type EmailTransport, MemoryTransport } from "./modules/email/transport"
 import { createSmsTransport, MemorySmsTransport, type SmsTransport } from "./modules/sms/transport";
 import { healthRouter } from "./modules/health/health.routes";
 import { addressesRouter } from "./modules/addresses/addresses";
+import { notificationsRouter } from "./modules/notifications/feed.routes";
 import { bookingsRouter, webhooksRouter } from "./modules/bookings/bookings.routes";
 import { configureOtp } from "./modules/bookings/otp";
 import { adminRouter } from "./modules/admin/admin.routes";
@@ -38,6 +39,12 @@ import { publicInfoRouter, settingsRouter } from "./modules/settings/settings.ro
 import { adminSiteRouter, publicSiteRouter } from "./modules/site/site.routes";
 import { testRouter } from "./modules/testing/test.routes";
 import { meRouter } from "./modules/users/me.routes";
+import { createPayoutGateway, type PayoutGateway } from "./modules/wallet/payoutGateway";
+import { configureSeal } from "./modules/wallet/seal";
+import { adminWalletRouter, payoutWebhookRouter, proWalletRouter } from "./modules/wallet/wallet.routes";
+import { createWallet, type Wallet } from "./modules/wallet/wallet.service";
+import { adminLevelsRouter } from "./modules/levels/levels.routes";
+import { createLevels, type Levels } from "./modules/levels/levels";
 
 export interface AppDeps {
   config: Config;
@@ -50,12 +57,14 @@ export interface AppDeps {
   push?: PushService;
   /** Razorpay or the local gateway; built from config when not given (tests pass their own). */
   gateway?: PaymentGateway;
+  /** Withdrawals: RazorpayX, the local gateway, or null for payouts by hand; from config when not given. */
+  payoutGateway?: PayoutGateway | null;
 }
 
 const REQUEST_ID = /^[\w-]{8,64}$/;
 
 /** Builds the Express app. index.ts runs it; tests drive it in memory with supertest. */
-export function createApp({ config, logger, email, sms: givenSms, mongoClient, push: givenPush, gateway: givenGateway }: AppDeps): Express {
+export function createApp({ config, logger, email, sms: givenSms, mongoClient, push: givenPush, gateway: givenGateway, payoutGateway: givenPayoutGateway }: AppDeps): Express {
   const app = express();
   app.disable("x-powered-by");
   app.set("trust proxy", config.TRUST_PROXY);
@@ -104,20 +113,25 @@ export function createApp({ config, logger, email, sms: givenSms, mongoClient, p
   }
 
   configureOtp(config.SESSION_SECRET);
+  configureSeal(config.SESSION_SECRET);
   const gateway = givenGateway ?? createGateway(config);
+  const sms = givenSms ?? createSmsTransport(config, logger);
+  const auth = createAuthService({ config, email, sms, logger });
+  const push = givenPush ?? createPushService({ config, sender: createPushSender(config, logger), logger });
+  const payoutGateway = givenPayoutGateway === undefined ? createPayoutGateway(config) : givenPayoutGateway;
+  const wallet: Wallet = createWallet({ config, gateway: payoutGateway, push, logger, codes: { send: (phone) => auth.sendLoginCode(phone), confirm: (phone, code) => auth.confirmCode(phone, code) } });
   // Signed by Razorpay over the raw bytes: before the JSON parser, sessions and CSRF.
   app.use("/v1/webhooks", webhooksRouter({ gateway, logger }));
+  app.use("/v1/webhooks", payoutWebhookRouter({ wallet, gateway: payoutGateway, logger }));
 
   // Website pages carry long texts (policies) in two languages: a larger limit for the editor only.
   app.use("/v1/admin/site", express.json({ limit: "1mb" }));
   app.use(express.json({ limit: "100kb" }));
-  const sms = givenSms ?? createSmsTransport(config, logger);
-  const auth = createAuthService({ config, email, sms, logger });
-  const push = givenPush ?? createPushService({ config, sender: createPushSender(config, logger), logger });
-  const professionals = createProfessionalService({ push, logger });
+  const professionals = createProfessionalService({ push, logger, supportPhone: config.SUPPORT_PHONE });
   const matching: Matching = createMatching({ push, logger, mapsKey: config.GOOGLE_MAPS_SERVER_KEY ?? "" });
   resolvePassingAlerts();
   const jobs: Jobs = createJobs({ push, logger, config });
+  const levels: Levels = createLevels({ push, logger });
 
   // Test helpers sit before sessions and CSRF: they're called by test runners, not browsers.
   if (config.TEST_ROUTES) {
@@ -135,6 +149,7 @@ export function createApp({ config, logger, email, sms: givenSms, mongoClient, p
 
   app.use("/v1", authRouter({ config, csrf, auth }));
   app.use("/v1/me/addresses", addressesRouter());
+  app.use("/v1/me/notifications", notificationsRouter());
   app.use("/v1/me", meRouter());
   app.use("/v1", catalogRouter());
   app.use("/v1", contactRouter({ config, email, logger }));
@@ -146,12 +161,15 @@ export function createApp({ config, logger, email, sms: givenSms, mongoClient, p
   app.use("/v1/admin/settings", settingsRouter());
   app.use("/v1/admin/site", adminSiteRouter());
   app.use("/v1/admin", adminCatalogRouter({ media }));
+  app.use("/v1/admin", adminWalletRouter({ wallet }));
+  app.use("/v1/admin", adminLevelsRouter({ levels }));
   app.use("/v1/admin/professionals", adminProfessionalsRouter({ service: professionals }));
   app.use("/v1/admin/bookings", adminOffersRouter({ matching }));
   app.use("/v1/admin/bookings", adminJobsRouter({ jobs, gateway }));
   app.use("/v1/admin", adminRouter({ admin: createAdmin({ gateway }), jobs, gateway }));
   app.use("/v1/pro/offers", proOffersRouter({ matching, gateway }));
   app.use("/v1/pro/jobs", proJobsRouter({ jobs }));
+  app.use("/v1/pro/wallet", proWalletRouter({ wallet }));
   app.use("/v1/pro", proRouter({ service: professionals, push }));
 
   app.use(notFound);
@@ -160,5 +178,7 @@ export function createApp({ config, logger, email, sms: givenSms, mongoClient, p
   app.locals.sessionMiddleware = sessionMiddleware;
   app.locals.matching = matching;
   app.locals.jobs = jobs;
+  app.locals.wallet = wallet;
+  app.locals.levels = levels;
   return app;
 }
